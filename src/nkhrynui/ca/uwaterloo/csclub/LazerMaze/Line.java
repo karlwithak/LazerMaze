@@ -45,19 +45,14 @@ public class Line {
         if (this.horizontal != line.horizontal) return false;
         if (this.horizontal && this.starty != line.starty) return false;
         if (!this.horizontal && this.startx != line.startx) return false;
-        if (this.horizontal && (inBetween(line.startx, this.startx, line.endx)
-                || inBetween(line.startx, this.endx, line.endx)
-                || inBetween(this.endx, line.startx, this.startx)))
-        {
-            return true;
-        }
-        if (!this.horizontal && (inBetween(line.starty, this.starty, line.endy)
-                || inBetween(line.starty, this.endy, line.endy)
-                || inBetween(this.endy, line.starty, this.starty)))
-        {
-            return true;
-        }
-        return false;
+        return this.horizontal
+                && (inBetween(line.startx, this.startx, line.endx)
+                    || inBetween(line.startx, this.endx, line.endx)
+                    || inBetween(this.endx, line.startx, this.startx)) ||
+                !this.horizontal
+                && (inBetween(line.starty, this.starty, line.endy)
+                    || inBetween(line.starty, this.endy, line.endy)
+                    || inBetween(this.endy, line.starty, this.starty));
     }
 
     float crossed(float firstLaserx, float firstLasery, float lastLaserx, float lastLasery) {
@@ -105,7 +100,6 @@ public class Line {
         return false;
     }
 
-
     void draw(Canvas canvas, Paint paint) {
         canvas.drawLine(startx, starty, endx, endy, paint);
     }
@@ -151,17 +145,16 @@ public class Line {
 
      boolean inBetween(double left, double center, double right) {
          return (left <= center && center <= right)
-                 || (left >= center && center >= right);
+             || (left >= center && center >= right);
     }
     
      boolean inBetweenStrict(double left, double center, double right) {
          return (left < center && center < right)
-                 || (left > center && center > right);
+             || (left > center && center > right);
     }
     
     float findIntersection(Line l1, float firstLaserx, float firstLasery, float lastLaserx, float lastLasery) {
         float m = (lastLasery - firstLasery) / (lastLaserx - firstLaserx);
-
         float b = firstLasery - (m * firstLaserx);
         if (horizontal) {
             return (starty - b) / m;

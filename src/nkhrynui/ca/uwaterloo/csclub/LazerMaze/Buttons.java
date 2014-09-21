@@ -14,7 +14,6 @@ public class Buttons {
     Paint text = new Paint();
     Paint button = new Paint();
     Paint warning = new Paint();
-    Paint disabled = new Paint();
     MainActivity ma;
     Level level;
     int SCREENWIDTH;
@@ -62,8 +61,6 @@ public class Buttons {
                 (SCREENWIDTH * 2 / 3) + 1,
                 NAVHEIGHT - (NAVHEIGHT / 7), text);
 
-        float height = SCREENHEIGHT - (NAVHEIGHT / 2) - (text.ascent() / 4);
-
         c.drawBitmap(settings, null, new Rect((SCREENWIDTH / 4) - NAVHEIGHT,
                                             SCREENHEIGHT - 9 * NAVHEIGHT / 10,
                                             (SCREENWIDTH / 4),
@@ -79,7 +76,7 @@ public class Buttons {
                         SCREENHEIGHT), null);
 
 
-        height = (NAVHEIGHT / 2) - (text.ascent() / 4);
+        float height = (NAVHEIGHT / 2) - (text.ascent() / 4);
 
         if (!level.activePowerup.equals("")) {
             c.drawBitmap(powerup, null, new Rect((5 * SCREENWIDTH / 6) - NAVHEIGHT / 2,

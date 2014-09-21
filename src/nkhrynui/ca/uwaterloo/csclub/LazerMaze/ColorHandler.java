@@ -10,7 +10,6 @@ public class ColorHandler {
     Laser laser;
     Level level;
     SharedPreferences sharedPrefs;
-    Color c;
 
     public ColorHandler(MainActivity mainActivity) {
         ma = mainActivity;

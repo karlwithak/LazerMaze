@@ -31,7 +31,10 @@ public class Special{
         NAVHEIGHT = ma.NAVHEIGHT;
         y = randomBetween(NAVHEIGHT + SPECIALWIDTH, SCREENHEIGHT - (NAVHEIGHT + SPECIALWIDTH));
         x = randomBetween(SPECIALWIDTH, SCREENWIDTH - (SPECIALWIDTH));
-        r = new Rect(x - (SPECIALWIDTH / 2), y - (SPECIALWIDTH / 2), x + (SPECIALWIDTH / 2), y + (SPECIALWIDTH / 2));
+        r = new Rect(x - (SPECIALWIDTH / 2),
+                    y - (SPECIALWIDTH / 2),
+                    x + (SPECIALWIDTH / 2),
+                    y + (SPECIALWIDTH / 2));
     }
 
     boolean lineTest(Line line) {
@@ -39,7 +42,7 @@ public class Special{
             return Math.abs(line.starty - y) <= (SPECIALWIDTH / 2)
                     && (inBetween(line.startx, x + (SPECIALWIDTH / 2), line.endx)
                         || inBetween(line.startx, x - (SPECIALWIDTH / 2), line.endx)
-                    || inBetween(x - (SPECIALWIDTH / 2), line.startx, x + (SPECIALWIDTH / 2)));
+                        || inBetween(x - (SPECIALWIDTH / 2), line.startx, x + (SPECIALWIDTH / 2)));
         } else {
             return Math.abs(line.startx - x) <= (SPECIALWIDTH / 2)
                     && (inBetween(line.starty, y + (SPECIALWIDTH / 2), line.endy)

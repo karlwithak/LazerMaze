@@ -36,13 +36,13 @@ public class Level {
                             "Big Target"};
 
     public Level(MainActivity ma) {
-           this.ma = ma;
+       this.ma = ma;
     }
 
     String activePowerup = "";
     void draw(Canvas c) {
        c.drawColor(color);
-   }
+    }
     boolean pickPowerup(SurfaceHolder holder) {
         Map<String, Integer> bigPics = ma.bigPics;
         selection = 0;
@@ -62,7 +62,7 @@ public class Level {
         listening = true;
         option1 = randomBetween(0, powerupNames.length);
         option2 = randomBetween(0, powerupNames.length);
-        while(option1 == option2) option2 = randomBetween(0, powerupNames.length);
+        while (option1 == option2) option2 = randomBetween(0, powerupNames.length);
         c = null;
         try {
             c = holder.lockCanvas();
@@ -94,20 +94,16 @@ public class Level {
                 holder.unlockCanvasAndPost(c); ///KEY!
             }
         }
-        Log.i("powerup", "entered about to start loop");
         while(selection == 0) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        Log.i("powerup", "done loop");
 
         if (selection == 1) activePowerup = powerupNames[option1];
         else if (selection == 2) activePowerup = powerupNames[option2];
-        Log.i("powerup", "out of loop " + Integer.toString(selection));
         listening = false;
         b1.recycle();
         b2.recycle();
@@ -127,7 +123,7 @@ public class Level {
 
     void skip() {
         num++;
-        score-=skipCost;
+        score -= skipCost;
         skipCost += 100;
         restart = false;
         if (num == 1) score = 100;

@@ -12,11 +12,9 @@ public class Laser {
     //int bounces;
     Paint paint = new Paint();
     int oldLasers;
-    int SPEED;
     public int color = 0;
     float startx, starty;
     int oldSave = 0;
-
     int SCREENHEIGHT;
     int SCREENWIDTH;
     int NAVHEIGHT;
@@ -41,7 +39,7 @@ public class Laser {
     }
 
     void draw(Canvas canvas) {
-        if (pts.size() >2) {
+        if (pts.size() > 2) {
              canvas.drawLine(startx, starty, GO.coordinates.x, GO.coordinates.y, paint);
              if (pts.size() >= 4) canvas.drawLines(ALtoArray(pts), paint);
         }
@@ -64,7 +62,6 @@ public class Laser {
         pts.add(starty);
         startx = GO.coordinates.x;
         starty = GO.coordinates.y;
-
         pts.add(startx);
         pts.add(starty);
     }
@@ -78,7 +75,6 @@ public class Laser {
         int i = 0;
         float[] f2 = new float[pts.size()];
         for (float f: pts) {
-
             f2[i] = f;
             i++;
         }

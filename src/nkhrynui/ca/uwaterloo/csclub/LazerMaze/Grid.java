@@ -98,7 +98,7 @@ public class Grid {
             //creates a new line and makes sure that it does not create an enclosed space(conflict)
             a = randomBetween(1, (SCREENWIDTH / LINESPACING) - 1) * LINESPACING;
             b = randomBetween(3, ((SCREENHEIGHT - NAVHEIGHT) / LINESPACING) - 1) * LINESPACING;
-            if ((int) a / 10 % 2 == 1) {
+            if (a / 10 % 2 == 1) {
                 length = (int) (Math.ceil(randomBetween(-SCREENHEIGHT / LINESPACING / 2,
                         SCREENHEIGHT / LINESPACING / 2) * lengthAdjust) * LINESPACING);
                 lines.add(new Line(a, b, a + length, b));

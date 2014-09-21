@@ -15,7 +15,6 @@ public class GraphicObject {
         public void toggleXDirection() {x = x * -1;}
         public int getYDirection() {return (int) Math.signum(y);}
         public void toggleYDirection() {y = y * -1;}
-
     }
 
     public class Coordinates {

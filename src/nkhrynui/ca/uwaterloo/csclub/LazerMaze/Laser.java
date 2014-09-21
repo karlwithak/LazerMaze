@@ -32,22 +32,21 @@ public class Laser {
         NAVHEIGHT = ma.NAVHEIGHT;
         LINESPACING = ma.LINESPACING;
         sharedPrefs = ma.sharedPrefs;
-
         pts = new  ArrayList<Float>();
         startx = -10;
         starty = -10;
         GO = new GraphicObject(ma.SPEED);
-        paint.setStrokeWidth((float) Math.floor(LINESPACING/7));
-        oldLasers=0;
-
+        paint.setStrokeWidth((float) Math.floor(LINESPACING / 7));
+        oldLasers = 0;
     }
+
     void draw(Canvas canvas) {
-        if (pts.size()>2) {
-             canvas.drawLine(startx, starty, GO.coordinates.x, GO.coordinates.y,paint);
-             if (pts.size() >=4) canvas.drawLines(ALtoArray(pts), paint);
+        if (pts.size() >2) {
+             canvas.drawLine(startx, starty, GO.coordinates.x, GO.coordinates.y, paint);
+             if (pts.size() >= 4) canvas.drawLines(ALtoArray(pts), paint);
         }
-
     }
+
     void reset(Launcher launcher) {
         pts.clear();
         Log.i("powerup", Integer.toString(launcher.x));
@@ -58,8 +57,8 @@ public class Laser {
         oldSave = 0;
         startx = launcher.x;
         starty = launcher.y;
-
     }
+
     void bounce() {
         pts.add(startx);
         pts.add(starty);
@@ -68,16 +67,15 @@ public class Laser {
 
         pts.add(startx);
         pts.add(starty);
-
     }
+
     void nextLevel() {
         GO = new GraphicObject(ma.SPEED);
         pts.clear();
     }
 
-
     float[] ALtoArray(ArrayList<Float>pts) {
-        int i=0;
+        int i = 0;
         float[] f2 = new float[pts.size()];
         for (float f: pts) {
 

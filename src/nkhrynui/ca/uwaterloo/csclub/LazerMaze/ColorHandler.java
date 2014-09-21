@@ -30,15 +30,13 @@ public class ColorHandler {
             color = sharedPrefs.getString("pref_lineColor", "white");
             if (color.equalsIgnoreCase("random")) color = randomHexColor(level.color, 0);
             grid.setColor(Color.parseColor(color));
-        }
-        else if (obj.equals(laser)) {
+        } else if (obj.equals(laser)) {
             color = sharedPrefs.getString("pref_laserColor", "random");
             if (color.equalsIgnoreCase("random")) color = randomHexColor(level.color, 0);
             laser.setColor(Color.parseColor(color));
-        }
-        else if (obj.equals(level)) {
+        } else if (obj.equals(level)) {
             color = sharedPrefs.getString("pref_bgColor", "random");
-            Log.i("test",Integer.toString(grid.color));
+            Log.i("test", Integer.toString(grid.color));
             if (color.equalsIgnoreCase("random")) color = randomHexColor(laser.color, grid.color);
             level.color = Color.parseColor(color);
         }
@@ -55,10 +53,16 @@ public class ColorHandler {
         int difference2 = 0;
         int temp;
         for (int i = 0; i < 6; i++) {
-            temp = ma.randomBetween(0,16);
+            temp = ma.randomBetween(0, 16);
             s += Integer.toHexString(temp);
-            if (c != 0) difference += Math.abs((temp - (Integer.parseInt(j.substring(i+2, i+3), 16))) * (i%2==0? 16 :1));
-            if (d != 0) difference2 += Math.abs((temp - (Integer.parseInt(k.substring(i+2, i+3), 16))) * (i%2==0? 16 :1));
+            if (c != 0) {
+                difference += Math.abs((temp - (Integer.parseInt(j.substring(i + 2, i + 3), 16)))
+                        * (i%2==0? 16 :1));
+            }
+            if (d != 0) {
+                difference2 += Math.abs((temp - (Integer.parseInt(k.substring(i + 2, i + 3), 16)))
+                        * (i%2==0? 16 :1));
+            }
         }
         if ((c == 0 || difference > 300) && (d == 0 || difference2 > 300)) return s;
         return randomHexColor(c, d);

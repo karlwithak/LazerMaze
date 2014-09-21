@@ -39,7 +39,7 @@ public class Buttons {
         smallPics = ma.smallPics;
         button.setColor(Color.rgb(16, 16, 16));
         text.setColor(Color.WHITE);
-        text.setTextSize((int)(SPECIALWIDTH/1.5));
+        text.setTextSize((int) (SPECIALWIDTH / 1.5));
         text.setTextAlign(Align.CENTER);
         warning.set(text);
         warning.setColor(Color.RED);
@@ -50,24 +50,45 @@ public class Buttons {
     }
 
     void draw(Canvas c) {
-        c.drawRect(0, (SCREENHEIGHT-NAVHEIGHT) + 2, SCREENWIDTH, SCREENHEIGHT, button);
-        c.drawRect(0, 0, SCREENWIDTH, NAVHEIGHT-1, button);
+        c.drawRect(0, (SCREENHEIGHT - NAVHEIGHT) + 2, SCREENWIDTH, SCREENHEIGHT, button);
+        c.drawRect(0, 0, SCREENWIDTH, NAVHEIGHT - 1, button);
 
-        c.drawRect((SCREENWIDTH/3)-1, (NAVHEIGHT/7), (SCREENWIDTH/3) + 1 , NAVHEIGHT-(NAVHEIGHT/7), text);
-        c.drawRect((SCREENWIDTH*2/3)-1, (NAVHEIGHT/7),(SCREENWIDTH*2/3) + 1 , NAVHEIGHT-(NAVHEIGHT/7), text);
+        c.drawRect((SCREENWIDTH / 3) - 1,
+                (NAVHEIGHT / 7),
+                (SCREENWIDTH / 3) + 1,
+                NAVHEIGHT - (NAVHEIGHT / 7), text);
+        c.drawRect((SCREENWIDTH * 2 / 3) - 1,
+                (NAVHEIGHT / 7),
+                (SCREENWIDTH * 2 / 3) + 1,
+                NAVHEIGHT - (NAVHEIGHT / 7), text);
 
-        float height = SCREENHEIGHT-(NAVHEIGHT/2)-(text.ascent()/4);
+        float height = SCREENHEIGHT - (NAVHEIGHT / 2) - (text.ascent() / 4);
 
-        c.drawBitmap(settings,null, new Rect((SCREENWIDTH/4)-NAVHEIGHT, SCREENHEIGHT-9*NAVHEIGHT/10, (SCREENWIDTH/4) , SCREENHEIGHT-NAVHEIGHT/10), null);
-        c.drawBitmap(restart,null, new Rect((3*SCREENWIDTH/4), SCREENHEIGHT-NAVHEIGHT, (3*SCREENWIDTH/4) + NAVHEIGHT , SCREENHEIGHT), null);
-        c.drawBitmap((level.score>level.skipCost?skip:noskip),null, new Rect((SCREENWIDTH/2)-NAVHEIGHT/2, SCREENHEIGHT-NAVHEIGHT, (SCREENWIDTH/2) + NAVHEIGHT/2 , SCREENHEIGHT), null);
+        c.drawBitmap(settings, null, new Rect((SCREENWIDTH / 4) - NAVHEIGHT,
+                                            SCREENHEIGHT - 9 * NAVHEIGHT / 10,
+                                            (SCREENWIDTH / 4),
+                                            SCREENHEIGHT - NAVHEIGHT / 10), null);
+        c.drawBitmap(restart, null, new Rect((3 * SCREENWIDTH / 4),
+                                            SCREENHEIGHT - NAVHEIGHT,
+                                            (3 * SCREENWIDTH / 4) + NAVHEIGHT,
+                                            SCREENHEIGHT), null);
+        c.drawBitmap((level.score > level.skipCost? skip: noskip), null,
+                new Rect((SCREENWIDTH / 2) - NAVHEIGHT / 2,
+                        SCREENHEIGHT - NAVHEIGHT,
+                        (SCREENWIDTH / 2) + NAVHEIGHT / 2,
+                        SCREENHEIGHT), null);
 
 
-        height = (NAVHEIGHT/2)-(text.ascent()/4);
+        height = (NAVHEIGHT / 2) - (text.ascent() / 4);
 
-        if (!level.activePowerup.equals("")) c.drawBitmap(powerup, null, new Rect((5*SCREENWIDTH/6)-NAVHEIGHT/2,1, (5*SCREENWIDTH/6) + NAVHEIGHT/2,NAVHEIGHT-1), null);
-        c.drawText("level: "+ level.num, SCREENWIDTH/2, height,text);
-        c.drawText("score: "+ level.score, SCREENWIDTH/6, height,(level.score>20?text: warning));
+        if (!level.activePowerup.equals("")) {
+            c.drawBitmap(powerup, null, new Rect((5 * SCREENWIDTH / 6) - NAVHEIGHT / 2,
+                                            1,
+                                            (5 * SCREENWIDTH / 6) + NAVHEIGHT / 2,
+                                            NAVHEIGHT - 1), null);
+        }
+        c.drawText("level: "+ level.num, SCREENWIDTH / 2, height, text);
+        c.drawText("score: "+ level.score, SCREENWIDTH / 6, height, (level.score > 20?text: warning));
     }
 
     void update() {

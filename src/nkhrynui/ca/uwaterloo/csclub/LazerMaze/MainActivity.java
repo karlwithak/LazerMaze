@@ -31,65 +31,53 @@ public class MainActivity extends Activity {
 
 
     // GLOBAL VARIABLES, set in surfaceCreated
-      public int SCREENWIDTH;
-      int SCREENHEIGHT;
-      int NAVHEIGHT;
-      int LINESPACING;
-      int SPECIALWIDTH; //special refers to target and launcher
-      int SPEED;
-      SharedPreferences sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
+    public int SCREENWIDTH;
+    int SCREENHEIGHT;
+    int NAVHEIGHT;
+    int LINESPACING;
+    int SPECIALWIDTH; //special refers to target and launcher
+    int SPEED;
+    SharedPreferences sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
 
-      TutorialThread _thread;
-      Buttons buttons;
-       Target target;// = new Target();
-       Launcher launcher;
-       Target target2 = null;// = new Target();
-       Launcher launcher2 = null;
-         Grid grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
+    TutorialThread _thread;
+    Buttons buttons;
+    Target target;// = new Target();
+    Launcher launcher;
+    Target target2 = null;// = new Target();
+    Launcher launcher2 = null;
+    Grid grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
     //MediaPlayer mp;// = MediaPlayer.create(getApplicationContext(), R.raw.boop2);
     FileOutputStream fos;
     FileInputStream fis;
-      Level level = new Level(this);
+    Level level = new Level(this);
     Vibrator v= null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-      Laser laser;// = new Laser();
-      Map<String, Integer> bigPics = new HashMap<String, Integer>();
-      Map<String, Integer> smallPics = new HashMap<String, Integer>();
+    Laser laser;// = new Laser();
+    Map<String, Integer> bigPics = new HashMap<String, Integer>();
+    Map<String, Integer> smallPics = new HashMap<String, Integer>();
     boolean inAnimation = false;
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
-       ColorHandler colorHandler = new ColorHandler(this);
+    ColorHandler colorHandler = new ColorHandler(this);
 
 
     
  
 
-       public void settings() {
-               level.inPrefs = true;
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-            }
+    public void settings() {
+        level.inPrefs = true;
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intent);
+    }
 
-       @Override
-       public void onBackPressed() {
-           //back button7
-           Log.i("buttons", "back button");
-           //System.exit(0);
-           //super.onPause();
-           //super.onBackPressed();
+    @Override
+    public void onBackPressed() {
+        Log.i("buttons", "back button");
+    }
 
-       }
-
-       public void soundAndVib() {
-           //if (mp != null ) {
-       //     if (mp.isPlaying()) {
-        //        mp.pause();
-        //        mp.seekTo(0);
-        //    }
-        //    mp.start();
-        //}
+    public void soundAndVib() {
         if (v != null) v.vibrate(10);
-        if (level.score >0)level.score--;
-       }
+        if (level.score >0) level.score--;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,10 +86,11 @@ public class MainActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(new Panel(this));  
-        if (sharedPrefs.getBoolean("screenOn", true)) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (sharedPrefs.getBoolean("screenOn", true)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
     class Panel extends SurfaceView implements SurfaceHolder.Callback {
-      
         private int graphicCount = 0;
        
         public Panel(Context context) {
@@ -112,46 +101,41 @@ public class MainActivity extends Activity {
             _thread.start();
             _thread.setRunning(false);  
         }
-        
-        
-        float startX, startY,endX, endY, changeX, changeY;
-        //startX = startY= endX = endY= changeX = changeY = 1/1000; 
-        
+        float startX, startY, endX, endY, changeX, changeY;
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-
             synchronized (_thread.getSurfaceHolder()) {  
                 if (level.listening) { //selecting upgrade
                     upOnButtons = false;
-                    if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREENWIDTH/2 ) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREENWIDTH / 2 ) {
                         level.selection = 1;
-                    }
-                    else if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() > SCREENWIDTH/2 ) {
+                    } else if (event.getAction() == MotionEvent.ACTION_DOWN
+                            && event.getX() > SCREENWIDTH / 2 ) {
                         level.selection = 2;
                     }
                     return true;
-                }
-
-                else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     _thread.setRunning(false);
                     _thread.selection = "restart";
                 }
                 //buttons
-                if (event.getAction() == MotionEvent.ACTION_DOWN && event.getY() >= SCREENHEIGHT-NAVHEIGHT && graphicCount == 0 && !inAnimation) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN && event.getY() >=
+                        SCREENHEIGHT - NAVHEIGHT && graphicCount == 0 && !inAnimation)
+                {
                     upOnButtons = true;
                     return true;
                 }
-                if (event.getAction() == MotionEvent.ACTION_UP && event.getY() >= SCREENHEIGHT-NAVHEIGHT && graphicCount == 0 && !inAnimation && upOnButtons) {
+                if (event.getAction() == MotionEvent.ACTION_UP && event.getY() >=
+                        SCREENHEIGHT - NAVHEIGHT && graphicCount == 0 && !inAnimation && upOnButtons)
+                {
                     upOnButtons = false;
-                     if (event.getX() < SCREENWIDTH/3) {
+                     if (event.getX() < SCREENWIDTH / 3) {
                            level.exit = false;
                          settings();
-                      }
-                    else if (event.getX() > SCREENWIDTH*2/3) {
+                      } else if (event.getX() > SCREENWIDTH * 2 / 3) {
                         restartDialog();
 
-                    }
-                    else if (level.score > level.skipCost) {
+                    } else if (level.score > level.skipCost) {
                             skipLevelDialog();
                     }
 
@@ -170,9 +154,8 @@ public class MainActivity extends Activity {
                         startY = launcher.y;
                         launcher.active = true;
                         if (launcher2 != null) launcher2.active = false;
-                        graphicCount=1;
-                    }
-                    else if (launcher2 != null && launcher2.bigPointTest(event.getX(), event.getY())) {
+                        graphicCount = 1;
+                    } else if (launcher2 != null && launcher2.bigPointTest(event.getX(), event.getY())) {
                         if (_thread._run) {
                             _thread.setRunning(false);
                             _thread.selection = "restart";
@@ -182,9 +165,10 @@ public class MainActivity extends Activity {
                         startY = launcher2.y;
                         launcher2.active = true;
                         launcher.active = false;
-                        graphicCount=1;
-                    }
-                    else if ((level.activePowerup=="launchFromEither" && target.bigPointTest(event.getX(), event.getY()))) {
+                        graphicCount = 1;
+                    } else if ((level.activePowerup=="launchFromEither"
+                            && target.bigPointTest(event.getX(), event.getY())))
+                    {
                         if (_thread._run) {
                             _thread.setRunning(false);
                             _thread.selection = "restart";
@@ -199,12 +183,18 @@ public class MainActivity extends Activity {
                         Bitmap temp =  launcher.bitmap;
                         launcher.bitmap = target.bitmap;
                         target.bitmap =  temp;
-                        graphicCount=1;
+                        graphicCount = 1;
                     }
                 }
                 //aiming launch with aimer
-                if (level.activePowerup == "aimingLaser" && event.getAction() == MotionEvent.ACTION_MOVE && graphicCount  == 1 && !inAnimation) {
-                    if (Math.hypot((launcher.x - event.getX()), (launcher.y - event.getY())) < SPECIALWIDTH) return true;
+                if (level.activePowerup.equals("aimingLaser")
+                        && event.getAction() == MotionEvent.ACTION_MOVE
+                        && graphicCount  == 1
+                        && !inAnimation)
+                {
+                    if (Math.hypot((launcher.x - event.getX()), (launcher.y - event.getY())) < SPECIALWIDTH) {
+                        return true;
+                    }
                     Canvas c = null;
                     try {
                         c = _thread._surfaceHolder.lockCanvas();
@@ -215,13 +205,18 @@ public class MainActivity extends Activity {
                          float intersection = 0;
                          float intersectionTemp;
                          float pointx =launcher.x, pointy = launcher.y;
-                         pointx += (event.getX() - launcher.x)*1000;
-                         pointy += (event.getY() - launcher.y)*1000;
+                         pointx += (event.getX() - launcher.x) * 1000;
+                         pointy += (event.getY() - launcher.y) * 1000;
                          for (Line line : grid.lines) {
-                             intersectionTemp = line.crossed(launcher.x, launcher.y, pointx,pointy);
+                             intersectionTemp = line.crossed(launcher.x, launcher.y, pointx, pointy);
                              if (intersectionTemp > 0) {
-                                 if (line.horizontal) distance = Math.hypot((launcher.x - intersectionTemp), (launcher.y - line.starty));
-                                 else distance = Math.hypot((launcher.x - line.startx), (launcher.y - intersectionTemp));
+                                 if (line.horizontal) {
+                                     distance = Math.hypot((launcher.x - intersectionTemp),
+                                             (launcher.y - line.starty));
+                                 } else {
+                                     distance = Math.hypot((launcher.x - line.startx),
+                                             (launcher.y - intersectionTemp));
+                                 }
                                  if (distance < min) {
                                      min = distance;
                                      intersection = intersectionTemp;
@@ -229,8 +224,11 @@ public class MainActivity extends Activity {
                                  }
                              }
                          }
-                         if (l != null && l.horizontal)c.drawLine(launcher.x, launcher.y, intersection, l.starty, laser.paint);
-                         else if (l != null)c.drawLine(launcher.x, launcher.y, l.startx, intersection, laser.paint);
+                         if (l != null && l.horizontal) {
+                             c.drawLine(launcher.x, launcher.y, intersection, l.starty, laser.paint);
+                         } else if (l != null) {
+                             c.drawLine(launcher.x, launcher.y, l.startx, intersection, laser.paint);
+                         }
                          grid.draw(c);
                          buttons.draw(c);
                          launcher.draw(c);
@@ -244,35 +242,33 @@ public class MainActivity extends Activity {
                 //launches laser
                 if (event.getAction() == MotionEvent.ACTION_UP && graphicCount  == 1 && !inAnimation) {
                     upOnButtons = false;
-                    Log.i("powerup", Float.toString(startX)+ " on up");
+                    Log.i("powerup", Float.toString(startX) + " on up");
                     laser.GO.coordinates.setX((int) startX);
                     laser.GO.coordinates.setY((int) startY);
                     endX = event.getX();
                     endY = event.getY();
                     changeX = endX - startX;
                     changeY = endY - startY;
-                    if (inBetween(-0.01, changeX, 0.01)) changeX = (float) (Math.signum(changeX)+0.01);
-                    if (inBetween(-0.01, changeY, 0.01)) changeY = (float) (Math.signum(changeY)+0.01);
+                    if (inBetween(-0.01, changeX, 0.01)) changeX = (float) (Math.signum(changeX) + 0.01);
+                    if (inBetween(-0.01, changeY, 0.01)) changeY = (float) (Math.signum(changeY) + 0.01);
                     //sets up the line speed and direction according to starting swipe
-                    if (Math.abs(changeX)< 10 && Math.abs(changeY) < 10) {
+                    if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
                         graphicCount = 0;
                         return true;
                     }
-                    if (Math.abs(changeX)>(Math.abs(changeY))) {
+                    if (Math.abs(changeX) >(Math.abs(changeY))) {
                         laser.GO.speed.x =(SPEED * Math.signum(changeX));
-                        laser.GO.speed.y =(Math.abs(changeY)/Math.abs(changeX)*SPEED* Math.signum(changeY));
-                    }
-                    else {
+                        laser.GO.speed.y =(Math.abs(changeY) / Math.abs(changeX) * SPEED* Math.signum(changeY));
+                    } else {
                         laser.GO.speed.y =(SPEED* Math.signum(changeY));
-                        laser.GO.speed.x =(Math.abs(changeX)/Math.abs(changeY)*SPEED* Math.signum(changeX));
+                        laser.GO.speed.x =(Math.abs(changeX) / Math.abs(changeY) * SPEED* Math.signum(changeX));
                     }
-                    graphicCount=0;
+                    graphicCount = 0;
                     if (level.restart) {
                             if (launcher2 == null || launcher.active) laser.reset(launcher);
                             else laser.reset(launcher2);
                             _thread.setRunning(true);
-                    }
-                    else {
+                    } else {
                         _thread.setRunning(true);
                     }
                 }
@@ -281,16 +277,17 @@ public class MainActivity extends Activity {
             }
             
         }
-// ****************************************** PHYSICS - START**********************************************************       
- 
+        /***** PHYSICS - START**********************************************************/
+
         @SuppressLint("WrongCall")
         public void updatePhysics(Canvas c) {
             GraphicObject.Coordinates coord;
             GraphicObject.Speed speed;
                 coord = laser.GO.coordinates;
                 speed = laser.GO.speed;
-                
-                if (target.smallPointTest(coord.x, coord.y) || (target2 != null && target2.smallPointTest(coord.x, coord.y))) {
+
+                if (target.smallPointTest(coord.x, coord.y)
+                        || (target2 != null && target2.smallPointTest(coord.x, coord.y))) {
                     level.num++;
                     level.score+=100;
                     _thread.setRunning(false);
@@ -301,15 +298,17 @@ public class MainActivity extends Activity {
                     }
                 }
 
-                
-                coord.setX(coord.x + speed.x);           
-                coord.setY(coord.y + speed.y);                   
+
+                coord.setX(coord.x + speed.x);
+                coord.setY(coord.y + speed.y);
                 Line line;
                 boolean ignoring = false;
                 boolean doubleHit = true;
                 for (int i = 0; i< grid.getLines().size(); i++) {
                     line = grid.getLines().get(i);
-                    if ((coord.lastx != -1  && coord.lasty != -1) && line.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0) {
+                    if ((coord.lastx != -1  && coord.lasty != -1)
+                            && line.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0)
+                    {
 
                         if (level.activePowerup == "throughFirstLine" && laser.pts.size() == 4) {
                             ignoring = true;
@@ -329,28 +328,27 @@ public class MainActivity extends Activity {
                               _thread.selection = "next";
                               break;
                         }
-                        if (level.activePowerup == "wrapAroundEnds" && grid.getLines().indexOf(line) <= 1) {
+                        if (level.activePowerup.equals("wrapAroundEnds")
+                                && grid.getLines().indexOf(line) <= 1) {
                             coord.setX(coord.x + speed.x);
                             coord.setY(coord.y + speed.y);
                             laser.bounce();
-                            if (line.starty < NAVHEIGHT+2) {
-                                laser.starty = SCREENHEIGHT - NAVHEIGHT-2;
-                                coord.setY(SCREENHEIGHT - NAVHEIGHT-2);
-                                coord.lasty = (SCREENHEIGHT - NAVHEIGHT-1);
-                            }
-                            else if (line.starty > SCREENHEIGHT - NAVHEIGHT-2) {
-                                laser.starty = NAVHEIGHT+2;
-                                coord.setY(NAVHEIGHT+2);
-                                coord.lasty = NAVHEIGHT+1;
+                            if (line.starty < NAVHEIGHT + 2) {
+                                laser.starty = SCREENHEIGHT - NAVHEIGHT - 2;
+                                coord.setY(SCREENHEIGHT - NAVHEIGHT - 2);
+                                coord.lasty = (SCREENHEIGHT - NAVHEIGHT - 1);
+                            } else if (line.starty > SCREENHEIGHT - NAVHEIGHT - 2) {
+                                laser.starty = NAVHEIGHT + 2;
+                                coord.setY(NAVHEIGHT + 2);
+                                coord.lasty = NAVHEIGHT + 1;
                             }
                             if (coord.x <= speed.x) {
                                 coord.x = 2;
                                 speed.toggleXDirection();
                                 doubleHit = false;
                                 soundAndVib();
-                            }
-                            else if ( coord.x >= SCREENWIDTH-speed.x) {
-                                coord.x = SCREENWIDTH-2;
+                            } else if ( coord.x >= SCREENWIDTH - speed.x) {
+                                coord.x = SCREENWIDTH - 2;
                                 speed.toggleXDirection();
                                 doubleHit = false;
                                 soundAndVib();
@@ -363,29 +361,29 @@ public class MainActivity extends Activity {
                             continue;
 
                         }
-                        if (level.activePowerup == "wrapAroundSides" && (grid.getLines().indexOf(line) == 2 || grid.getLines().indexOf(line) == 3)) {
+                        if (level.activePowerup.equals("wrapAroundSides")
+                                && (grid.getLines().indexOf(line) == 2
+                                        || grid.getLines().indexOf(line) == 3)) {
                             coord.setX(coord.x + speed.x);
                             coord.setY(coord.y + speed.y);
                             laser.bounce();
                             if (line.startx < 2) {
-                                laser.startx = SCREENWIDTH-2;
-                                coord.setX(SCREENWIDTH-1);
-                                coord.lastx = SCREENWIDTH-2;
-                            }
-                            else if (line.startx > SCREENWIDTH-2) {
+                                laser.startx = SCREENWIDTH - 2;
+                                coord.setX(SCREENWIDTH - 1);
+                                coord.lastx = SCREENWIDTH - 2;
+                            } else if (line.startx > SCREENWIDTH - 2) {
                                 laser.startx = 2;
                                 coord.setX(2);
                                 coord.lastx = 1;
                             }
 
                             if (coord.y <= NAVHEIGHT - speed.y) {
-                                coord.y = NAVHEIGHT+2;
+                                coord.y = NAVHEIGHT + 2;
                                 speed.toggleYDirection();
                                 doubleHit = false;
                                 soundAndVib();
-                            }
-                            else if ( coord.y >= SCREENHEIGHT-NAVHEIGHT - speed.y) {
-                                coord.y =  SCREENHEIGHT-NAVHEIGHT-2;
+                            } else if ( coord.y >= SCREENHEIGHT - NAVHEIGHT - speed.y) {
+                                coord.y =  SCREENHEIGHT - NAVHEIGHT - 2;
                                 speed.toggleYDirection();
                                 doubleHit = false;
                                 soundAndVib();
@@ -406,12 +404,16 @@ public class MainActivity extends Activity {
                         float change;
                         if (line.horizontal) {
                             speed.toggleYDirection();
-                            change = Math.abs((coord.y-line.starty)/speed.y);
+                            change = Math.abs((coord.y - line.starty) / speed.y);
                             coord.y = (line.starty);
-                            coord.setX(coord.x+ (change*speed.x));
+                            coord.setX(coord.x+ (change * speed.x));
                             for (Line line2 : grid.getLines()) {
-                                if (!ignoring && line2 != line && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0 && doubleHit) {
-                                    Log.i("graphics","double hit");
+                                if (!ignoring
+                                        && line2 != line
+                                        && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0
+                                        && doubleHit)
+                                {
+                                    Log.i("graphics", "double hit");
                                     speed.toggleXDirection();
                                     coord.x = (line2.endx);
                                     coord.y =(line.endy);
@@ -419,19 +421,21 @@ public class MainActivity extends Activity {
                                     laser.bounce();
                                     coord.x =(coord.x + speed.x);
                                     coord.y =(coord.y + speed.y);
-                                    if (level.score >0)level.score--;
+                                    if (level.score >0) level.score--;
                                 }
                             }
 
-                        }
-                        else {
+                        } else {
                             speed.toggleXDirection();
-                            change = Math.abs((coord.x-line.startx)/speed.x);
+                            change = Math.abs((coord.x - line.startx) / speed.x);
                             coord.x =(line.startx);
-                            coord.y =(coord.y+ (change*speed.y));
+                            coord.y =(coord.y+ (change * speed.y));
                             for (Line line2 : grid.getLines()) {
-                                if (!ignoring && line2 != line && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0 && doubleHit) {
-                                    Log.i("graphics","double hit");
+                                if (!ignoring && line2 != line
+                                        && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0
+                                        && doubleHit)
+                                {
+                                    Log.i("graphics", "double hit");
                                     speed.toggleYDirection();
                                     coord.x =(line.endx);
                                     coord.y =(line2.endy);
@@ -439,7 +443,7 @@ public class MainActivity extends Activity {
                                     laser.bounce();
                                     coord.x =(coord.x + speed.x);
                                     coord.y =(coord.y + speed.y);
-                                    if (level.score >0)level.score--;
+                                    if (level.score >0) level.score--;
 
                                 }
                             }
@@ -450,19 +454,16 @@ public class MainActivity extends Activity {
                         laser.bounce();
                         break;
                     }
-                }            
+                }
         }
-// ****************************************** PHYSICS - END**********************************************************       
+             /****************************************** PHYSICS - END*****************************/
 
-// ****************************************** DRAWING - START**********************************************************       
-     
-   
-
+             /****************************************** DRAWING - START***************************/
         public void draw(Canvas canvas) { 
 
             level.draw(canvas);
               laser.draw(canvas);
-               if (level.num != 0)target.draw(canvas);
+               if (level.num != 0) target.draw(canvas);
                 if (target2 != null) target2.draw(canvas);
                 launcher.draw(canvas);
                 if (launcher2 != null) launcher2.draw(_thread.c);
@@ -473,7 +474,7 @@ public class MainActivity extends Activity {
         public void gridShrink(SurfaceHolder holder) {
             inAnimation = true;
             Log.i("animation", "starting shrink grid");
-            for (int i=0; i < SCREENHEIGHT/30; i++) {
+            for (int i = 0; i < SCREENHEIGHT / 30; i++) {
                 try {
                     Thread.sleep(10);
                     _thread.c = holder.lockCanvas();
@@ -495,7 +496,7 @@ public class MainActivity extends Activity {
         public void gridExpand(SurfaceHolder holder) {
             inAnimation = true;
             Log.i("animation", "starting expand grid");
-            for (int i=0; i < SCREENHEIGHT/30; i++) {
+            for (int i = 0; i < SCREENHEIGHT / 30; i++) {
                 try {
                     Thread.sleep(10);
                     _thread.c = holder.lockCanvas();
@@ -529,7 +530,7 @@ public class MainActivity extends Activity {
             }
 
 
-            if (bigPics.size()<2) {
+            if (bigPics.size() <2) {
                 bigPics.put("launchFromEither", R.drawable.launcheither);
                 bigPics.put("throughFirstLine", R.drawable.throughfirst);
                 bigPics.put("twoLaunchers", R.drawable.twolaunchers);
@@ -558,29 +559,22 @@ public class MainActivity extends Activity {
                 smallPics.put("forwardDisabled", R.drawable.ic_menu_forward2);
                 smallPics.put("settings", R.drawable.ic_menu_moreoverflow);
                 smallPics.put("restart", R.drawable.ic_menu_refresh);
-                }
+            }
 
             //initializing global variables, declared at top
             Log.i("settings", "creating surface");
             SCREENWIDTH = getWidth();
             SCREENHEIGHT = getHeight();
-            LINESPACING = SCREENHEIGHT/39;
-            NAVHEIGHT = LINESPACING*3;
-            SPECIALWIDTH = SCREENHEIGHT/20;
-            SPEED = SCREENWIDTH/50;
+            LINESPACING = SCREENHEIGHT / 39;
+            NAVHEIGHT = LINESPACING * 3;
+            SPECIALWIDTH = SCREENHEIGHT / 20;
+            SPEED = SCREENWIDTH / 50;
             if (!level.recover) {
                 Log.i("settings", "making new stuff");
                 laser = new Laser(MainActivity.this);
                 buttons= new Buttons(MainActivity.this);
                 grid = new Grid(MainActivity.this);
-
-                //level = new Level();
             }
-
-            //images for powerups big and small(1000x1000px vs 100x100px)
-
-
-
 
             nextLevel(holder);
         }
@@ -596,15 +590,15 @@ public class MainActivity extends Activity {
                     Log.i("powerup", "done function");
                 }
                 buttons.update();
-                if (level.activePowerup=="bigTargets") SPECIALWIDTH = (int) ((SCREENHEIGHT/20)*1.4);
-                else SPECIALWIDTH = SCREENHEIGHT/20;
+                if (level.activePowerup=="bigTargets") SPECIALWIDTH = (int) ((SCREENHEIGHT / 20) * 1.4);
+                else SPECIALWIDTH = SCREENHEIGHT / 20;
                    colorHandler.update(level);
                    colorHandler.update(grid);
                    colorHandler.update(laser);
                    grid.makeGrid();
-                   if (level.num>0 && lockListenerOkay) gridExpand(holder);
+                   if (level.num > 0 && lockListenerOkay) gridExpand(holder);
 
-                Bitmap b=BitmapFactory.decodeResource(getResources(), R.drawable.newtarget);
+                Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.newtarget);
                 Bitmap b2=BitmapFactory.decodeResource(getResources(), R.drawable.shoot);
                 //Bitmap b1=BitmapFactory.decodeResource(getResources(), R.drawable.ball1);
 
@@ -614,36 +608,44 @@ public class MainActivity extends Activity {
 
                 Log.i("rebirth", "starting target");
                 target = new Target(b, MainActivity.this);
-                for (int i=0; i<grid.getLines().size() && level.num !=0; i++) {
+                for (int i = 0; i<grid.getLines().size() && level.num !=0; i++) {
                     if (target.lineTest(grid.getLines().get(i))) {
                         target = new Target(b, MainActivity.this);
-                        i=-1;
+                        i = -1;
                     }
                 }
                 if (level.activePowerup == "twoTargets") {
                     target2 = new Target(b, MainActivity.this);
-                    for (int i=0; i<grid.getLines().size(); i++) {
-                        if (target2.lineTest(grid.getLines().get(i)) || target.bigPointTest(target2.x, target2.y)) {
+                    for (int i = 0; i<grid.getLines().size(); i++) {
+                        if (target2.lineTest(grid.getLines().get(i))
+                                || target.bigPointTest(target2.x, target2.y))
+                        {
                             target2 = new Target(b, MainActivity.this);
-                            i=-1;
+                            i = -1;
                         }
                     }
                 }
                 Log.i("rebirth", "starting launcher");
 
                 launcher =new Launcher(b2, MainActivity.this);
-                for (int i=0; i<grid.getLines().size() && level.num !=0; i++) {
-                    if (launcher.lineTest(grid.getLines().get(i)) || launcher.tooEasy(target, grid.getLines()) || (target2 != null && launcher.tooEasy(target2, grid.getLines()))) {
+                for (int i = 0; i<grid.getLines().size() && level.num !=0; i++) {
+                    if (launcher.lineTest(grid.getLines().get(i))
+                            || launcher.tooEasy(target, grid.getLines())
+                            || (target2 != null && launcher.tooEasy(target2, grid.getLines())))
+                    {
                         launcher = new Launcher(b2, MainActivity.this);
-                        i=-1;
+                        i = -1;
                     }
                 }
                 if (level.activePowerup == "twoLaunchers") {
                     launcher2 =new Launcher(b2, MainActivity.this);
-                    for (int i=0; i<grid.getLines().size(); i++) {
-                        if (launcher2.lineTest(grid.getLines().get(i)) || launcher2.tooEasy(target, grid.getLines()) || launcher.bigPointTest(launcher2.x, launcher2.y)) {
+                    for (int i = 0; i<grid.getLines().size(); i++) {
+                        if (launcher2.lineTest(grid.getLines().get(i))
+                                || launcher2.tooEasy(target, grid.getLines())
+                                || launcher.bigPointTest(launcher2.x, launcher2.y))
+                        {
                             launcher2 = new Launcher(b2, MainActivity.this);
-                            i=-1;
+                            i = -1;
                         }
                     }
                 }
@@ -652,12 +654,13 @@ public class MainActivity extends Activity {
             level.recover = false;
             graphicCount= 0;
             if (lockListenerOkay) restartLevel(holder);
-      }
+        }
                 
         
-  public void restartLevel(SurfaceHolder holder) {
-         laser.nextLevel();
-              // VERY IMPORTANT: this is all the drawing that happens before the game actually starts: ie maze and target
+        public void restartLevel(SurfaceHolder holder) {
+            laser.nextLevel();
+              // VERY IMPORTANT: this is all the drawing that happens before the game
+              // actually starts: ie maze and target
             _thread.c = null;
             try {
                 _thread.c = holder.lockCanvas();
@@ -667,8 +670,8 @@ public class MainActivity extends Activity {
             finally {
                 if (_thread.c != null) {
                     holder.unlockCanvasAndPost(_thread.c); ///KEY!
-                }           
-            }   
+                }
+            }
         }
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
@@ -678,7 +681,7 @@ public class MainActivity extends Activity {
 
 
     }
- // ****************************************** DRAWING - END**********************************************************       
+        /****************************************** DRAWING - END**********************************/
  
     public class TutorialThread extends Thread {
         private SurfaceHolder _surfaceHolder;
@@ -729,8 +732,7 @@ public class MainActivity extends Activity {
                 if (selection == "restart") {
                     _panel.restartLevel(_surfaceHolder);
                     selection = "none";
-                }
-                else if (selection == "next") {
+                } else if (selection == "next") {
                     _panel.nextLevel(_surfaceHolder);
                     selection = "none";
                 }
@@ -742,26 +744,26 @@ public class MainActivity extends Activity {
             }
         }
     } 
-    // ****************************************** THREAD - END********************************************************** 
+        /****************************************** THREAD - END*************************************/
 
     //universal functions, usually to simplify calculations
 
-      boolean inBetween(double left, double center, double right) {
+    boolean inBetween(double left, double center, double right) {
         if ((left <= center &&  center <= right) || (left >= center &&  center >= right)) return true;
         else return false;
     }
     
-      boolean inBetweenStrict(double left, double center, double right) {
+    boolean inBetweenStrict(double left, double center, double right) {
         if ((left < center &&  center < right) || (left > center &&  center > right)) return true;
         else return false;
     }
     
-      int randomBetween(double low, double high) {
+    int randomBetween(double low, double high) {
         double ran = Math.random();
-        return (int) (low + (ran*(high-low)));
+        return (int) (low + (ran * (high - low)));
     }
     
-    // ****************************************** ON* - START********************************************************** 
+    // ****************************************** ON* - START***************************************/
     
     public boolean onPrepareOptionsMenu(Menu menu) {
         level.exit = false;
@@ -777,12 +779,11 @@ public class MainActivity extends Activity {
             colorHandler.update(level);
             colorHandler.update(grid);
             colorHandler.update(laser);
-            if (sharedPrefs.getBoolean("screenOn", true)) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (sharedPrefs.getBoolean("screenOn", true)) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            } else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             level.inPrefs = false;
         }
-        //if (sharedPrefs.getBoolean("sound", false)) mp = MediaPlayer.create(getApplicationContext(), R.raw.boop2);
-        //else mp = null;
         if (sharedPrefs.getBoolean("vibrate", true)) v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         else v = null;
         setContentView(new Panel(MainActivity.this));
@@ -794,10 +795,6 @@ public class MainActivity extends Activity {
         if (level.listening) level.selection = 4;
 
         Log.i("crashing", "pause");
-    //    if (mp != null) {
-      //      mp.stop();
-      //      mp.release();
-        //}
         if (v != null) v.cancel();
         level.recover = true;
         level.exit = false;
@@ -816,12 +813,10 @@ public class MainActivity extends Activity {
         super.onRestart();
         level.recover = true;
         level.exit = true;
-
     }
     
     public void onStop() {
         super.onStop();
-
         Log.i("crashing", "stop");
     }
     
@@ -835,12 +830,12 @@ public class MainActivity extends Activity {
         Log.i("crashing", "start");
     }
     
-    //***************** DIALOGUES*****************************************
+    /***************** DIALOGUES*****************************************/
     
     
     void skipLevelDialog() {
         new AlertDialog.Builder(this)
-        .setMessage("Are you sure you want to skip this level for "+level.skipCost+" points?")
+        .setMessage("Are you sure you want to skip this level for " + level.skipCost + " points?")
         .setTitle("Skip Level")
         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
@@ -874,7 +869,8 @@ public class MainActivity extends Activity {
 
     void newGameDialog() {
         new AlertDialog.Builder(this)
-        .setMessage("Drag your finger from the green launcher in the direction you want to shoot the lazer then release!")
+        .setMessage("Drag your finger from the green launcher in the direction you want to shoot " +
+                "the lazer then release!")
         .setTitle("How To Play")
         .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
@@ -891,7 +887,7 @@ public class MainActivity extends Activity {
             e.commit();
         }
         new AlertDialog.Builder(this)
-        .setMessage("The score reached 0\nYou made it to level: "+score+"\nYour highscore is: "+oldScore)
+        .setMessage("The score reached 0\nYou made it to level: " + score + "\nYour highscore is: " + oldScore)
         .setTitle("Game Over")
         .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

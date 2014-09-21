@@ -37,8 +37,7 @@ public class Level {
                             "Short Lines", "Less Lines", "Aiming Lazer", "No Sides", "No Ends",
                             "Big Target"};
 
-    public Level(MainActivity ma) {
-       this.ma = ma;
+    public Level() {
     }
 
     String activePowerup = "";
@@ -48,9 +47,9 @@ public class Level {
     boolean pickPowerup(SurfaceHolder holder) {
         Map<String, Integer> bigPics = ma.bigPics;
         selection = 0;
-        int SCREENWIDTH = ma.SCREENWIDTH;
-        int SCREENHEIGHT = ma.SCREENHEIGHT;
-        int NAVHEIGHT = ma.NAVHEIGHT;
+        int SCREENWIDTH = MainActivity.SCREENWIDTH;
+        int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
+        int NAVHEIGHT = MainActivity.NAVHEIGHT;
         Paint text = new Paint();
         text.setTextAlign(Align.CENTER);
         Paint smallText = new Paint();
@@ -60,7 +59,7 @@ public class Level {
         text.setTextSize(NAVHEIGHT);
         smallText.setTextSize(NAVHEIGHT / 2);
         Log.i("powerup", Integer.toString(SCREENWIDTH / 20));
-        c = ma._thread.c;
+        c = MainActivity._thread.c;
         listening = true;
         option1 = randomBetween(0, powerupNames.length);
         option2 = randomBetween(0, powerupNames.length);

@@ -5,22 +5,15 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 
 public class Dialogues {
-
-    static MainActivity mainActivity = null;
-
-    Dialogues(MainActivity mainActivityIn){
-        mainActivity = mainActivityIn;
-    }
-
-    void skipLevelDialog() {
-        new AlertDialog.Builder(mainActivity)
-                .setMessage("Are you sure you want to skip this level for " + mainActivity.level.skipCost + " points?")
+    static void skipLevelDialog() {
+        new AlertDialog.Builder(MainActivity.context)
+                .setMessage("Are you sure you want to skip this level for " + MainActivity.level.skipCost + " points?")
                 .setTitle("Skip Level")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mainActivity.level.skip();
-                        mainActivity._thread.setRunning(false);
-                        mainActivity._thread.selection = "next";
+                        MainActivity.level.skip();
+                        MainActivity._thread.setRunning(false);
+                        MainActivity._thread.selection = "next";
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -29,15 +22,15 @@ public class Dialogues {
                 }).show();
     }
 
-    void restartDialog() {
-        new AlertDialog.Builder(mainActivity)
+    static void restartDialog() {
+        new AlertDialog.Builder(MainActivity.context)
                 .setMessage("Are you sure you want to restart at level 1?")
                 .setTitle("New Game")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mainActivity.level.reset();
-                        mainActivity._thread.setRunning(false);
-                        mainActivity._thread.selection = "next";
+                        MainActivity.level.reset();
+                        MainActivity._thread.setRunning(false);
+                        MainActivity._thread.selection = "next";
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -45,8 +38,8 @@ public class Dialogues {
                 }).show();
     }
 
-    void newGameDialog() {
-        new AlertDialog.Builder(mainActivity)
+    static void newGameDialog() {
+        new AlertDialog.Builder(MainActivity.context)
                 .setMessage("Drag your finger from the green launcher in the direction you want to shoot " +
                         "the lazer then release!")
                 .setTitle("How To Play")
@@ -56,14 +49,14 @@ public class Dialogues {
     }
 
     void endGameDialog(int score) {
-        int oldScore = mainActivity.sharedPrefs.getInt("highScore", 0);
+        int oldScore = MainActivity.sharedPrefs.getInt("highScore", 0);
         if (oldScore < score) {
             oldScore = score;
-            SharedPreferences.Editor e = mainActivity.sharedPrefs.edit();
+            SharedPreferences.Editor e = MainActivity.sharedPrefs.edit();
             e.putInt("highScore", score);
             e.commit();
         }
-        new AlertDialog.Builder(mainActivity)
+        new AlertDialog.Builder(MainActivity.context)
                 .setMessage("The score reached 0\nYou made it to level: " + score + "\nYour highscore is: " + oldScore)
                 .setTitle("Game Over")
                 .setNeutralButton("Continue", new DialogInterface.OnClickListener() {

@@ -30,34 +30,35 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 public class MainActivity extends Activity {
 
     // GLOBAL VARIABLES, set in surfaceCreated
-    public int SCREENWIDTH;
-    int SCREENHEIGHT;
-    int NAVHEIGHT;
-    int LINESPACING;
-    int SPECIALWIDTH; //special refers to target and launcher
-    int SPEED;
-    SharedPreferences sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
+    public static int SCREENWIDTH;
+    public static int SCREENHEIGHT;
+    public static int NAVHEIGHT;
+    public static int LINESPACING;
+    public static int SPECIALWIDTH; //special refers to target and launcher
+    public static int SPEED;
+    public static SharedPreferences sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
+    public static Context context;
 
-    TutorialThread _thread;
-    Buttons buttons;
-    Target target;// = new Target();
-    Launcher launcher;
-    Target target2 = null;// = new Target();
-    Launcher launcher2 = null;
-    Grid grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
+    public static TutorialThread _thread;
+    public static Buttons buttons;
+    public static Target target;// = new Target();
+    public static Launcher launcher;
+    public static Target target2 = null;// = new Target();
+    public static Launcher launcher2 = null;
+    public static Grid grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
     //MediaPlayer mp;// = MediaPlayer.create(getApplicationContext(), R.raw.boop2);
     FileOutputStream fos;
     FileInputStream fis;
-    Level level = new Level(this);
+    public static Level level = new Level();
     Vibrator v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    Laser laser;// = new Laser();
+    public Laser laser;// = new Laser();
     Map<String, Integer> bigPics = new HashMap<String, Integer>();
     Map<String, Integer> smallPics = new HashMap<String, Integer>();
     boolean inAnimation = false;
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
     ColorHandler colorHandler = new ColorHandler(this);
-    Dialogues dialogues = new Dialogues(this);
+    Dialogues dialogues = new Dialogues();
 
 
     public void settings() {
@@ -90,8 +91,9 @@ public class MainActivity extends Activity {
     class Panel extends SurfaceView implements SurfaceHolder.Callback {
         private int graphicCount = 0;
        
-        public Panel(Context context) {
-            super(context);
+        public Panel(Context context1) {
+            super(context1);
+            context = context1;
             getHolder().addCallback(this);
             _thread = new TutorialThread(getHolder(), this);
             setFocusable(true);

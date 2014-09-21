@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -47,13 +48,12 @@ public class MainActivity extends Activity {
     public static Level level;
     Vibrator v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     public static Laser laser;// = new Laser();
-    public static Map<String, Integer> bigPics = new HashMap<String, Integer>();
-    public static Map<String, Integer> smallPics = new HashMap<String, Integer>();
     boolean inAnimation = false;
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
     ColorHandler colorHandler = new ColorHandler();
-    public static Powerups powerups;
+    public static Powerups powerup;
+    public static Resources resources;
 
 
     public void settings() {
@@ -75,8 +75,9 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        resources = getResources();
         level = new Level();
-        powerups = new Powerups(getResources());
+        powerup = Powerups.NONE;
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -101,13 +102,13 @@ public class MainActivity extends Activity {
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             synchronized (_thread.getSurfaceHolder()) {  
-                if (powerups.listening) { //selecting upgrade
+                if (powerup.waitForChoice) { //selecting upgrade
                     upOnButtons = false;
                     if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREENWIDTH / 2 ) {
-                        powerups.selection = 1;
+                        powerup.selection = 1;
                     } else if (event.getAction() == MotionEvent.ACTION_DOWN
                             && event.getX() > SCREENWIDTH / 2 ) {
-                        powerups.selection = 2;
+                        powerup.selection = 2;
                     }
                     return true;
                 } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -160,7 +161,7 @@ public class MainActivity extends Activity {
                         launcher2.active = true;
                         launcher.active = false;
                         graphicCount = 1;
-                    } else if ((powerups.getActive().equals("launchFromEither")
+                    } else if ((powerup == Powerups.LAUNCH_FROM_EITHER
                             && target.bigPointTest(event.getX(), event.getY())))
                     {
                         if (_thread._run) {
@@ -181,7 +182,7 @@ public class MainActivity extends Activity {
                     }
                 }
                 //aiming launch with aimer
-                if (powerups.getActive().equals("aimingLaser")
+                if (powerup == Powerups.AIMING_LASER
                         && event.getAction() == MotionEvent.ACTION_MOVE
                         && graphicCount  == 1
                         && !inAnimation)
@@ -299,7 +300,7 @@ public class MainActivity extends Activity {
                 if ((coord.lastx != -1  && coord.lasty != -1)
                         && line.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0)
                 {
-                    if (powerups.getActive().equals("throughFirstLine") && laser.pts.size() == 4) {
+                    if (powerup == Powerups.THROUGH_FIRST_LINE && laser.pts.size() == 4) {
                         ignoring = true;
                         laser.bounce();
                         continue;
@@ -311,12 +312,12 @@ public class MainActivity extends Activity {
                             }
                         });
                         level.reset();
-                        powerups.reset();
+                        powerup = Powerups.NONE;
                         _thread.setRunning(false);
                         _thread.selection = "next";
                         break;
                     }
-                    if (powerups.getActive().equals("wrapAroundEnds")
+                    if (powerup == Powerups.WRAP_AROUND_ENDS
                             && grid.getLines().indexOf(line) <= 1) {
                         coord.setX(coord.x + speed.x);
                         coord.setY(coord.y + speed.y);
@@ -349,7 +350,7 @@ public class MainActivity extends Activity {
                         continue;
                     }
 
-                    if (powerups.getActive().equals("wrapAroundSides")
+                    if (powerup == Powerups.WRAP_AROUND_SIDES
                             && (grid.getLines().indexOf(line) == 2
                                     || grid.getLines().indexOf(line) == 3)) {
                         coord.setX(coord.x + speed.x);
@@ -510,35 +511,6 @@ public class MainActivity extends Activity {
                 e.commit();
             }
 
-            if (bigPics.size() <2) {
-                bigPics.put("launchFromEither", R.drawable.launcheither);
-                bigPics.put("throughFirstLine", R.drawable.throughfirst);
-                bigPics.put("twoLaunchers", R.drawable.twolaunchers);
-                bigPics.put("twoTargets", R.drawable.twotargets);
-                bigPics.put("shortLines", R.drawable.shorterlines);
-                bigPics.put("lessLines", R.drawable.lesslines);
-                bigPics.put("aimingLaser", R.drawable.aiminglaser);
-                bigPics.put("wrapAroundSides", R.drawable.wraparoundsides);
-                bigPics.put("wrapAroundEnds", R.drawable.wraparoundends);
-                bigPics.put("bigTargets", R.drawable.largetarget);
-
-
-                smallPics.put("launchFromEither", R.drawable.launcheithersmall);
-                smallPics.put("throughFirstLine", R.drawable.throughfirstsmall);
-                smallPics.put("twoLaunchers",  R.drawable.twolauncherssmall);
-                smallPics.put("twoTargets", R.drawable.twotargetssmall);
-                smallPics.put("shortLines", R.drawable.shorterlinessmall);
-                smallPics.put("lessLines", R.drawable.lesslinessmall);
-                smallPics.put("aimingLaser", R.drawable.aiminglasersmall);
-                smallPics.put("wrapAroundSides", R.drawable.wraparoundsidessmall);
-                smallPics.put("wrapAroundEnds", R.drawable.wraparoundendssmall);
-                smallPics.put("bigTargets", R.drawable.largetargetsmall);
-                smallPics.put("forward", R.drawable.ic_menu_forward);
-                smallPics.put("forwardDisabled", R.drawable.ic_menu_forward2);
-                smallPics.put("settings", R.drawable.ic_menu_moreoverflow);
-                smallPics.put("restart", R.drawable.ic_menu_refresh);
-            }
-
             //initializing global variables, declared at top
             Log.i("settings", "creating surface");
             SCREENWIDTH = getWidth();
@@ -558,11 +530,12 @@ public class MainActivity extends Activity {
         public void nextLevel(SurfaceHolder holder) {
             if (!level.recover) {
                 if (grid.lines.size() > 1) gridShrink(holder);
-                if (level.num % 5 == 0 && level.num != 0) {
-                    lockListenerOkay = powerups.pickPowerup(holder);
+                if (level.num % 3 == 0 && level.num != 0) {
+                    powerup = powerup.pickPowerup(holder);
                 }
                 buttons.update();
-                if (powerups.getActive().equals("bigTargets")) SPECIALWIDTH = (int) ((SCREENHEIGHT / 20) * 1.4);
+                //TODO: this powerup is not working
+                if (powerup == Powerups.BIG_TARGETS) SPECIALWIDTH = (int) ((SCREENHEIGHT / 20) * 1.4);
                 else SPECIALWIDTH = SCREENHEIGHT / 20;
                 colorHandler.update(level);
                 colorHandler.update(grid);
@@ -570,51 +543,51 @@ public class MainActivity extends Activity {
                 grid.makeGrid();
                 if (level.num > 0 && lockListenerOkay) gridExpand(holder);
 
-                Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.newtarget);
-                Bitmap b2=BitmapFactory.decodeResource(getResources(), R.drawable.shoot);
+                Bitmap targetBitmap = BitmapFactory.decodeResource(resources, R.drawable.newtarget);
+                Bitmap launcherBitmap = BitmapFactory.decodeResource(resources, R.drawable.shoot);
 
                 target2 = null;
                 launcher2 = null;
 
-                target = new Target(b);
+                target = new Target(targetBitmap);
                 for (int i = 0; i < grid.getLines().size() && level.num !=0; i++) {
                     if (target.lineTest(grid.getLines().get(i))) {
-                        target = new Target(b);
+                        target = new Target(targetBitmap);
                         i = -1;
                     }
                 }
 
-                if (powerups.getActive().equals("twoTargets")) {
-                    target2 = new Target(b);
+                if (powerup == Powerups.TWO_TARGETS) {
+                    target2 = new Target(targetBitmap);
                     for (int i = 0; i < grid.getLines().size(); i++) {
                         if (target2.lineTest(grid.getLines().get(i))
                                 || target.bigPointTest(target2.x, target2.y))
                         {
-                            target2 = new Target(b);
+                            target2 = new Target(targetBitmap);
                             i = -1;
                         }
                     }
                 }
 
-                launcher =new Launcher(b2);
+                launcher =new Launcher(launcherBitmap);
                 for (int i = 0; i < grid.getLines().size() && level.num !=0; i++) {
                     if (launcher.lineTest(grid.getLines().get(i))
                             || launcher.tooEasy(target, grid.getLines())
                             || (target2 != null && launcher.tooEasy(target2, grid.getLines())))
                     {
-                        launcher = new Launcher(b2);
+                        launcher = new Launcher(launcherBitmap);
                         i = -1;
                     }
                 }
 
-                if (powerups.getActive().equals("twoLaunchers")) {
-                    launcher2 = new Launcher(b2);
+                if (powerup == Powerups.TWO_LAUNCHERS) {
+                    launcher2 = new Launcher(launcherBitmap);
                     for (int i = 0; i < grid.getLines().size(); i++) {
                         if (launcher2.lineTest(grid.getLines().get(i))
                                 || launcher2.tooEasy(target, grid.getLines())
                                 || launcher.bigPointTest(launcher2.x, launcher2.y))
                         {
-                            launcher2 = new Launcher(b2);
+                            launcher2 = new Launcher(launcherBitmap);
                             i = -1;
                         }
                     }
@@ -737,7 +710,7 @@ public class MainActivity extends Activity {
     public void onPause() {
         super.onPause();
         lockListenerOkay = false;
-        if (powerups.listening) powerups.selection = 4;
+        if (powerup.waitForChoice) powerup.selection = 4;
 
         Log.i("crashing", "pause");
         if (v != null) v.cancel();
@@ -745,7 +718,7 @@ public class MainActivity extends Activity {
         level.exit = false;
         _thread.setRunning(false);
         _thread.selection = "";
-        if (powerups.selection == 0) powerups.selection = 4;
+        if (powerup.selection == 0) powerup.selection = 4;
         try {
             _thread.join(100);
         } catch (InterruptedException e) {

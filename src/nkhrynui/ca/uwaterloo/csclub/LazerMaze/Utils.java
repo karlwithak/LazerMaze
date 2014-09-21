@@ -27,4 +27,10 @@ public class Utils {
         }
         return f2;
     }
+
+    static int differentRandomBetween(double low, double high, int other) {
+        int x = randomBetween(low, high);
+        while (x == other) x = randomBetween(low, high);
+        return x;
+    }
 }

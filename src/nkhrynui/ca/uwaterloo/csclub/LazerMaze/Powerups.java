@@ -2,31 +2,45 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import android.content.res.Resources;
 import android.graphics.*;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.differentRandomBetween;
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.randomBetween;
 
-public class Powerups {
-    int option1, option2;
-    Bitmap b1, b2;
+public enum Powerups {
+    LAUNCH_FROM_EITHER("Shoot From Target", R.drawable.launcheithersmall, R.drawable.launcheither),
+    THROUGH_FIRST_LINE("Through First Line", R.drawable.throughfirstsmall, R.drawable.throughfirst),
+    TWO_LAUNCHERS("2 Launchers", R.drawable.twolauncherssmall, R.drawable.twolaunchers),
+    TWO_TARGETS("2 Targets", R.drawable.twotargetssmall, R.drawable.twotargets),
+    SHORT_LINES("Short Lines", R.drawable.shorterlinessmall, R.drawable.shorterlines),
+    LESS_LINES("Less Lines", R.drawable.lesslinessmall, R.drawable.lesslines),
+    AIMING_LASER("Aiming Lazer", R.drawable.aiminglasersmall, R.drawable.aiminglaser),
+    WRAP_AROUND_SIDES("No Sides", R.drawable.wraparoundsidessmall, R.drawable.wraparoundsides),
+    WRAP_AROUND_ENDS("No Ends", R.drawable.wraparoundendssmall, R.drawable.wraparoundends),
+    BIG_TARGETS("Big Target", R.drawable.largetargetsmall, R.drawable.largetarget),
+    NONE("", 0, 0);
+
     public int selection = 3;
     Canvas c ;
-    Resources resources;
-    private String activePowerup = "";
-    public boolean listening = false;
-    String[] powerupNames = {"launchFromEither", "throughFirstLine", "twoLaunchers", "twoTargets",
-            "shortLines", "lessLines", "aimingLaser", "wrapAroundSides",
-            "wrapAroundEnds", "bigTargets"};
-    String[] readableNames = {"Shoot From Target", "Through First Line", "2 Launchers", "2 Targets",
-            "Short Lines", "Less Lines", "Aiming Lazer", "No Sides", "No Ends",
-            "Big Target"};
+    Resources resources = MainActivity.resources;
+    public boolean waitForChoice = false;
+    String explanation;
+    int smallPic;
+    int bigPic;
+    private static final List<Powerups> VALUES =
+            Collections.unmodifiableList(Arrays.asList(values()));
 
-    public Powerups(Resources resourcesIn) {
-        resources = resourcesIn;
+    Powerups(String _explanation, int _smallPic, int _bigPic) {
+        explanation = _explanation;
+        smallPic = _smallPic;
+        bigPic = _bigPic;
     }
 
-    boolean pickPowerup(SurfaceHolder holder) {
+    Powerups pickPowerup(SurfaceHolder holder) {
         int SCREENWIDTH = MainActivity.SCREENWIDTH;
         int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
         int NAVHEIGHT = MainActivity.NAVHEIGHT;
@@ -39,39 +53,34 @@ public class Powerups {
         smallText.setColor(Color.WHITE);
         text.setTextSize(NAVHEIGHT);
         smallText.setTextSize(NAVHEIGHT / 2);
-        Log.i("powerup", Integer.toString(SCREENWIDTH / 20));
         c = MainActivity._thread.c;
-        listening = true;
-        option1 = randomBetween(0, powerupNames.length);
-        option2 = randomBetween(0, powerupNames.length);
-        while (option1 == option2) option2 = randomBetween(0, powerupNames.length);
+        waitForChoice = true;
+        int option1int = randomBetween(0, VALUES.size() - 1);
+        int option2int = differentRandomBetween(0, VALUES.size() - 1, option1int);
+        Powerups option1PowerUp = VALUES.get(option1int);
+        Powerups option2PowerUp = VALUES.get(option2int);
         c = null;
+        Bitmap bitmap1, bitmap2;
         try {
             c = holder.lockCanvas();
             c.drawColor(Color.rgb(16, 16, 16));
             c.drawText("Choose powerup",  SCREENWIDTH / 2, NAVHEIGHT, text);
-            Log.i("powerup", Integer.toString(MainActivity.bigPics.size()));
-            String name = powerupNames[option1];
-            b1 = BitmapFactory.decodeResource(resources, MainActivity.bigPics.get(name));
-            name = powerupNames[option2];
-            b2 = BitmapFactory.decodeResource(resources, MainActivity.bigPics.get(name));
+            bitmap1 = BitmapFactory.decodeResource(resources, option1PowerUp.bigPic);
+            bitmap2 = BitmapFactory.decodeResource(resources, option2PowerUp.bigPic);
 
-            c.drawBitmap(b1, null, new Rect(0,
+            c.drawBitmap(bitmap1, null, new Rect(0,
                     NAVHEIGHT * 4,
                     (SCREENWIDTH / 2),
                     (SCREENWIDTH / 2) + NAVHEIGHT * 4), null);
-            c.drawBitmap(b2, null, new Rect((SCREENWIDTH / 2),
+            c.drawBitmap(bitmap2, null, new Rect((SCREENWIDTH / 2),
                     NAVHEIGHT * 4,
                     SCREENWIDTH,
                     (SCREENWIDTH / 2) + NAVHEIGHT * 4), null);
-            c.drawText(readableNames[option1],  SCREENWIDTH / 4, NAVHEIGHT * 3, smallText);
-            c.drawText(readableNames[option2],  (3 * SCREENWIDTH / 4), NAVHEIGHT * 3, smallText);
+            c.drawText(option1PowerUp.explanation,  SCREENWIDTH / 4, NAVHEIGHT * 3, smallText);
+            c.drawText(option2PowerUp.explanation,  (3 * SCREENWIDTH / 4), NAVHEIGHT * 3, smallText);
             c.drawLine(SCREENWIDTH / 2, NAVHEIGHT * 2, SCREENWIDTH / 2, SCREENHEIGHT, text);
         }
         finally {
-            // do this in a finally so that if an exception is thrown
-            // during the above, we don't leave the Surface in an
-            // inconsistent state
             if (c != null) {
                 holder.unlockCanvasAndPost(c); ///KEY!
             }
@@ -84,25 +93,18 @@ public class Powerups {
             }
         }
 
-        if (selection == 1) activePowerup = powerupNames[option1];
-        else if (selection == 2) activePowerup = powerupNames[option2];
-        listening = false;
-        b1.recycle();
-        b2.recycle();
-        if (selection==4) {
-            activePowerup = "";
-            return false;
-        } else {
+        bitmap1.recycle();
+        bitmap2.recycle();
+        waitForChoice = false;
+
+        if (selection == 1) {
             selection = 1;
-            return true;
+            return option1PowerUp;
         }
-    }
-
-    void reset() {
-        activePowerup = "";
-    }
-
-    String getActive() {
-        return activePowerup;
+        else if (selection == 2) {
+            selection = 1;
+            return option2PowerUp;
+        }
+        else return  Powerups.NONE;
     }
 }

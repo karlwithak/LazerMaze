@@ -56,7 +56,7 @@ public class ColorHandler {
         int temp;
         for (int i = 0; i < 6; i++) {
             temp = ma.randomBetween(0,16);
-            s+=Integer.toHexString(temp);
+            s += Integer.toHexString(temp);
             if (c != 0) difference += Math.abs((temp - (Integer.parseInt(j.substring(i+2, i+3), 16))) * (i%2==0? 16 :1));
             if (d != 0) difference2 += Math.abs((temp - (Integer.parseInt(k.substring(i+2, i+3), 16))) * (i%2==0? 16 :1));
         }

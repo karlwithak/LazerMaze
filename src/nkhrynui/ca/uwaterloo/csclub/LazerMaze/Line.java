@@ -15,7 +15,6 @@ public class Line {
     public boolean horizontal;
     public ArrayList<Line> intersections = new ArrayList<Line>();
 
-
     Line(int x1, int y1, int x2, int y2) {
         startx = x1;
         starty = y1;
@@ -23,11 +22,11 @@ public class Line {
         endy = y2;
         if (x2 == x1) {
             horizontal = false;
-            temp1 = temp2 = (y2> y1? y1 + (y2-y1)/2: y2 + (y1-y2)/2);
+            temp1 = temp2 = (y2 > y1? y1 + (y2 - y1) / 2: y2 + (y1 - y2) / 2);
         }
         else if (y1 == y2) {
             horizontal = true;
-            temp1 = temp2 = (x2> x1? x1 + (x2-x1)/2: x2 + (x1-x2)/2);
+            temp1 = temp2 = (x2 > x1? x1 + (x2 - x1) / 2: x2 + (x1 - x2) / 2);
         }
     }
 
@@ -48,8 +47,8 @@ public class Line {
         if (this.horizontal != line.horizontal) return false;
         if (this.horizontal && this.starty != line.starty) return false;
         if (!this.horizontal && this.startx != line.startx) return false;
-        if (this.horizontal &&(inBetween(line.startx,this.startx,line.endx) || inBetween(line.startx,this.endx,line.endx) || inBetween(this.endx,line.startx,this.startx))) return true;
-        if (!this.horizontal &&(inBetween(line.starty,this.starty,line.endy) || inBetween(line.starty,this.endy,line.endy) || inBetween(this.endy,line.starty,this.starty))) return true;
+        if (this.horizontal && (inBetween(line.startx,this.startx,line.endx) || inBetween(line.startx,this.endx,line.endx) || inBetween(this.endx,line.startx,this.startx))) return true;
+        if (!this.horizontal && (inBetween(line.starty,this.starty,line.endy) || inBetween(line.starty,this.endy,line.endy) || inBetween(this.endy,line.starty,this.starty))) return true;
         return false;
     }
 
@@ -67,15 +66,11 @@ public class Line {
             }
         }
         else {
-            //Log.i("crossed", Float.toString(intersection));
             if (inBetweenStrict(starty,intersection, endy) && (inBetweenStrict(lastLaserx, startx, firstLaserx) || startx == firstLaserx)) {
                 return intersection;
             }
         }
         return -1;
-
-        //return this.specialCrossed(new Line( (int)firstLaserx,  (int)firstLasery,  (int)lastLaserx,  (int)lastLasery));
-
     }
 
     boolean crossed(Line newLine) {
@@ -94,7 +89,6 @@ public class Line {
             if (inBetween(firstLasery,starty,lastLasery)) return true;
         }
         return false;
-
     }
 
 
@@ -107,7 +101,7 @@ public class Line {
         if (horizontal) {
             if ((change = Math.abs(startx-endx)) < 10) startx = endx;
             else if (startx > endx) {
-                startx-=(change/spacing)+3;
+                startx-=(change/spacing) + 3;
                 endx+=(change/spacing)+3;
             }
             else {

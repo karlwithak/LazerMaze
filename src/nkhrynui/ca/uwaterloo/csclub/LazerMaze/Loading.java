@@ -23,6 +23,4 @@ public class Loading extends Activity {
             }
         }, 2000);
     }
-
-
 }

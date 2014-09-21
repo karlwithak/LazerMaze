@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<!--   <CheckBoxPreference
+        android:key="sound"
+        android:title="@string/pref_sound_title"
+        android:summary="@string/pref_sound_summary"
+        android:defaultValue="false" />  -->
+    <CheckBoxPreference
+        android:key="vibrate"
+        android:title="@string/pref_vibrate_title"
+        android:summary="@string/pref_vibrate_summary"
+        android:defaultValue="true" /> 
+        <CheckBoxPreference
+        android:key="screenOn"
+        android:title="@string/pref_screenOn_title"
+        android:summary="@string/pref_screenOn_summary"
+        android:defaultValue="true" /> 
+	<ListPreference
+        android:key="pref_laserColor"
+        android:title="@string/pref_laserColor_title"
+        android:summary="@string/pref_laserColor_summary"
+        android:dialogTitle="@string/pref_laserColor_title"
+        android:entries="@array/color_entries"
+        android:entryValues="@array/color_entries"
+        android:defaultValue="@string/pref_laserColor_default" />
+	<ListPreference
+        android:key="pref_lineColor"
+        android:title="@string/pref_lineColor_title"
+        android:summary="@string/pref_lineColor_summary"
+        android:dialogTitle="@string/pref_lineColor_title"
+        android:entries="@array/color_entries"
+        android:entryValues="@array/color_entries"
+        android:defaultValue="@string/pref_lineColor_default" />
+	<ListPreference
+        android:key="pref_bgColor"
+        android:title="@string/pref_bgColor_title"
+        android:summary="@string/pref_bgColor_summary"
+        android:dialogTitle="@string/pref_bgColor_title"
+        android:entries="@array/color_entries"
+        android:entryValues="@array/color_entries"
+        android:defaultValue="@string/pref_bgColor_default" />
+	<PreferenceScreen
+        android:summary="@string/credits">
+	</PreferenceScreen> -->
+</PreferenceScreen>

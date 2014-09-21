@@ -1,0 +1,804 @@
+package com.example.laser1;
+
+import java.util.ArrayList;
+
+import com.example.laser1.MainActivity.GraphicObject.Speed;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.Rect;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.Window;
+
+public class MainActivity extends Activity {
+	
+	// GLOBAL VARIABLES, set in surfaceCreated
+	int SCREENWIDTH;
+	int SCREENHEIGHT;
+	int NAVHEIGHT;
+	int LINESPACING;
+	int SPECIALWIDTH; //special refers to target and launcher
+
+	@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(new Panel(this));
+        
+    }
+ 
+    class Panel extends SurfaceView implements SurfaceHolder.Callback {
+        private TutorialThread _thread;
+        private GraphicObject _graphics = null;
+        private int graphicCount = 0;
+       
+        
+        
+
+ 
+        public Panel(Context context) {
+            super(context);
+
+            getHolder().addCallback(this);
+            _thread = new TutorialThread(getHolder(), this);
+            setFocusable(true);
+            _thread.start();
+            _thread.setRunning(false);
+            _thread.startDraw();
+            
+        }
+        
+        float startX, startY,endX, endY, changeX, changeY;
+        //startX = startY= endX = endY= changeX = changeY = 1/1000; 
+        
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            synchronized (_thread.getSurfaceHolder()) {  
+            	if (event.getAction() == MotionEvent.ACTION_UP && event.getY() >= SCREENHEIGHT-NAVHEIGHT && graphicCount != 1) {
+            		if (event.getX() > SCREENWIDTH/2) {
+            			Log.i("buttons", "next");
+            			_thread.setRunning(false);
+            			_thread.selection = "next";
+            			restart = false;
+            		}
+            		else if (!restart) {
+            			Log.i("buttons", "restart");
+            			_thread.setRunning(false);
+            			_thread.selection = "restart";
+            		}
+            	}
+            	
+            	if (event.getAction() == MotionEvent.ACTION_DOWN && graphicCount < 1) {
+            		if (launcher.pointTest(event.getX(), event.getY())) {
+	                    startX = launcher.getx();
+	                    startY = launcher.gety();
+	                    graphicCount++;
+            		}
+                }
+            	
+            	if (event.getAction() == MotionEvent.ACTION_UP && graphicCount  == 1) {
+            		_graphics = new GraphicObject();
+                    _graphics.getCoordinates().setX((int) startX);
+                    _graphics.getCoordinates().setY((int) startY);
+            		endX = event.getX();
+            		endY = event.getY();
+            		changeX = endX - startX;
+            		changeY = endY - startY;
+            		if (inBetween(-0.01, changeX, 0.01)) changeX = (float) (Math.signum(changeX)+0.01);
+            		if (inBetween(-0.01, changeY, 0.01)) changeY = (float) (Math.signum(changeY)+0.01);
+            		//sets up the line speed and direction according to starting swipe
+            		if (Math.abs(changeX)>(Math.abs(changeY))) {
+            			_graphics.getSpeed().setX(5 * Math.signum(changeX));
+            			_graphics.getSpeed().setY(Math.abs(changeY)/Math.abs(changeX)*5* Math.signum(changeY));
+            		}
+	        		else {
+	        			_graphics.getSpeed().setY(5* Math.signum(changeY));
+	        			_graphics.getSpeed().setX(Math.abs(changeX)/Math.abs(changeY)*5* Math.signum(changeX));  
+	        		}
+                    graphicCount++;
+                    if (restart) {
+        	                laser.wallTouch = true;
+                    		_thread.setRunning(true);     
+                    }
+                    else {
+                    	_thread.setRunning(true);
+                    }            	
+            	}
+            	
+            	//else if (graphicCount ==1) {
+            	//	aimDraw(_thread.getSurfaceHolder());
+            	//}
+            	return true;
+            }
+            
+        }
+// ****************************************** PHYSICS - START**********************************************************       
+ 
+        @SuppressLint("WrongCall")
+		public void updatePhysics(Canvas c, Panel _panel) {
+            GraphicObject.Coordinates coord;
+            GraphicObject.Speed speed;
+                coord = _graphics.getCoordinates();
+                speed = _graphics.getSpeed();
+                
+              //  if (target.pointTest(coord.getX(), coord.getY())) { Log.i("target", "target hit"); laser.setColor(Color.CYAN);}
+                
+                for (Line line : lines) {
+	                if ((coord.getLastX() != -1  && coord.getLastY() != -1) && line.crossed(coord.getX(), coord.getY(), coord.getLastX(), coord.getLastY())) {
+	                	laser.wallTouch = true;
+	                	
+	                	if (mp.isPlaying()) {
+	                		mp.pause();
+	                		mp.seekTo(0);
+	                	}
+	                	mp.start();
+	                	//Log.i("info", "wall hit"); 
+	                	if (line.getHorizontal()) {
+	                		speed.toggleYDirection();
+	                		coord.setY(line.getStartY());
+	                		coord.setY(line.getStartY() + speed.getYDirection());  
+
+	                		//coord.setX(coord.getX() - speed.getX());  //this extra coord setting is to prevent multihits
+
+	                	}
+	                	else {
+	                		speed.toggleXDirection();
+	                		coord.setX(line.getStartX());
+		                	coord.setX(line.getStartX() + speed.getXDirection());      
+ 
+		                	///coord.setY(coord.getY() - speed.getY()); 
+
+	                	}                    
+	                    _panel.onDraw(c);
+	                }
+                }    
+                    coord.setX(coord.getX() + speed.getX());           
+                    coord.setY(coord.getY() + speed.getY());      
+            
+        }
+// ****************************************** PHYSICS - END**********************************************************       
+
+// ****************************************** DRAWING - START**********************************************************       
+    ArrayList<Line> lines = new ArrayList<Line>();  //contains all of the grid and border lines	 
+    GraphicObject.Coordinates coords;  
+    Laser laser = new Laser(_graphics);
+    Paint permaLine = new Paint();
+    Buttons buttons = new Buttons();
+   	Target target;// = new Target();
+   	Launcher launcher;
+   	boolean restart = false;
+   	MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.boop2);
+   	
+        public void onDraw(Canvas canvas, SurfaceHolder surfaceHolder) { 
+        	//Log.i("restart", "drawing");
+        	
+        	target.draw(canvas);
+        	
+        	for (Line line : lines) {
+    		canvas.drawLine(line.getStartX(), line.getStartY(), line.getEndx(), line.getEndy(), permaLine);
+        	}
+        	
+        	coords = _graphics.getCoordinates(); 
+        	
+        	if (laser.wallTouch && _graphics != null) {
+        		
+        		//Log.i("info", "wall touched");
+        		laser.wallTouch = false;
+        		laser.startx = coords.getX();
+        		laser.starty = coords.getY();
+        	} 
+
+        	launcher.draw(canvas);
+        	 
+                buttons.draw(canvas);
+                
+               if (restart) {
+            	   restart = false;
+           		canvas.drawColor(0, Mode.CLEAR);
+               }
+                
+	        laser.GO = _graphics;
+	        	//butt
+               laser.draw(canvas);	          	  
+        	
+        }
+        
+        
+        
+        boolean overlapping(ArrayList<Line> lines) {
+        	Line newest = lines.get(lines.size()-1);
+
+        	for (Line line : lines) {
+        		if (line != newest && (line.overlapped(newest) || newest.overlapped(line))) {
+        			Log.i("lines", "overlapping");
+        			return true;
+        		}
+        	}
+        	return false;
+        	
+        }
+        
+        boolean boxedIn(ArrayList<Line> lines) {
+        	Line newest = lines.get(lines.size()-1);
+
+        	for (Line line : lines) {
+        		if (line != newest && line.crossed(newest)&& newest.crossed(line)) {
+        			newest.addIntersections(line);
+        			line.addIntersections(newest);
+        		}
+        	}
+        	
+        	if (boxedIn2(newest, null, null, newest.getIntersection())) {
+        		for (Line line : lines) {
+        			line.removeIntersections(newest);
+        		}
+        		return true;
+        	}
+        	return false;
+        }
+        
+       boolean boxedIn2(Line newest,Line origin, Line ancestor, ArrayList<Line> checking) {
+    	  // Log.i("lines", "entering boxed 2");
+    	   if (checking.size() < 2)return false;
+    	  // if (ancestor != null && checking.contains(ancestor)) checking.remove(ancestor);
+    	   
+    	   for (Line current: checking) {
+    		   if (current != ancestor) {
+	    		   if (newest == current) return true;
+	    		   if ( boxedIn2(newest, current, origin, current.getIntersection())) return true;
+    		   }
+    		}
+    	   return false;   	   
+        	
+        }
+       
+       boolean tooEasy(Launcher launcher, Target target, ArrayList<Line> lines) {
+       	Line LtoT = new Line(launcher.getx(), launcher.gety(), target.getx(), target.gety());
+       	for (Line line : lines) {
+       		if (line.specialCrossed(LtoT)) {
+       		return false;
+       		}
+       	}
+       	return true;
+       }
+        
+        
+       //public void aimDraw(SurfaceHolder holder) {
+    	//   Log.i("aiming arrow", "in touch function");
+       //}
+ 
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        	Log.i("program", "in start surfacechanged");
+            // TODO Auto-generated method stub
+        }
+        
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        	//initializing global variables, declared at top
+        	SCREENWIDTH = getWidth();
+        	SCREENHEIGHT = getHeight();
+        	NAVHEIGHT = 100;
+        	LINESPACING = 21;
+        	SPECIALWIDTH = 50;
+        	//Log.i("program", "in surface created");
+
+        	permaLine.setColor(Color.WHITE);
+        	permaLine.setStrokeWidth(2);
+        	nextLevel(holder);
+        }
+        
+        public void nextLevel(SurfaceHolder holder) {
+      	  // VERY IMPORTANT: this is all the drawing that happens before the game actually starts: ie maze and target          
+	    	lines.clear();
+	    	//Log.i("restart", "trying to clear2");
+	    	lines.add(new Line(0,-1 , 0, SCREENHEIGHT-NAVHEIGHT));        	    	
+	    	lines.add(new Line(-1,1 , SCREENWIDTH, 1));
+	    	lines.add(new Line(-1,SCREENHEIGHT-NAVHEIGHT , SCREENWIDTH+1, SCREENHEIGHT-NAVHEIGHT)); //borders
+	    	lines.add(new Line(SCREENWIDTH-1,-1 , SCREENWIDTH-1, SCREENHEIGHT-NAVHEIGHT));
+	    	lines.get(0).addIntersections(lines.get(1));
+	    	lines.get(0).addIntersections(lines.get(2));
+	    	lines.get(1).addIntersections(lines.get(3));
+	    	lines.get(3).addIntersections(lines.get(2));
+
+	    	int a,b,length;
+	    	for (int i = 0; i <15; i++) {
+	    		//creates a new line and makes sure that it does not create an enclosed space(conflict)    
+	    		a = randomBetween(1, (SCREENWIDTH/LINESPACING)-1)*LINESPACING; 
+	    		b = randomBetween(1, ((SCREENHEIGHT-NAVHEIGHT)/LINESPACING)-1)*LINESPACING; 
+	    		if (a % 2 == 1) {
+	    			length = randomBetween(-SCREENHEIGHT/LINESPACING,SCREENHEIGHT/LINESPACING)*LINESPACING;
+	    			lines.add(new Line(a,b,a+length,b));
+	    		}
+	    		else {
+	    			length = randomBetween(-(SCREENHEIGHT-NAVHEIGHT)/LINESPACING,(SCREENHEIGHT-NAVHEIGHT)/LINESPACING)*LINESPACING; 
+	    			lines.add(new Line(a,b,a,b+length));
+	    		}
+	    		
+	    		if (overlapping(lines) || boxedIn(lines)) {
+	    			lines.remove(lines.size()-1);
+	    			i--;
+	    		}
+	    	}	
+		    	target = new Target();
+		    	for (int i=0; i<lines.size(); i++) {
+		    		if (target.lineTest(lines.get(i))) {
+		    			target = new Target();
+		    			i=-1;
+		    		}
+		    	}
+		    	Log.i("tooEasy", "finished launcher");
+		    	launcher = new Launcher();
+		    	for (int i=0; i<lines.size(); i++) {
+		    		if (launcher.lineTest(lines.get(i)) || tooEasy(launcher, target, lines)) {
+		    			launcher = new Launcher();
+		    			i=-1;
+		    		}
+		    	}   		    	
+	    	restartLevel(holder);
+      }
+                
+        
+        public void restartLevel(SurfaceHolder holder) {
+        	  // VERY IMPORTANT: this is all the drawing that happens before the game actually starts: ie maze and target
+        	_thread.c = null;
+            try {
+            	_thread.c = holder.lockCanvas();
+            	_thread.c.drawColor(0, Mode.CLEAR);
+                holder.unlockCanvasAndPost(_thread.c);
+                _thread.c = holder.lockCanvas();
+                _thread.c.drawColor(0, Mode.CLEAR);
+
+                
+                for (Line line : lines) {
+                	permaLine.setAlpha(100);
+                	permaLine.setColor(Color.rgb((int)Math.round(100+Math.random()*155), (int)Math.round(100+Math.random()*155), (int)Math.round(100+Math.random()*155)));
+                	//Log.i("lines", line.getStartX()+" "+line.getStartY()+" "+line.getEndx()+" "+line.getEndy());
+                	_thread.c.drawLine(line.getStartX(), line.getStartY(), line.getEndx(), line.getEndy(), permaLine);
+                }
+ 	    
+                target.draw(_thread.c);
+                launcher.draw(_thread.c);
+                buttons.draw(_thread.c);
+        	    
+        	    restart = true;
+        	    graphicCount= 0;
+
+            }
+            finally {
+                // do this in a finally so that if an exception is thrown
+                // during the above, we don't leave the Surface in an
+                // inconsistent state
+                if (_thread.c != null) {
+                    holder.unlockCanvasAndPost(_thread.c); ///KEY!
+                }
+            
+        }
+          // _thread.setRunning(true);
+           // _thread.run();
+        }
+        
+
+ 
+        
+ 
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            // simply copied from sample application LunarLander:
+            // we have to tell thread to shut down & wait for it to finish, or else
+            // it might touch the Surface after we return and explode
+        	Log.i("restart", "in destroyed");
+            boolean retry = true;
+            _thread.setRunning(false);
+            while (retry) {
+                try {
+                    _thread.join();
+                    retry = false;
+                } catch (InterruptedException e) {
+                    // we will try it again and again...
+                }
+            }
+        }
+    }
+ // ****************************************** DRAWING - END**********************************************************       
+ 
+    
+    class TutorialThread extends Thread {
+        private SurfaceHolder _surfaceHolder;
+        private Panel _panel;
+        private boolean _run = false;
+        private Canvas c;
+        public String selection;
+ 
+        public TutorialThread(SurfaceHolder surfaceHolder, Panel panel) {
+            _surfaceHolder = surfaceHolder;
+            _panel = panel;
+            c = null;
+        }
+ 
+        public void setRunning(boolean run) {
+            _run = run;
+        }
+ 
+        public SurfaceHolder getSurfaceHolder() {
+            return _surfaceHolder;
+            
+        }
+ 
+        @SuppressLint("WrongCall") @Override
+        public void run() {
+        	while(true) {
+	            while (_run) {
+	                c = null;
+	                try {
+	                    c = _surfaceHolder.lockCanvas(null);
+	                    synchronized (_surfaceHolder) {
+	                        _panel.updatePhysics(c, _panel);
+	                        _panel.onDraw(c, _surfaceHolder);
+	                       // Log.i("info", "running");
+	                    }
+	                } finally {
+	                    // do this in a finally so that if an exception is thrown
+	                    // during the above, we don't leave the Surface in an
+	                    // inconsistent state
+	                    if (c != null) {
+	                        _surfaceHolder.unlockCanvasAndPost(c);
+	                    }
+	                }
+	            }
+	            if (selection == "restart") {
+	            	_panel.restartLevel(_surfaceHolder);
+	            	selection = "none";
+	            }
+	            else if (selection == "next") {
+	            	_panel.nextLevel(_surfaceHolder);
+	            	selection = "none";
+	            }
+	            try {
+	                Thread.sleep(50);
+	            } catch(InterruptedException ex) {
+	                Thread.currentThread().interrupt();
+	            }
+        	}	
+        }
+
+        
+        public void startDraw() {
+        	Log.i("program", "in start draw");
+        }
+    } 
+  //******************************* LASER  - START **************************************************************
+    class Laser{
+    	GraphicObject GO;
+    	Paint paint = new Paint();
+        float startx, starty;   
+        boolean wallTouch;  // allows the creation of a new line on wall touch
+    	Laser(GraphicObject GO2) {
+    		wallTouch = true;
+    		startx = 0;
+    		starty = 0;
+    		GO = GO2;
+    		paint.setColor(Color.YELLOW);
+    		paint.setStrokeWidth(3);
+    	}
+    	void draw(Canvas canvas) {
+    		 canvas.drawLine(startx, starty, GO.getCoordinates().getX(), GO.getCoordinates().getY(),paint);
+    	}
+
+    	
+    	
+    }
+//******************************* LASER  - END ****************************************************************
+//******************************* TARGET  - START **************************************************************
+    class Target{
+    	private Bitmap bitmap;
+    	private int x,y;
+    	private Rect r;// = new Rect();
+    	Target() {
+	    	x = (int) ((SPECIALWIDTH/2)+Math.round(Math.random() * (SCREENWIDTH - SPECIALWIDTH)));
+	    	y = (int) (25+Math.round(Math.random() * (SCREENHEIGHT - (NAVHEIGHT + 80))));
+	    	bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.target);
+	    	r = new Rect(x-(SPECIALWIDTH/2), y-(SPECIALWIDTH/2),x+(SPECIALWIDTH/2),y+(SPECIALWIDTH/2));
+    	}
+    	
+    	int getx() {return x;}
+    	int gety() {return y;}
+ 
+    	
+    	boolean pointTest(double x1, double y1) {
+    		double x2 = Math.abs(x1-x);
+    		double y2 = Math.abs(y1-y);
+    		double distance = Math.sqrt((x2*x2)+(y2*y2));
+    		if (distance < (SPECIALWIDTH/2))return true;
+    		else return false;
+    	}
+    	boolean lineTest(Line line) {
+    		if (line.getHorizontal()) {
+    			if (Math.abs(line.getStartY()-y) > (SPECIALWIDTH/2)) return false;
+    			if (inBetween(line.getStartX(),x+(SPECIALWIDTH/2), line.getEndx()) || inBetween(line.getStartX(),x-(SPECIALWIDTH/2), line.getEndx())) return true;
+    			return false;
+    		}
+    		else {
+    			if (Math.abs(line.getStartX()-x) > (SPECIALWIDTH/2)) return false;
+    			if (inBetween(line.getStartY(),y+(SPECIALWIDTH/2), line.getEndy()) || inBetween(line.getStartY(),y-(SPECIALWIDTH/2), line.getEndy())) return true;
+    			return false;
+    		}
+    		
+    	}
+    	void draw(Canvas canvas) {
+    		canvas.drawBitmap(bitmap, null, r, null);
+    	}
+    	
+    	
+    }
+//******************************* TARGET  - END ****************************************************************
+    
+  //******************************* LAUNCHER  - START **************************************************************
+    class Launcher{
+    	private Bitmap bitmap;
+    	private int x,y;
+    	private Rect r;// = new Rect();
+    	Launcher() {
+	    	x = (int) ((SPECIALWIDTH/2)+Math.round(Math.random() * (SCREENWIDTH - SPECIALWIDTH)));
+	    	y = (int) ((SPECIALWIDTH/2)+Math.round(Math.random() * (SCREENHEIGHT - (NAVHEIGHT + 80))));
+	    	bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.ball3);
+	    	r = new Rect(x-(SPECIALWIDTH/2), y-(SPECIALWIDTH/2),x+(SPECIALWIDTH/2),y+(SPECIALWIDTH/2));
+    	}
+    	
+    	int getx() {return x;}
+    	int gety() {return y;}
+    	
+    	boolean pointTest(double x1, double y1) {
+    		double x2 = Math.abs(x1-x);
+    		double y2 = Math.abs(y1-y);
+    		double distance = Math.sqrt((x2*x2)+(y2*y2));
+    		if (distance < 40)return true;
+    		else return false;
+    	}  
+    	
+    	boolean lineTest(Line line) {
+    		if (line.getHorizontal()) {
+    			if (Math.abs(line.getStartY()-y) > (SPECIALWIDTH/2)) return false;
+    			if (inBetween(line.getStartX(),x+(SPECIALWIDTH/2), line.getEndx()) || inBetween(line.getStartX(),x-(SPECIALWIDTH/2), line.getEndx())) return true;
+    			return false;
+    		}
+    		else {
+    			if (Math.abs(line.getStartX()-x) > (SPECIALWIDTH/2)) return false;
+    			if (inBetween(line.getStartY(),y+(SPECIALWIDTH/2), line.getEndy()) || inBetween(line.getStartY(),y-(SPECIALWIDTH/2), line.getEndy())) return true;
+    			return false;
+    		}
+    		
+    	}
+    	void draw(Canvas canvas) {
+    		canvas.drawBitmap(bitmap, null, r, null);
+    	}
+    	
+    }
+//******************************* LAUNCHER  - END ****************************************************************
+    
+//******************************** LINE - START*****************************************************************
+    class Line{  //line refers to the borders and grid lines
+    	private float startx;
+    	private float starty;
+    	private float endx;
+    	private float endy;
+    	private boolean horizontal;
+    	private ArrayList<Line> intersections = new ArrayList<Line>();
+    	
+    	Line(int x1, int y1, int x2, int y2) {
+    		startx = x1;
+    		starty = y1;
+    		endx = x2;
+    		endy = y2;
+    		if (x2 == x1) {horizontal = false;}
+    		else if (y1 == y2) {horizontal = true;}
+    	}
+    	
+    	void addIntersections(Line _line) {
+    		intersections.add(_line);
+    	}
+    	
+    	ArrayList<Line> getIntersection() {
+    		return intersections;
+    	}
+    	
+    	void removeIntersections(Line _line) {
+    		intersections.remove(_line);
+    	}
+    	
+
+    	
+    	float getStartX() {return startx;}
+    	float getStartY() {return starty;}
+    	float getEndx() {return endx;}
+    	float getEndy() {return endy;}
+    	boolean getHorizontal() {return horizontal;}
+    	
+    	boolean overlapped(Line line) {
+    		if (this.horizontal != line.getHorizontal()) return false;
+    		if (this.horizontal && this.getStartY() != line.getStartY()) return false;
+    		if (!this.horizontal && this.getStartX() != line.getStartX()) return false;
+    		if (this.horizontal &&(inBetween(line.getStartX(),this.getStartX(),line.getEndx()) || inBetween(line.getStartX(),this.getEndx(),line.getEndx()) || inBetween(this.getEndx(),line.getStartX(),this.getStartX()))) return true;
+    		if (!this.horizontal &&(inBetween(line.getStartY(),this.getStartY(),line.getEndy()) || inBetween(line.getStartY(),this.getEndy(),line.getEndy()) || inBetween(this.getEndy(),line.getStartY(),this.getStartY()))) return true;
+    		return false;
+    	}
+    	
+    	boolean crossed(float firstLaserx, float firstLasery, float lastLaserx, float lastLasery) {
+    		//covers the case that the line is perfectly horizontal or vertical
+    		//also used when checking intersection between lines when building maze
+    		if (lastLasery - firstLasery == 0 ) {
+    			if (horizontal) return false;
+    			if (inBetween(firstLaserx, startx,lastLaserx)) return true;
+    			else return false;
+    		}
+    		if (lastLaserx - firstLaserx == 0) {
+    			if (!horizontal) return false;
+    			if (inBetween(firstLasery,starty, lastLasery)) return true;
+    			else return false;
+    		}
+    		
+    		//basically finds the equation for the laser line, then checks to see if that laser line intersects this line between the start and end points of both lines
+    		float m =(lastLasery - firstLasery)/(lastLaserx - firstLaserx);
+    		float b = firstLasery - (m * firstLaserx);
+    		if (horizontal) {
+    			float intersection = (starty - b)/m;
+    			if (inBetween(startx, intersection,endx) && ((starty < lastLasery && starty >= firstLasery) || (starty > lastLasery && starty <= firstLasery))) {
+    				return true;
+    			}    			
+    		}
+    		else {
+    			
+    			float intersection = (m * startx) + b;
+    			//Log.i("crossed", Float.toString(intersection));
+    			if (inBetween(starty,intersection, endy) && ((startx < lastLaserx && startx >= firstLaserx) || (startx > lastLaserx && startx <= firstLaserx))) {
+    				return true;
+    			}    			
+    		}
+    		return false;
+    		
+    	}
+    	
+    	boolean crossed(Line newLine) {
+    		float firstLaserx = newLine.getStartX();
+    		float firstLasery = newLine.getStartY();
+    		float lastLaserx = newLine.getEndx();
+    		float lastLasery = newLine.getEndy();
+    		//covers the case that the line is perfectly horizontal or vertical
+    		//also used when checking intersection between lines when building maze
+    		if (lastLasery - firstLasery == 0 ) {
+    			if (horizontal) return false;
+    			if (inBetween(firstLaserx, startx,lastLaserx)) return true;
+    		}
+    		if (lastLaserx - firstLaserx == 0) {
+    			if (!horizontal) return false;
+    			if (inBetween(firstLasery,starty,lastLasery)) return true;
+    		}
+    		return false;
+    		
+    	}
+    	
+    	boolean specialCrossed(Line newLine) {
+    		double guessedY, guessedX;
+    		//Log.i("tooEasy", "in specialCrossed");
+    		if (newLine.getEndx()-newLine.getStartX() == 0 || newLine.getEndx()-newLine.getStartX() == 0) return false;
+    		float m = (newLine.getEndy()-newLine.getStartY()) / (newLine.getEndx()-newLine.getStartX());
+    		double b = newLine.getStartY() - (m*newLine.getStartX());
+    		if (!horizontal) {
+	    		guessedY =  (m*startx) + b;
+	    		if (inBetween(starty, guessedY, endy) && inBetween(newLine.getStartX(), startx, newLine.getEndx())) return true;
+    		}
+    		else {
+    			guessedX =  (starty - b)/m;
+	    		if (inBetween(startx, guessedX, endx) && inBetween(newLine.getStartY(), starty, newLine.getEndy())) return true;
+    		}
+    		return false;
+    	}
+    }
+//******************************** LINE - END *****************************************************************
+    
+ // ****************************************** SPEED - START***************************************************  
+    class GraphicObject {      //graphic object refers to the moving laser
+        public class Speed {
+ 
+            private float _x = 5;
+            private float _y = 5;
+            public int getXDirection() {return (int) Math.signum(_x);}
+            public void toggleXDirection() {_x = _x * -1;}
+            public int getYDirection() {return (int) Math.signum(_y);}
+            public void toggleYDirection() {_y = _y * -1;}
+            
+            public float getX() {return _x;} 
+            public void setX(float f) {_x = f;} 
+            public float getY() {return _y;} 
+            public void setY(float f) {_y = f;}
+        }
+// ****************************************** SPEED - END*************************************************************** 
+// ****************************************** CO-ORDINATES - START******************************************************
+        public class Coordinates {
+            private float _x = -1;
+            private float _y = -1;
+            private float last_x;
+            private float last_y;
+ 
+            public float getX() {return _x;} 
+            public void setX(float f) {
+            	last_x = _x;
+                _x = f;
+            }
+ 
+            public float getY() {return _y;} 
+            public void setY(float f) {
+            	last_y = _y;
+                _y = f;
+            }
+            
+            public float getLastY() {return last_y;}            
+            public float getLastX() {return last_x;} 
+        }
+ 
+
+        private Coordinates _coordinates;
+        private Speed _speed;
+ 
+        public GraphicObject() {
+            _coordinates = new Coordinates();
+            _speed = new Speed();
+        }
+  
+        public Speed getSpeed() {return _speed;} 
+        public Coordinates getCoordinates() {return _coordinates;}
+    }
+    
+ // ****************************************** CO-ORDINATES - END******************************************************
+ // ****************************************** BUTTONS - START******************************************************
+    public class Buttons {
+        Paint text = new Paint();
+       	Paint button = new Paint();
+       	Buttons() {
+	    	button.setColor(Color.CYAN);
+	    	text.setColor(Color.BLACK);
+	    	text.setTextSize(40);
+       	}
+    	
+    	void draw(Canvas c) {
+        c.drawRect(0, SCREENHEIGHT-NAVHEIGHT, (SCREENWIDTH/2)-3, SCREENHEIGHT, button);
+        c.drawRect((SCREENWIDTH/2)+3, SCREENHEIGHT-NAVHEIGHT, SCREENWIDTH, SCREENHEIGHT, button);
+
+        c.drawText("restart", SCREENWIDTH/4 , SCREENHEIGHT-50, text);
+        c.drawText("next", 3*SCREENWIDTH/4 , SCREENHEIGHT-50, text);
+    	}
+    }
+
+
+    //universal functions, usually to simplify calculations
+
+    boolean inBetween(double left, double center, double right) {
+    	if ((left <= center &&  center <= right) || (left >= center &&  center >= right)) return true;
+    	else return false;
+    }
+    
+    int randomBetween(double low, double high) {
+    	double ran = Math.random();
+    	return (int) (low + (ran*(high-low))); 
+    }
+    
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
+    }
+    
+    
+    
+}

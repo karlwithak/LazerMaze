@@ -21,8 +21,8 @@
     <string name="title_activity_loading_screen">LoadingScreen</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-	<string name="credits">\nThis game was made by Nicholas Hrynuik, with all graphics created by Janet Choi\n</string>
-	<string name="loadingText">Loading LazerMaze &#8230;</string>
-	<string name="pref_screenOn_title">Screen Backlight</string>
-	<string name="pref_screenOn_summary">Keep the screen on</string>
+    <string name="credits">\nThis game was made by Nicholas Hrynuik, with all graphics created by Janet Choi\n</string>
+    <string name="loadingText">Loading LazerMaze &#8230;</string>
+    <string name="pref_screenOn_title">Screen Backlight</string>
+    <string name="pref_screenOn_summary">Keep the screen on</string>
 </resources>

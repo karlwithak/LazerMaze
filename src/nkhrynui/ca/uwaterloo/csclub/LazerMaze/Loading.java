@@ -9,20 +9,20 @@ import android.os.Handler;
 
 public class Loading extends Activity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_loading);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_loading);
 
-		new Handler().postDelayed(new Runnable() {
-			public void run() {
-				Intent intent = new Intent(Loading.this, MainActivity.class);
-		    	startActivity(intent);
-		    	Loading.this.startActivity(intent);
-		    	Loading.this.finish();
-			}
-		}, 2000);
-	}
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                Intent intent = new Intent(Loading.this, MainActivity.class);
+                startActivity(intent);
+                Loading.this.startActivity(intent);
+                Loading.this.finish();
+            }
+        }, 2000);
+    }
 
 
 }

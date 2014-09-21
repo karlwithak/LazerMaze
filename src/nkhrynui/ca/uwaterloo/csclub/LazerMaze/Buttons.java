@@ -25,8 +25,10 @@ public class Buttons {
         text.setColor(Color.WHITE);
         text.setTextSize((int) (SPECIALWIDTH / 1.5));
         text.setTextAlign(Align.CENTER);
+        text.setAntiAlias(true);
         warning.set(text);
         warning.setColor(Color.RED);
+        warning.setAntiAlias(true);
         resources = resourcesIn;
         settings = BitmapFactory.decodeResource(resources, R.drawable.ic_menu_moreoverflow);
         restart = BitmapFactory.decodeResource(resources, R.drawable.ic_menu_refresh);

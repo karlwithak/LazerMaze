@@ -46,13 +46,15 @@ public enum Powerups {
         int NAVHEIGHT = MainActivity.NAVHEIGHT;
         selection = 0;
         Paint text = new Paint();
+        text.setTextSize(NAVHEIGHT);
         text.setTextAlign(Paint.Align.CENTER);
+        text.setColor(Color.WHITE);
+        text.setAntiAlias(true);
         Paint smallText = new Paint();
         smallText.setTextAlign(Paint.Align.CENTER);
-        text.setColor(Color.WHITE);
         smallText.setColor(Color.WHITE);
-        text.setTextSize(NAVHEIGHT);
         smallText.setTextSize(NAVHEIGHT / 2);
+        smallText.setAntiAlias(true);
         c = MainActivity._thread.c;
         waitForChoice = true;
         int option1int = randomBetween(0, VALUES.size() - 1);

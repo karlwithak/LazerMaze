@@ -25,13 +25,14 @@ public class Laser {
         starty = -10;
         GO = new GraphicObject(MainActivity.SPEED);
         paint.setStrokeWidth((float) Math.floor(LINESPACING / 7));
+        paint.setAntiAlias(true);
         oldLasers = 0;
     }
 
     void draw(Canvas canvas) {
         if (pts.size() > 2) {
-             canvas.drawLine(startx, starty, GO.coordinates.x, GO.coordinates.y, paint);
-             if (pts.size() >= 4) canvas.drawLines(ALtoArray(pts), paint);
+            canvas.drawLine(startx, starty, GO.coordinates.x, GO.coordinates.y, paint);
+            if (pts.size() >= 4) canvas.drawLines(ALtoArray(pts), paint);
         }
     }
 

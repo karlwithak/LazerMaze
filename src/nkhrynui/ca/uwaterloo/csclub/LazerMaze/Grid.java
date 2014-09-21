@@ -68,9 +68,9 @@ public class Grid {
     
     void makeGrid() {
         double linesAdjust = 1;
-        if (MainActivity.level.activePowerup.equals("lessLines")) linesAdjust = 0.666;
+        if (MainActivity.powerups.getActive().equals("lessLines")) linesAdjust = 0.666;
         double lengthAdjust = 1;
-        if (MainActivity.level.activePowerup.equals("shortLines")) lengthAdjust = 0.666;
+        if (MainActivity.powerups.getActive().equals("shortLines")) lengthAdjust = 0.666;
         lines.clear();
         lines.add(new Line(-1, NAVHEIGHT, SCREENWIDTH, LINESPACING * 3)); //top
         lines.add(new Line(-1, SCREENHEIGHT - NAVHEIGHT, SCREENWIDTH + 1, SCREENHEIGHT - NAVHEIGHT)); //bottom

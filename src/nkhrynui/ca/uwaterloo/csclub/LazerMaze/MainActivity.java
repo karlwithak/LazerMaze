@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
     ColorHandler colorHandler = new ColorHandler();
+    public static Powerups powerups;
 
 
     public void settings() {
@@ -74,7 +75,8 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        level = new Level(getResources());
+        level = new Level();
+        powerups = new Powerups(getResources());
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -99,13 +101,13 @@ public class MainActivity extends Activity {
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             synchronized (_thread.getSurfaceHolder()) {  
-                if (level.listening) { //selecting upgrade
+                if (powerups.listening) { //selecting upgrade
                     upOnButtons = false;
                     if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREENWIDTH / 2 ) {
-                        level.selection = 1;
+                        powerups.selection = 1;
                     } else if (event.getAction() == MotionEvent.ACTION_DOWN
                             && event.getX() > SCREENWIDTH / 2 ) {
-                        level.selection = 2;
+                        powerups.selection = 2;
                     }
                     return true;
                 } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -158,7 +160,7 @@ public class MainActivity extends Activity {
                         launcher2.active = true;
                         launcher.active = false;
                         graphicCount = 1;
-                    } else if ((level.activePowerup.equals("launchFromEither")
+                    } else if ((powerups.getActive().equals("launchFromEither")
                             && target.bigPointTest(event.getX(), event.getY())))
                     {
                         if (_thread._run) {
@@ -179,7 +181,7 @@ public class MainActivity extends Activity {
                     }
                 }
                 //aiming launch with aimer
-                if (level.activePowerup.equals("aimingLaser")
+                if (powerups.getActive().equals("aimingLaser")
                         && event.getAction() == MotionEvent.ACTION_MOVE
                         && graphicCount  == 1
                         && !inAnimation)
@@ -297,7 +299,7 @@ public class MainActivity extends Activity {
                 if ((coord.lastx != -1  && coord.lasty != -1)
                         && line.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0)
                 {
-                    if (level.activePowerup.equals("throughFirstLine") && laser.pts.size() == 4) {
+                    if (powerups.getActive().equals("throughFirstLine") && laser.pts.size() == 4) {
                         ignoring = true;
                         laser.bounce();
                         continue;
@@ -309,11 +311,12 @@ public class MainActivity extends Activity {
                             }
                         });
                         level.reset();
+                        powerups.reset();
                         _thread.setRunning(false);
                         _thread.selection = "next";
                         break;
                     }
-                    if (level.activePowerup.equals("wrapAroundEnds")
+                    if (powerups.getActive().equals("wrapAroundEnds")
                             && grid.getLines().indexOf(line) <= 1) {
                         coord.setX(coord.x + speed.x);
                         coord.setY(coord.y + speed.y);
@@ -332,7 +335,7 @@ public class MainActivity extends Activity {
                             speed.toggleXDirection();
                             doubleHit = false;
                             soundAndVib();
-                        } else if ( coord.x >= SCREENWIDTH - speed.x) {
+                        } else if (coord.x >= SCREENWIDTH - speed.x) {
                             coord.x = SCREENWIDTH - 2;
                             speed.toggleXDirection();
                             doubleHit = false;
@@ -346,7 +349,7 @@ public class MainActivity extends Activity {
                         continue;
                     }
 
-                    if (level.activePowerup.equals("wrapAroundSides")
+                    if (powerups.getActive().equals("wrapAroundSides")
                             && (grid.getLines().indexOf(line) == 2
                                     || grid.getLines().indexOf(line) == 3)) {
                         coord.setX(coord.x + speed.x);
@@ -450,7 +453,7 @@ public class MainActivity extends Activity {
             grid.draw(canvas);
             buttons.draw(canvas);
         }
-  
+
         public void gridShrink(SurfaceHolder holder) {
             inAnimation = true;
             for (int i = 0; i < SCREENHEIGHT / 30; i++) {
@@ -467,7 +470,7 @@ public class MainActivity extends Activity {
                 finally {
                     if (_thread.c != null) {
                         holder.unlockCanvasAndPost(_thread.c); ///KEY!
-                    }                
+                    }
                 }
             }
             inAnimation = false;
@@ -488,7 +491,7 @@ public class MainActivity extends Activity {
                 finally {
                     if (_thread.c != null) {
                         holder.unlockCanvasAndPost(_thread.c); ///KEY!
-                    }                
+                    }
                 }
             }
             inAnimation = false;
@@ -556,10 +559,10 @@ public class MainActivity extends Activity {
             if (!level.recover) {
                 if (grid.lines.size() > 1) gridShrink(holder);
                 if (level.num % 5 == 0 && level.num != 0) {
-                    lockListenerOkay = level.pickPowerup(holder);
+                    lockListenerOkay = powerups.pickPowerup(holder);
                 }
                 buttons.update();
-                if (level.activePowerup.equals("bigTargets")) SPECIALWIDTH = (int) ((SCREENHEIGHT / 20) * 1.4);
+                if (powerups.getActive().equals("bigTargets")) SPECIALWIDTH = (int) ((SCREENHEIGHT / 20) * 1.4);
                 else SPECIALWIDTH = SCREENHEIGHT / 20;
                 colorHandler.update(level);
                 colorHandler.update(grid);
@@ -581,7 +584,7 @@ public class MainActivity extends Activity {
                     }
                 }
 
-                if (level.activePowerup.equals("twoTargets")) {
+                if (powerups.getActive().equals("twoTargets")) {
                     target2 = new Target(b);
                     for (int i = 0; i < grid.getLines().size(); i++) {
                         if (target2.lineTest(grid.getLines().get(i))
@@ -604,7 +607,7 @@ public class MainActivity extends Activity {
                     }
                 }
 
-                if (level.activePowerup.equals("twoLaunchers")) {
+                if (powerups.getActive().equals("twoLaunchers")) {
                     launcher2 = new Launcher(b2);
                     for (int i = 0; i < grid.getLines().size(); i++) {
                         if (launcher2.lineTest(grid.getLines().get(i))
@@ -734,7 +737,7 @@ public class MainActivity extends Activity {
     public void onPause() {
         super.onPause();
         lockListenerOkay = false;
-        if (level.listening) level.selection = 4;
+        if (powerups.listening) powerups.selection = 4;
 
         Log.i("crashing", "pause");
         if (v != null) v.cancel();
@@ -742,7 +745,7 @@ public class MainActivity extends Activity {
         level.exit = false;
         _thread.setRunning(false);
         _thread.selection = "";
-        if (level.selection == 0) level.selection = 4;
+        if (powerups.selection == 0) powerups.selection = 4;
         try {
             _thread.join(100);
         } catch (InterruptedException e) {

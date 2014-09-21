@@ -68,7 +68,7 @@ public class Buttons {
 
         float height = (NAVHEIGHT / 2) - (text.ascent() / 4);
 
-        if (!MainActivity.level.activePowerup.equals("")) {
+        if (!MainActivity.powerups.getActive().equals("")) {
             c.drawBitmap(powerup, null, new Rect((5 * SCREENWIDTH / 6) - NAVHEIGHT / 2,
                                             1,
                                             (5 * SCREENWIDTH / 6) + NAVHEIGHT / 2,
@@ -79,8 +79,8 @@ public class Buttons {
     }
 
     void update() {
-        if (!MainActivity.level.activePowerup.equals("")) {
-            powerup = BitmapFactory.decodeResource(resources, smallPics.get(MainActivity.level.activePowerup));
+        if (!MainActivity.powerups.getActive().equals("")) {
+            powerup = BitmapFactory.decodeResource(resources, smallPics.get(MainActivity.powerups.getActive()));
         }
     }
 }

@@ -29,6 +29,7 @@ public class Dialogues {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         MainActivity.level.reset();
+                        MainActivity.powerups.reset();
                         MainActivity._thread.setRunning(false);
                         MainActivity._thread.selection = "next";
                     }

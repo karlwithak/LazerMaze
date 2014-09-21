@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+
 
 public class Grid {
     ArrayList<Line> lines;
@@ -125,11 +127,6 @@ public class Grid {
         for (Line line : lines) {
             line.expandDraw(canvas, paint);
         }
-    }
-    
-    int randomBetween(double low, double high) {
-        double ran = Math.random();
-        return (int) (low + (ran * (high - low)));
     }
     
     void setColor(int c) {

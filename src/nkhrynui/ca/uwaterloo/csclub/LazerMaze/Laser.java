@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
 
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+
 public class Laser {
     GraphicObject GO;
     //int bounces;
@@ -69,16 +71,6 @@ public class Laser {
     void nextLevel() {
         GO = new GraphicObject(ma.SPEED);
         pts.clear();
-    }
-
-    float[] ALtoArray(ArrayList<Float>pts) {
-        int i = 0;
-        float[] f2 = new float[pts.size()];
-        for (float f: pts) {
-            f2[i] = f;
-            i++;
-        }
-        return f2;
     }
 
     void setColor(int c) {

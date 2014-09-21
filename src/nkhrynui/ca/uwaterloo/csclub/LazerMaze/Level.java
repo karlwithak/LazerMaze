@@ -12,6 +12,8 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+
 
 public class Level {
     Canvas c ;//= MainActivity._thread.c;
@@ -114,11 +116,6 @@ public class Level {
             selection = 1;
             return true;
         }
-    }
-
-    int randomBetween(double low, double high) {
-        double ran = Math.random();
-        return (int) Math.floor((low + (ran * (high - low))));
     }
 
     void skip() {

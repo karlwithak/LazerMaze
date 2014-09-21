@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+
 public class Special{
     Bitmap bitmap;
     MainActivity ma;
@@ -51,10 +53,6 @@ public class Special{
         }
     }
 
-    boolean inBetween(double left, double center, double right) {
-        return (left <= center && center <= right) || (left >= center && center >= right);
-    }
-
     boolean bigPointTest(double x1, double y1) {
         double x2 = Math.abs(x1 - x);
         double y2 = Math.abs(y1 - y);
@@ -67,11 +65,6 @@ public class Special{
         double y2 = Math.abs(y1 - y);
         double distance = Math.sqrt((x2 * x2) + (y2 * y2));
         return distance < (SPECIALWIDTH / 2);
-    }
-
-     int randomBetween(double low, double high) {
-        double ran = Math.random();
-        return (int) (low + (ran * (high - low)));
     }
 }
 

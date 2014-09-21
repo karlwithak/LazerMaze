@@ -25,6 +25,8 @@ import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+
 public class MainActivity extends Activity {
 
     // GLOBAL VARIABLES, set in surfaceCreated
@@ -712,20 +714,7 @@ public class MainActivity extends Activity {
 
     //universal functions, usually to simplify calculations
 
-    boolean inBetween(double left, double center, double right) {
-        return (left <= center && center <= right)
-            || (left >= center && center >= right);
-    }
-    
-    boolean inBetweenStrict(double left, double center, double right) {
-        return (left < center && center < right)
-            || (left > center && center > right);
-    }
-    
-    int randomBetween(double low, double high) {
-        double ran = Math.random();
-        return (int) (low + (ran * (high - low)));
-    }
+
     
     /****************************************** ON* - START***************************************/
     

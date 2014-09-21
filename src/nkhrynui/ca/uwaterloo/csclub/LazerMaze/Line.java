@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+
 public class Line {
     public float startx;
     public float starty;
@@ -141,16 +143,6 @@ public class Line {
     void expandDraw(Canvas canvas, Paint paint) {
         if (horizontal) canvas.drawLine(temp1, starty, temp2, endy, paint);
         else canvas.drawLine(startx, temp1, endx, temp2, paint);
-    }
-
-     boolean inBetween(double left, double center, double right) {
-         return (left <= center && center <= right)
-             || (left >= center && center >= right);
-    }
-    
-     boolean inBetweenStrict(double left, double center, double right) {
-         return (left < center && center < right)
-             || (left > center && center > right);
     }
     
     float findIntersection(Line l1, float firstLaserx, float firstLasery, float lastLaserx, float lastLasery) {

@@ -7,9 +7,7 @@ import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -49,7 +47,7 @@ public class MainActivity extends Activity {
     FileOutputStream fos;
     FileInputStream fis;
     Level level = new Level(this);
-    Vibrator v= null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    Vibrator v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     Laser laser;// = new Laser();
     Map<String, Integer> bigPics = new HashMap<String, Integer>();
     Map<String, Integer> smallPics = new HashMap<String, Integer>();
@@ -57,6 +55,7 @@ public class MainActivity extends Activity {
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
     ColorHandler colorHandler = new ColorHandler(this);
+    Dialogues dialogues = new Dialogues(this);
 
 
     public void settings() {
@@ -128,11 +127,11 @@ public class MainActivity extends Activity {
                      if (event.getX() < SCREENWIDTH / 3) {
                            level.exit = false;
                          settings();
-                      } else if (event.getX() > SCREENWIDTH * 2 / 3) {
-                        restartDialog();
+                     } else if (event.getX() > SCREENWIDTH * 2 / 3) {
+                        dialogues.restartDialog();
 
                     } else if (level.score > level.skipCost) {
-                            skipLevelDialog();
+                            dialogues.skipLevelDialog();
                     }
                 }
                 //aiming launch
@@ -307,7 +306,7 @@ public class MainActivity extends Activity {
                     if (level.score < 1) {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             public void run() {
-                                endGameDialog(level.num);
+                                dialogues.endGameDialog(level.num);
                             }
                         });
                         level.reset();
@@ -503,7 +502,7 @@ public class MainActivity extends Activity {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             if (sharedPrefs.getInt("highScore", 0) == 0) {
-                newGameDialog();
+                dialogues.newGameDialog();
                 Editor e = sharedPrefs.edit();
                 e.putInt("highScore", 1);
                 e.commit();
@@ -709,7 +708,7 @@ public class MainActivity extends Activity {
             }
         }
     } 
-        /****************************************** THREAD - END*************************************/
+    /****************************************** THREAD - END*************************************/
 
     //universal functions, usually to simplify calculations
 
@@ -728,7 +727,7 @@ public class MainActivity extends Activity {
         return (int) (low + (ran * (high - low)));
     }
     
-    // ****************************************** ON* - START***************************************/
+    /****************************************** ON* - START***************************************/
     
     public boolean onPrepareOptionsMenu(Menu menu) {
         level.exit = false;
@@ -793,66 +792,5 @@ public class MainActivity extends Activity {
     public void onStart() {
         super.onStart();
         Log.i("crashing", "start");
-    }
-    
-    /***************** DIALOGUES*****************************************/
-
-    void skipLevelDialog() {
-        new AlertDialog.Builder(this)
-        .setMessage("Are you sure you want to skip this level for " + level.skipCost + " points?")
-        .setTitle("Skip Level")
-        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                level.skip();
-                _thread.setRunning(false);
-                _thread.selection = "next";
-            }
-        })
-        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        }).show();
-    }
-
-    void restartDialog() {
-        new AlertDialog.Builder(this)
-        .setMessage("Are you sure you want to restart at level 1?")
-        .setTitle("New Game")
-        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                level.reset();
-                _thread.setRunning(false);
-                _thread.selection = "next";
-            }
-        })
-        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {}
-        }).show();
-    }
-
-    void newGameDialog() {
-        new AlertDialog.Builder(this)
-        .setMessage("Drag your finger from the green launcher in the direction you want to shoot " +
-                "the lazer then release!")
-        .setTitle("How To Play")
-        .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {}
-        }).show();
-    }
-
-    void endGameDialog(int score) {
-        int oldScore = sharedPrefs.getInt("highScore", 0);
-        if (oldScore < score) {
-            oldScore = score;
-            Editor e = sharedPrefs.edit();
-            e.putInt("highScore", score);
-            e.commit();
-        }
-        new AlertDialog.Builder(this)
-        .setMessage("The score reached 0\nYou made it to level: " + score + "\nYour highscore is: " + oldScore)
-        .setTitle("Game Over")
-        .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {}
-        }).show();
     }
 }

@@ -34,10 +34,10 @@ public class MainActivity extends Activity {
     public static int LINESPACING;
     public static int SPECIALWIDTH; //special refers to target and launcher
     public static int SPEED;
+
     public static SharedPreferences sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
     public static Context context;
-
-    public static TutorialThread _thread;
+    public static MainThread _thread;
     public static Buttons buttons;
     public static Target target;// = new Target();
     public static Launcher launcher;
@@ -53,7 +53,6 @@ public class MainActivity extends Activity {
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
     ColorHandler colorHandler = new ColorHandler();
-    Dialogues dialogues = new Dialogues();
 
 
     public void settings() {
@@ -91,7 +90,7 @@ public class MainActivity extends Activity {
             super(context1);
             context = context1;
             getHolder().addCallback(this);
-            _thread = new TutorialThread(getHolder(), this);
+            _thread = new MainThread(getHolder(), this);
             setFocusable(true);
             _thread.start();
             _thread.setRunning(false);  
@@ -128,10 +127,10 @@ public class MainActivity extends Activity {
                            level.exit = false;
                          settings();
                      } else if (event.getX() > SCREENWIDTH * 2 / 3) {
-                        dialogues.restartDialog();
+                        Dialogues.restartDialog();
 
                     } else if (level.score > level.skipCost) {
-                            dialogues.skipLevelDialog();
+                         Dialogues.skipLevelDialog();
                     }
                 }
                 //aiming launch
@@ -192,39 +191,39 @@ public class MainActivity extends Activity {
                     try {
                         c = _thread._surfaceHolder.lockCanvas();
                         draw(c);
-                         double distance;
-                         double min = 99999;
-                         Line l = null;
-                         float intersection = 0;
-                         float intersectionTemp;
-                         float pointx =launcher.x, pointy = launcher.y;
-                         pointx += (event.getX() - launcher.x) * 1000;
-                         pointy += (event.getY() - launcher.y) * 1000;
-                         for (Line line : grid.lines) {
-                             intersectionTemp = line.crossed(launcher.x, launcher.y, pointx, pointy);
-                             if (intersectionTemp > 0) {
-                                 if (line.horizontal) {
-                                     distance = Math.hypot((launcher.x - intersectionTemp),
-                                             (launcher.y - line.starty));
-                                 } else {
-                                     distance = Math.hypot((launcher.x - line.startx),
-                                             (launcher.y - intersectionTemp));
-                                 }
-                                 if (distance < min) {
-                                     min = distance;
-                                     intersection = intersectionTemp;
-                                     l = line;
-                                 }
-                             }
-                         }
-                         if (l != null && l.horizontal) {
-                             c.drawLine(launcher.x, launcher.y, intersection, l.starty, laser.paint);
-                         } else if (l != null) {
-                             c.drawLine(launcher.x, launcher.y, l.startx, intersection, laser.paint);
-                         }
-                         grid.draw(c);
-                         buttons.draw(c);
-                         launcher.draw(c);
+                        double distance;
+                        double min = 99999;
+                        Line l = null;
+                        float intersection = 0;
+                        float intersectionTemp;
+                        float pointx =launcher.x, pointy = launcher.y;
+                        pointx += (event.getX() - launcher.x) * 1000;
+                        pointy += (event.getY() - launcher.y) * 1000;
+                        for (Line line : grid.lines) {
+                            intersectionTemp = line.crossed(launcher.x, launcher.y, pointx, pointy);
+                            if (intersectionTemp > 0) {
+                                if (line.horizontal) {
+                                    distance = Math.hypot((launcher.x - intersectionTemp),
+                                            (launcher.y - line.starty));
+                                } else {
+                                    distance = Math.hypot((launcher.x - line.startx),
+                                            (launcher.y - intersectionTemp));
+                                }
+                                if (distance < min) {
+                                    min = distance;
+                                    intersection = intersectionTemp;
+                                    l = line;
+                                }
+                            }
+                        }
+                        if (l != null && l.horizontal) {
+                            c.drawLine(launcher.x, launcher.y, intersection, l.starty, laser.paint);
+                        } else if (l != null) {
+                            c.drawLine(launcher.x, launcher.y, l.startx, intersection, laser.paint);
+                        }
+                        grid.draw(c);
+                        buttons.draw(c);
+                        launcher.draw(c);
                     }
                     finally {
                         if (c != null) {
@@ -306,7 +305,7 @@ public class MainActivity extends Activity {
                     if (level.score < 1) {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             public void run() {
-                                dialogues.endGameDialog(level.num);
+                                Dialogues.endGameDialog(level.num);
                             }
                         });
                         level.reset();
@@ -502,7 +501,7 @@ public class MainActivity extends Activity {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             if (sharedPrefs.getInt("highScore", 0) == 0) {
-                dialogues.newGameDialog();
+                Dialogues.newGameDialog();
                 Editor e = sharedPrefs.edit();
                 e.putInt("highScore", 1);
                 e.commit();
@@ -546,7 +545,6 @@ public class MainActivity extends Activity {
             SPECIALWIDTH = SCREENHEIGHT / 20;
             SPEED = SCREENWIDTH / 50;
             if (!level.recover) {
-                Log.i("settings", "making new stuff");
                 laser = new Laser();
                 buttons = new Buttons(getResources());
                 grid = new Grid();
@@ -556,12 +554,9 @@ public class MainActivity extends Activity {
         
         public void nextLevel(SurfaceHolder holder) {
             if (!level.recover) {
-                Log.i("animation", Integer.toString(grid.lines.size()));
                 if (grid.lines.size() > 1) gridShrink(holder);
-                if (level.num%3 == 0 && level.num != 0) {
-                    Log.i("powerup", "about to enter function");
+                if (level.num % 5 == 0 && level.num != 0) {
                     lockListenerOkay = level.pickPowerup(holder);
-                    Log.i("powerup", "done function");
                 }
                 buttons.update();
                 if (level.activePowerup.equals("bigTargets")) SPECIALWIDTH = (int) ((SCREENHEIGHT / 20) * 1.4);
@@ -650,14 +645,14 @@ public class MainActivity extends Activity {
     }
         /****************************************** DRAWING - END**********************************/
  
-    public class TutorialThread extends Thread {
+    public class MainThread extends Thread {
         private SurfaceHolder _surfaceHolder;
         private Panel _panel;
         private boolean _run = false;
         public Canvas c;
         public String selection = "";
  
-        public TutorialThread(SurfaceHolder surfaceHolder, Panel panel) {
+        public MainThread(SurfaceHolder surfaceHolder, Panel panel) {
             _surfaceHolder = surfaceHolder;
             _panel = panel;
             c = null;
@@ -709,10 +704,6 @@ public class MainActivity extends Activity {
         }
     } 
     /****************************************** THREAD - END*************************************/
-
-    //universal functions, usually to simplify calculations
-
-
     
     /****************************************** ON* - START***************************************/
     

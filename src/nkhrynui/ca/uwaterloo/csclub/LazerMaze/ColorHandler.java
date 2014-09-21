@@ -1,6 +1,5 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 

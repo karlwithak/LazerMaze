@@ -48,7 +48,7 @@ public class Dialogues {
                 }).show();
     }
 
-    void endGameDialog(int score) {
+    static void endGameDialog(int score) {
         int oldScore = MainActivity.sharedPrefs.getInt("highScore", 0);
         if (oldScore < score) {
             oldScore = score;

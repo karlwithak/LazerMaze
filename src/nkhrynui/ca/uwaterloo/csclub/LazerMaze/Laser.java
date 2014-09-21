@@ -2,7 +2,6 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import java.util.ArrayList;
 
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
@@ -17,25 +16,14 @@ public class Laser {
     public int color = 0;
     float startx, starty;
     int oldSave = 0;
-    int SCREENHEIGHT;
-    int SCREENWIDTH;
-    int NAVHEIGHT;
-    int LINESPACING;
-    MainActivity ma;
-    SharedPreferences sharedPrefs;
-    
+    final static int LINESPACING = MainActivity.LINESPACING;
+
     ArrayList<Float> pts;// = new ArrayList<Line>();
-    Laser(MainActivity mainActivity) {
-        ma = mainActivity;
-        SCREENHEIGHT = ma.SCREENHEIGHT;
-        SCREENWIDTH = ma.SCREENWIDTH;
-        NAVHEIGHT = ma.NAVHEIGHT;
-        LINESPACING = ma.LINESPACING;
-        sharedPrefs = ma.sharedPrefs;
+    Laser() {
         pts = new  ArrayList<Float>();
         startx = -10;
         starty = -10;
-        GO = new GraphicObject(ma.SPEED);
+        GO = new GraphicObject(MainActivity.SPEED);
         paint.setStrokeWidth((float) Math.floor(LINESPACING / 7));
         oldLasers = 0;
     }
@@ -69,7 +57,7 @@ public class Laser {
     }
 
     void nextLevel() {
-        GO = new GraphicObject(ma.SPEED);
+        GO = new GraphicObject(MainActivity.SPEED);
         pts.clear();
     }
 

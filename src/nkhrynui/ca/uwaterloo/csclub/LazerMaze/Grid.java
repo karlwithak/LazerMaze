@@ -2,7 +2,6 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import java.util.ArrayList;
 
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
@@ -11,30 +10,16 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 public class Grid {
     ArrayList<Line> lines;
     Paint paint;
-    MainActivity ma;
-    SharedPreferences sharedPrefs;
-    Level level;
     int color = 0;
-    int SCREENWIDTH;
-    int SCREENHEIGHT;
-    int NAVHEIGHT;
-    int LINESPACING;
-    Buttons buttons;
+    final static int SCREENWIDTH = MainActivity.SCREENWIDTH;
+    final static int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
+    final static int NAVHEIGHT = MainActivity.NAVHEIGHT;
+    final static int LINESPACING = MainActivity.LINESPACING;
     boolean recovery;
-    Grid(MainActivity mainActivity) {
-        ma = mainActivity;
+    Grid() {
         recovery = false;
         lines = new ArrayList<Line>();
         paint = new Paint();
-        sharedPrefs = ma.sharedPrefs;
-        level = ma.level;
-        SCREENWIDTH = ma.SCREENWIDTH;
-        SCREENHEIGHT = ma.SCREENHEIGHT;
-        NAVHEIGHT = ma.NAVHEIGHT;
-        LINESPACING = ma.LINESPACING;
-        buttons = ma.buttons;
-        sharedPrefs = ma.sharedPrefs;
-        level = ma.level;
         paint.setStrokeWidth((float) Math.ceil(LINESPACING / 7) + 1);
     }
 
@@ -83,9 +68,9 @@ public class Grid {
     
     void makeGrid() {
         double linesAdjust = 1;
-        if (level.activePowerup.equals("lessLines")) linesAdjust = 0.666;
+        if (MainActivity.level.activePowerup.equals("lessLines")) linesAdjust = 0.666;
         double lengthAdjust = 1;
-        if (level.activePowerup.equals("shortLines")) lengthAdjust = 0.666;
+        if (MainActivity.level.activePowerup.equals("shortLines")) lengthAdjust = 0.666;
         lines.clear();
         lines.add(new Line(-1, NAVHEIGHT, SCREENWIDTH, LINESPACING * 3)); //top
         lines.add(new Line(-1, SCREENHEIGHT - NAVHEIGHT, SCREENWIDTH + 1, SCREENHEIGHT - NAVHEIGHT)); //bottom
@@ -96,7 +81,7 @@ public class Grid {
         lines.get(1).addIntersections(lines.get(3));
         lines.get(3).addIntersections(lines.get(2));
         int a, b, length;
-        for (int i = 0; i < (5 + (2 * Math.sqrt(level.num))) * linesAdjust && level.num != 0; i++) {
+        for (int i = 0; i < (5 + (2 * Math.sqrt(MainActivity.level.num))) * linesAdjust && MainActivity.level.num != 0; i++) {
             //creates a new line and makes sure that it does not create an enclosed space(conflict)
             a = randomBetween(1, (SCREENWIDTH / LINESPACING) - 1) * LINESPACING;
             b = randomBetween(3, ((SCREENHEIGHT - NAVHEIGHT) / LINESPACING) - 1) * LINESPACING;

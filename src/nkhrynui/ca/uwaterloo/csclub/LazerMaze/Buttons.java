@@ -2,6 +2,7 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import java.util.Map;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,38 +15,27 @@ public class Buttons {
     Paint text = new Paint();
     Paint button = new Paint();
     Paint warning = new Paint();
-    MainActivity ma;
-    Level level;
-    int SCREENWIDTH;
-    int SCREENHEIGHT;
-    int NAVHEIGHT;
-    int LINESPACING;
-    int SPECIALWIDTH;
-    Laser laser;
+    final static int SCREENWIDTH = MainActivity.SCREENWIDTH;
+    final static int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
+    final static int NAVHEIGHT = MainActivity.NAVHEIGHT;
+    final static int SPECIALWIDTH = MainActivity.SPECIALWIDTH;
     Bitmap settings, restart, skip, noskip, powerup;
+    Resources resources;
     Map<String, Integer> smallPics;
 
-
-    Buttons(MainActivity mainActivity) {
-        ma = mainActivity;
-        level = ma.level;
-        SCREENWIDTH = ma.SCREENWIDTH;
-        SCREENHEIGHT = ma.SCREENHEIGHT;
-        NAVHEIGHT = ma.NAVHEIGHT;
-        LINESPACING = ma.LINESPACING;
-        SPECIALWIDTH = ma.SPECIALWIDTH;
-        laser = ma.laser;
-        smallPics = ma.smallPics;
+    Buttons(Resources resourcesIn) {
+        smallPics = MainActivity.smallPics;
         button.setColor(Color.rgb(16, 16, 16));
         text.setColor(Color.WHITE);
         text.setTextSize((int) (SPECIALWIDTH / 1.5));
         text.setTextAlign(Align.CENTER);
         warning.set(text);
         warning.setColor(Color.RED);
-        settings = BitmapFactory.decodeResource(ma.getResources(), smallPics.get("settings"));
-        restart = BitmapFactory.decodeResource(ma.getResources(), smallPics.get("restart"));
-        skip = BitmapFactory.decodeResource(ma.getResources(), smallPics.get("forward"));
-        noskip = BitmapFactory.decodeResource(ma.getResources(), smallPics.get("forwardDisabled"));
+        resources = resourcesIn;
+        settings = BitmapFactory.decodeResource(resources, smallPics.get("settings"));
+        restart = BitmapFactory.decodeResource(resources, smallPics.get("restart"));
+        skip = BitmapFactory.decodeResource(resources, smallPics.get("forward"));
+        noskip = BitmapFactory.decodeResource(resources, smallPics.get("forwardDisabled"));
     }
 
     void draw(Canvas c) {
@@ -69,7 +59,7 @@ public class Buttons {
                                             SCREENHEIGHT - NAVHEIGHT,
                                             (3 * SCREENWIDTH / 4) + NAVHEIGHT,
                                             SCREENHEIGHT), null);
-        c.drawBitmap((level.score > level.skipCost? skip: noskip), null,
+        c.drawBitmap((MainActivity.level.score > MainActivity.level.skipCost? skip: noskip), null,
                 new Rect((SCREENWIDTH / 2) - NAVHEIGHT / 2,
                         SCREENHEIGHT - NAVHEIGHT,
                         (SCREENWIDTH / 2) + NAVHEIGHT / 2,
@@ -78,19 +68,19 @@ public class Buttons {
 
         float height = (NAVHEIGHT / 2) - (text.ascent() / 4);
 
-        if (!level.activePowerup.equals("")) {
+        if (!MainActivity.level.activePowerup.equals("")) {
             c.drawBitmap(powerup, null, new Rect((5 * SCREENWIDTH / 6) - NAVHEIGHT / 2,
                                             1,
                                             (5 * SCREENWIDTH / 6) + NAVHEIGHT / 2,
                                             NAVHEIGHT - 1), null);
         }
-        c.drawText("level: "+ level.num, SCREENWIDTH / 2, height, text);
-        c.drawText("score: "+ level.score, SCREENWIDTH / 6, height, (level.score > 20?text: warning));
+        c.drawText("level: "+ MainActivity.level.num, SCREENWIDTH / 2, height, text);
+        c.drawText("score: "+ MainActivity.level.score, SCREENWIDTH / 6, height, (MainActivity.level.score > 20?text: warning));
     }
 
     void update() {
-        if (!level.activePowerup.equals("")) {
-            powerup = BitmapFactory.decodeResource(ma.getResources(), smallPics.get(level.activePowerup));
+        if (!MainActivity.level.activePowerup.equals("")) {
+            powerup = BitmapFactory.decodeResource(resources, smallPics.get(MainActivity.level.activePowerup));
         }
     }
 }

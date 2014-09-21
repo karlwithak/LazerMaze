@@ -1,7 +1,5 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,18 +44,15 @@ public class MainActivity extends Activity {
     public static Target target2 = null;// = new Target();
     public static Launcher launcher2 = null;
     public static Grid grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
-    //MediaPlayer mp;// = MediaPlayer.create(getApplicationContext(), R.raw.boop2);
-    FileOutputStream fos;
-    FileInputStream fis;
-    public static Level level = new Level();
+    public static Level level;
     Vibrator v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    public Laser laser;// = new Laser();
-    Map<String, Integer> bigPics = new HashMap<String, Integer>();
-    Map<String, Integer> smallPics = new HashMap<String, Integer>();
+    public static Laser laser;// = new Laser();
+    public static Map<String, Integer> bigPics = new HashMap<String, Integer>();
+    public static Map<String, Integer> smallPics = new HashMap<String, Integer>();
     boolean inAnimation = false;
     boolean upOnButtons = false;
     boolean lockListenerOkay = true;
-    ColorHandler colorHandler = new ColorHandler(this);
+    ColorHandler colorHandler = new ColorHandler();
     Dialogues dialogues = new Dialogues();
 
 
@@ -80,6 +75,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        level = new Level(getResources());
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -551,9 +547,9 @@ public class MainActivity extends Activity {
             SPEED = SCREENWIDTH / 50;
             if (!level.recover) {
                 Log.i("settings", "making new stuff");
-                laser = new Laser(MainActivity.this);
-                buttons= new Buttons(MainActivity.this);
-                grid = new Grid(MainActivity.this);
+                laser = new Laser();
+                buttons = new Buttons(getResources());
+                grid = new Grid();
             }
             nextLevel(holder);
         }
@@ -562,7 +558,7 @@ public class MainActivity extends Activity {
             if (!level.recover) {
                 Log.i("animation", Integer.toString(grid.lines.size()));
                 if (grid.lines.size() > 1) gridShrink(holder);
-                if (level.num%5 == 0 && level.num != 0) {
+                if (level.num%3 == 0 && level.num != 0) {
                     Log.i("powerup", "about to enter function");
                     lockListenerOkay = level.pickPowerup(holder);
                     Log.i("powerup", "done function");
@@ -582,45 +578,45 @@ public class MainActivity extends Activity {
                 target2 = null;
                 launcher2 = null;
 
-                target = new Target(b, MainActivity.this);
+                target = new Target(b);
                 for (int i = 0; i < grid.getLines().size() && level.num !=0; i++) {
                     if (target.lineTest(grid.getLines().get(i))) {
-                        target = new Target(b, MainActivity.this);
+                        target = new Target(b);
                         i = -1;
                     }
                 }
 
                 if (level.activePowerup.equals("twoTargets")) {
-                    target2 = new Target(b, MainActivity.this);
+                    target2 = new Target(b);
                     for (int i = 0; i < grid.getLines().size(); i++) {
                         if (target2.lineTest(grid.getLines().get(i))
                                 || target.bigPointTest(target2.x, target2.y))
                         {
-                            target2 = new Target(b, MainActivity.this);
+                            target2 = new Target(b);
                             i = -1;
                         }
                     }
                 }
 
-                launcher =new Launcher(b2, MainActivity.this);
+                launcher =new Launcher(b2);
                 for (int i = 0; i < grid.getLines().size() && level.num !=0; i++) {
                     if (launcher.lineTest(grid.getLines().get(i))
                             || launcher.tooEasy(target, grid.getLines())
                             || (target2 != null && launcher.tooEasy(target2, grid.getLines())))
                     {
-                        launcher = new Launcher(b2, MainActivity.this);
+                        launcher = new Launcher(b2);
                         i = -1;
                     }
                 }
 
                 if (level.activePowerup.equals("twoLaunchers")) {
-                    launcher2 = new Launcher(b2, MainActivity.this);
+                    launcher2 = new Launcher(b2);
                     for (int i = 0; i < grid.getLines().size(); i++) {
                         if (launcher2.lineTest(grid.getLines().get(i))
                                 || launcher2.tooEasy(target, grid.getLines())
                                 || launcher.bigPointTest(launcher2.x, launcher2.y))
                         {
-                            launcher2 = new Launcher(b2, MainActivity.this);
+                            launcher2 = new Launcher(b2);
                             i = -1;
                         }
                     }

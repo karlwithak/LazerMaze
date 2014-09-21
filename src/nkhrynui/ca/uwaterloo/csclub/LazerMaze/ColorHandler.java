@@ -7,39 +7,21 @@ import android.util.Log;
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
 public class ColorHandler {
-    MainActivity ma;
-    Grid grid;
-    Laser laser;
-    Level level;
-    SharedPreferences sharedPrefs;
-
-    public ColorHandler(MainActivity mainActivity) {
-        ma = mainActivity;
-        grid = ma.grid;
-        laser = ma.laser;
-        level = ma.level;
-        sharedPrefs = ma.sharedPrefs;
-    }
-
     public void update(Object obj) {
-        sharedPrefs = ma.sharedPrefs;
-        grid = ma.grid;
-        laser = ma.laser;
-        level = ma.level;
         String color;
-        if (obj.equals(grid)) {
-            color = sharedPrefs.getString("pref_lineColor", "white");
-            if (color.equalsIgnoreCase("random")) color = randomHexColor(level.color, 0);
-            grid.setColor(Color.parseColor(color));
-        } else if (obj.equals(laser)) {
-            color = sharedPrefs.getString("pref_laserColor", "random");
-            if (color.equalsIgnoreCase("random")) color = randomHexColor(level.color, 0);
-            laser.setColor(Color.parseColor(color));
-        } else if (obj.equals(level)) {
-            color = sharedPrefs.getString("pref_bgColor", "random");
-            Log.i("test", Integer.toString(grid.color));
-            if (color.equalsIgnoreCase("random")) color = randomHexColor(laser.color, grid.color);
-            level.color = Color.parseColor(color);
+        if (obj.equals(MainActivity.grid)) {
+            color = MainActivity.sharedPrefs.getString("pref_lineColor", "white");
+            if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.level.color, 0);
+            MainActivity.grid.setColor(Color.parseColor(color));
+        } else if (obj.equals(MainActivity.laser)) {
+            color = MainActivity.sharedPrefs.getString("pref_laserColor", "random");
+            if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.level.color, 0);
+            MainActivity.laser.setColor(Color.parseColor(color));
+        } else if (obj.equals(MainActivity.level)) {
+            color = MainActivity.sharedPrefs.getString("pref_bgColor", "random");
+            Log.i("test", Integer.toString(MainActivity.grid.color));
+            if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.laser.color, MainActivity.grid.color);
+            MainActivity.level.color = Color.parseColor(color);
         }
     }
 

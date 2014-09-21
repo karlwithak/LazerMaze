@@ -1,7 +1,6 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
-import java.util.Map;
-
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,7 +13,6 @@ import android.view.SurfaceHolder;
 
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
-
 public class Level {
     Canvas c ;//= MainActivity._thread.c;
     int color; //this is background colour
@@ -24,12 +22,12 @@ public class Level {
     boolean restart = false;
     boolean inPrefs = false;
     boolean listening = false;
-    MainActivity ma;
     int score = 100;
     int skipCost = 100;
     int selection = 3;
     int option1, option2;
     Bitmap b1, b2;
+    Resources resources;
     String[] powerupNames = {"launchFromEither", "throughFirstLine", "twoLaunchers", "twoTargets",
                             "shortLines", "lessLines", "aimingLaser", "wrapAroundSides",
                             "wrapAroundEnds", "bigTargets"};
@@ -37,7 +35,8 @@ public class Level {
                             "Short Lines", "Less Lines", "Aiming Lazer", "No Sides", "No Ends",
                             "Big Target"};
 
-    public Level() {
+    public Level(Resources resourcesIn) {
+        resources = resourcesIn;
     }
 
     String activePowerup = "";
@@ -45,11 +44,10 @@ public class Level {
        c.drawColor(color);
     }
     boolean pickPowerup(SurfaceHolder holder) {
-        Map<String, Integer> bigPics = ma.bigPics;
-        selection = 0;
         int SCREENWIDTH = MainActivity.SCREENWIDTH;
         int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
         int NAVHEIGHT = MainActivity.NAVHEIGHT;
+        selection = 0;
         Paint text = new Paint();
         text.setTextAlign(Align.CENTER);
         Paint smallText = new Paint();
@@ -69,11 +67,11 @@ public class Level {
             c = holder.lockCanvas();
             c.drawColor(Color.rgb(16, 16, 16));
             c.drawText("Choose powerup",  SCREENWIDTH / 2, NAVHEIGHT, text);
-            Log.i("powerup", Integer.toString(bigPics.size()));
+            Log.i("powerup", Integer.toString(MainActivity.bigPics.size()));
             String name = powerupNames[option1];
-            b1 = BitmapFactory.decodeResource(ma.getResources(), bigPics.get(name));
+            b1 = BitmapFactory.decodeResource(resources, MainActivity.bigPics.get(name));
             name = powerupNames[option2];
-            b2 = BitmapFactory.decodeResource(ma.getResources(), bigPics.get(name));
+            b2 = BitmapFactory.decodeResource(resources, MainActivity.bigPics.get(name));
 
             c.drawBitmap(b1, null, new Rect(0,
                                         NAVHEIGHT * 4,

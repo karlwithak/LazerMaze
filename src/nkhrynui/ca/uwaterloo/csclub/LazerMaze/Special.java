@@ -10,11 +10,10 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
 public class Special{
     Bitmap bitmap;
-    MainActivity ma;
-    int SPECIALWIDTH;
-    int SCREENWIDTH;
-    int SCREENHEIGHT;
-    int NAVHEIGHT;
+    final static int SPECIALWIDTH = MainActivity.SPECIALWIDTH;
+    final static int SCREENWIDTH = MainActivity.SCREENWIDTH;
+    final static int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
+    final static int NAVHEIGHT = MainActivity.NAVHEIGHT;
     boolean active = false;
     int y;
     int x;
@@ -24,13 +23,8 @@ public class Special{
         canvas.drawBitmap(bitmap, null, r, null);
     }
 
-    Special(Bitmap b, MainActivity ma) {
+    Special(Bitmap b) {
         bitmap =  b;
-        this.ma = ma;
-        SPECIALWIDTH = ma.SPECIALWIDTH;
-        SCREENWIDTH = ma.SCREENWIDTH;
-        SCREENHEIGHT = ma.SCREENHEIGHT;
-        NAVHEIGHT = ma.NAVHEIGHT;
         y = randomBetween(NAVHEIGHT + SPECIALWIDTH, SCREENHEIGHT - (NAVHEIGHT + SPECIALWIDTH));
         x = randomBetween(SPECIALWIDTH, SCREENWIDTH - (SPECIALWIDTH));
         r = new Rect(x - (SPECIALWIDTH / 2),
@@ -72,16 +66,16 @@ public class Special{
     /******************************* TARGET  - START **********************************************/
   
 class Target extends Special{
-    Target(Bitmap b, MainActivity ma) {
-        super(b, ma);
+    Target(Bitmap b) {
+        super(b);
         // TODO Auto-generated constructor stub
     }
 }
     /******************************* TARGET  - END ************************************************/
     /******************************* LAUNCHER  - START ********************************************/
 class Launcher extends Special{
-    Launcher(Bitmap b, MainActivity ma) {
-        super(b, ma);
+    Launcher(Bitmap b) {
+        super(b);
     }
 
     public boolean tooEasy(Special target, ArrayList<Line> lines) {

@@ -1,6 +1,7 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import android.graphics.Canvas;
+import android.view.SurfaceHolder;
 
 public class Level {
     int color; //this is background colour
@@ -11,6 +12,8 @@ public class Level {
     boolean inPrefs = false;
     int score = 100;
     int skipCost = 100;
+    int SPECIALWIDTH = MainActivity.SPECIALWIDTH;
+    int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
 
     void draw(Canvas c) {
        c.drawColor(color);

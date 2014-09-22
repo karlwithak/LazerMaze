@@ -36,7 +36,7 @@ public class Laser {
         }
     }
 
-    void reset(Launcher launcher) {
+    void reset(Special launcher) {
         pts.clear();
         Log.i("powerup", Integer.toString(launcher.x));
         pts.add((float) launcher.x);

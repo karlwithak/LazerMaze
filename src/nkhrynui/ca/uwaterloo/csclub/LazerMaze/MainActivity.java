@@ -470,8 +470,9 @@ public class MainActivity extends Activity {
             colorHandler.update();
             grid.makeGrid();
             if (level.num > 0 && lockListenerOkay) gridExpand(holder);
-            launcher.update();
-            target.update();
+            target.update(false);
+            launcher.update(true);
+
         }
         level.recover = false;
         panel.graphicCount = 0;

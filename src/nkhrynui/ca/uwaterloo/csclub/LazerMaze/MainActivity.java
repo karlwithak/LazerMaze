@@ -472,7 +472,15 @@ public class MainActivity extends Activity {
             if (level.num > 0 && lockListenerOkay) gridExpand(holder);
             target.update(false);
             launcher.update(true);
-
+            if (powerup == Powerups.TWO_TARGETS) {
+                target2 = Special.TARGET2;
+                target2.update2(false);
+            } else target2 = null;
+            if (powerup == Powerups.TWO_LAUNCHERS) {
+                launcher2 = Special.LAUNCHER2;
+                launcher2.update2(true);
+            }
+            else launcher2 = null;
         }
         level.recover = false;
         panel.graphicCount = 0;
@@ -559,7 +567,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         resources = getResources();
         level = new Level();
-        powerup = Powerups.AIMING_LASER;
+        powerup = Powerups.TWO_TARGETS;
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);

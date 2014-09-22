@@ -11,7 +11,9 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
 public enum Special{
     TARGET(BitmapFactory.decodeResource(MainActivity.resources, R.drawable.newtarget)),
-    LAUNCHER(BitmapFactory.decodeResource(MainActivity.resources, R.drawable.shoot));
+    TARGET2(BitmapFactory.decodeResource(MainActivity.resources, R.drawable.newtarget)),
+    LAUNCHER(BitmapFactory.decodeResource(MainActivity.resources, R.drawable.shoot)),
+    LAUNCHER2(BitmapFactory.decodeResource(MainActivity.resources, R.drawable.shoot));
 
     Bitmap bitmap;
     final int SPECIALWIDTH = MainActivity.SPECIALWIDTH;
@@ -45,54 +47,27 @@ public enum Special{
                     y + (SPECIALWIDTH / 2));
     }
 
-
-
-/*
-
-        target2 = null;
-        launcher2 = null;
-
-        target = new Target(targetBitmap);
-        for (int i = 0; i < grid.getLines().size(); i++) {
-            if (target.lineTest(grid.getLines().get(i))) {
-                target = new Target(targetBitmap);
+    public void update2(boolean isLauncher) {
+        y = randomBetween(NAVHEIGHT + SPECIALWIDTH, SCREENHEIGHT - (NAVHEIGHT + SPECIALWIDTH));
+        x = randomBetween(SPECIALWIDTH, SCREENWIDTH - (SPECIALWIDTH));
+        ArrayList<Line> lines = MainActivity.grid.getLines();
+        for (int i = 0; i < lines.size(); i++) {
+            if (lineTest(lines.get(i))
+                    || (isLauncher && tooEasy(TARGET, lines))
+                    || (isLauncher && bigPointTest(LAUNCHER.x, LAUNCHER.y))
+                    || (!isLauncher && bigPointTest(TARGET.x, TARGET.y))
+                    || (!isLauncher && LAUNCHER.tooEasy(this, lines)))
+            {
+                y = randomBetween(NAVHEIGHT + SPECIALWIDTH, SCREENHEIGHT - (NAVHEIGHT + SPECIALWIDTH));
+                x = randomBetween(SPECIALWIDTH, SCREENWIDTH - (SPECIALWIDTH));
                 i = -1;
             }
         }
-
-        if (powerup == Powerups.TWO_TARGETS) {
-            target2 = new Target(targetBitmap);
-            for (int i = 0; i < grid.getLines().size(); i++) {
-                if (target2.lineTest(grid.getLines().get(i))
-                        || target.bigPointTest(target2.x, target2.y)) {
-                    target2 = new Target(targetBitmap);
-                    i = -1;
-                }
-            }
-        }
-
-        launcher = new Launcher(launcherBitmap);
-        for (int i = 0; i < grid.getLines().size(); i++) {
-            if (launcher.lineTest(grid.getLines().get(i))
-                    || launcher.tooEasy(target, grid.getLines())
-                    || (target2 != null && launcher.tooEasy(target2, grid.getLines()))) {
-                launcher = new Launcher(launcherBitmap);
-                i = -1;
-            }
-        }
-
-        if (powerup == Powerups.TWO_LAUNCHERS) {
-            launcher2 = new Launcher(launcherBitmap);
-            for (int i = 0; i < grid.getLines().size(); i++) {
-                if (launcher2.lineTest(grid.getLines().get(i))
-                        || launcher2.tooEasy(target, grid.getLines())
-                        || launcher.bigPointTest(launcher2.x, launcher2.y)) {
-                    launcher2 = new Launcher(launcherBitmap);
-                    i = -1;
-                }
-            }
-        }
-    } */
+        r = new Rect(x - (SPECIALWIDTH / 2),
+                y - (SPECIALWIDTH / 2),
+                x + (SPECIALWIDTH / 2),
+                y + (SPECIALWIDTH / 2));
+    }
 
     boolean lineTest(Line line) {
         if (line.horizontal) {

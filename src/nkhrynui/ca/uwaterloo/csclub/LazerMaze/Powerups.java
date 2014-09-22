@@ -21,7 +21,7 @@ public enum Powerups {
     AIMING_LASER("Aiming Lazer", R.drawable.aiminglasersmall, R.drawable.aiminglaser),
     WRAP_AROUND_SIDES("No Sides", R.drawable.wraparoundsidessmall, R.drawable.wraparoundsides),
     WRAP_AROUND_ENDS("No Ends", R.drawable.wraparoundendssmall, R.drawable.wraparoundends),
-    //TODO: this powerup is not working
+    //TODO: this powerup is broken
     BIG_TARGETS("Big Target", R.drawable.largetargetsmall, R.drawable.largetarget),
     NONE("", 0, 0);
 

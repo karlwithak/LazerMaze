@@ -11,16 +11,16 @@ public class Grid {
     ArrayList<Line> lines;
     Paint paint;
     int color = 0;
-    final static int SCREENWIDTH = MainActivity.SCREENWIDTH;
-    final static int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
-    final static int NAVHEIGHT = MainActivity.NAVHEIGHT;
-    final static int LINESPACING = MainActivity.LINESPACING;
+    final static int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
+    final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
+    final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
+    final static int LINE_SPACING = MainActivity.LINE_SPACING;
     boolean recovery;
     Grid() {
         recovery = false;
         lines = new ArrayList<Line>();
         paint = new Paint();
-        paint.setStrokeWidth((float) Math.ceil(LINESPACING / 7) + 1);
+        paint.setStrokeWidth((float) Math.ceil(LINE_SPACING / 7) + 1);
     }
 
     boolean overlapping(ArrayList<Line> lines) {
@@ -68,30 +68,30 @@ public class Grid {
     
     void makeGrid() {
         double linesAdjust = 1;
-        if (MainActivity.powerup == Powerups.LESS_LINES) linesAdjust = 0.666;
+        if (MainActivity.g_powerup == Powerups.LESS_LINES) linesAdjust = 0.666;
         double lengthAdjust = 1;
-        if (MainActivity.powerup == Powerups.SHORT_LINES) lengthAdjust = 0.666;
+        if (MainActivity.g_powerup == Powerups.SHORT_LINES) lengthAdjust = 0.666;
         lines.clear();
-        lines.add(new Line(-1, NAVHEIGHT, SCREENWIDTH, LINESPACING * 3)); //top
-        lines.add(new Line(-1, SCREENHEIGHT - NAVHEIGHT, SCREENWIDTH + 1, SCREENHEIGHT - NAVHEIGHT)); //bottom
-        lines.add(new Line(1, NAVHEIGHT, 1, SCREENHEIGHT - NAVHEIGHT));                        //left
-        lines.add(new Line(SCREENWIDTH - 1, NAVHEIGHT, SCREENWIDTH - 1, SCREENHEIGHT - NAVHEIGHT));    //right
+        lines.add(new Line(-1, NAV_HEIGHT, SCREEN_WIDTH, LINE_SPACING * 3)); //top
+        lines.add(new Line(-1, SCREEN_HEIGHT - NAV_HEIGHT, SCREEN_WIDTH + 1, SCREEN_HEIGHT - NAV_HEIGHT)); //bottom
+        lines.add(new Line(1, NAV_HEIGHT, 1, SCREEN_HEIGHT - NAV_HEIGHT));                        //left
+        lines.add(new Line(SCREEN_WIDTH - 1, NAV_HEIGHT, SCREEN_WIDTH - 1, SCREEN_HEIGHT - NAV_HEIGHT));    //right
         lines.get(0).addIntersections(lines.get(1));
         lines.get(0).addIntersections(lines.get(2));
         lines.get(1).addIntersections(lines.get(3));
         lines.get(3).addIntersections(lines.get(2));
         int a, b, length;
-        for (int i = 0; i < (5 + (2 * Math.sqrt(MainActivity.level.num))) * linesAdjust && MainActivity.level.num != 0; i++) {
+        for (int i = 0; i < (5 + (2 * Math.sqrt(MainActivity.g_level.num))) * linesAdjust && MainActivity.g_level.num != 0; i++) {
             //creates a new line and makes sure that it does not create an enclosed space(conflict)
-            a = randomBetween(1, (SCREENWIDTH / LINESPACING) - 1) * LINESPACING;
-            b = randomBetween(3, ((SCREENHEIGHT - NAVHEIGHT) / LINESPACING) - 1) * LINESPACING;
+            a = randomBetween(1, (SCREEN_WIDTH / LINE_SPACING) - 1) * LINE_SPACING;
+            b = randomBetween(3, ((SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING) - 1) * LINE_SPACING;
             if (a / 10 % 2 == 1) {
-                length = (int) (Math.ceil(randomBetween(-SCREENHEIGHT / LINESPACING / 2,
-                        SCREENHEIGHT / LINESPACING / 2) * lengthAdjust) * LINESPACING);
+                length = (int) (Math.ceil(randomBetween(-SCREEN_HEIGHT / LINE_SPACING / 2,
+                        SCREEN_HEIGHT / LINE_SPACING / 2) * lengthAdjust) * LINE_SPACING);
                 lines.add(new Line(a, b, a + length, b));
             } else {
-                length = (int) (Math.ceil(randomBetween(-(SCREENHEIGHT - NAVHEIGHT) / LINESPACING / 2,
-                        (SCREENHEIGHT - NAVHEIGHT) / LINESPACING / 2) * lengthAdjust) * LINESPACING);
+                length = (int) (Math.ceil(randomBetween(-(SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING / 2,
+                        (SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING / 2) * lengthAdjust) * LINE_SPACING);
                 lines.add(new Line(a, b, a, b + length));
             }
 

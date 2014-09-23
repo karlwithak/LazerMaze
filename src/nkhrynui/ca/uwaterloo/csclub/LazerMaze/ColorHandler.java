@@ -1,7 +1,6 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
@@ -13,19 +12,19 @@ public class ColorHandler {
     }
 
     private void updateGrid() {
-        String color = MainActivity.sharedPrefs.getString("pref_lineColor", "white");
-        if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.level.color, 0);
-        MainActivity.grid.setColor(Color.parseColor(color));
+        String color = MainActivity.g_sharedPrefs.getString("pref_lineColor", "white");
+        if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.g_level.color, 0);
+        MainActivity.g_grid.setColor(Color.parseColor(color));
     }
     private void updateLaser() {
-        String color = MainActivity.sharedPrefs.getString("pref_laserColor", "random");
-        if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.level.color, 0);
-        MainActivity.laser.setColor(Color.parseColor(color));
+        String color = MainActivity.g_sharedPrefs.getString("pref_laserColor", "random");
+        if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.g_level.color, 0);
+        MainActivity.g_laser.setColor(Color.parseColor(color));
     }
     private void updateLevel() {
-        String color = MainActivity.sharedPrefs.getString("pref_bgColor", "random");
-        if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.laser.color, MainActivity.grid.color);
-        MainActivity.level.color = Color.parseColor(color);
+        String color = MainActivity.g_sharedPrefs.getString("pref_bgColor", "random");
+        if (color.equalsIgnoreCase("random")) color = randomHexColor(MainActivity.g_laser.color, MainActivity.g_grid.color);
+        MainActivity.g_level.color = Color.parseColor(color);
     }
 
 

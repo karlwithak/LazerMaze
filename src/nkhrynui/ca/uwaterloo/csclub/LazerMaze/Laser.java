@@ -16,7 +16,7 @@ public class Laser {
     public int color = 0;
     float startx, starty;
     int oldSave = 0;
-    final static int LINESPACING = MainActivity.LINESPACING;
+    final static int LINE_SPACING = MainActivity.LINE_SPACING;
 
     ArrayList<Float> pts;// = new ArrayList<Line>();
     Laser() {
@@ -24,7 +24,7 @@ public class Laser {
         startx = -10;
         starty = -10;
         GO = new GraphicObject(MainActivity.SPEED);
-        paint.setStrokeWidth((float) Math.floor(LINESPACING / 7));
+        paint.setStrokeWidth((float) Math.floor(LINE_SPACING / 7));
         paint.setAntiAlias(true);
         oldLasers = 0;
     }

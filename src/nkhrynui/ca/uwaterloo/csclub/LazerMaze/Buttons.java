@@ -13,17 +13,17 @@ public class Buttons {
     Paint text = new Paint();
     Paint button = new Paint();
     Paint warning = new Paint();
-    final static int SCREENWIDTH = MainActivity.SCREENWIDTH;
-    final static int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
-    final static int NAVHEIGHT = MainActivity.NAVHEIGHT;
-    final static int SPECIALWIDTH = MainActivity.SPECIALWIDTH;
+    final static int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
+    final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
+    final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
+    final static int SPECIAL_WIDTH = MainActivity.SPECIAL_WIDTH;
     Bitmap settings, restart, skip, noskip, powerup;
     Resources resources;
 
     Buttons(Resources resourcesIn) {
         button.setColor(Color.rgb(16, 16, 16));
         text.setColor(Color.WHITE);
-        text.setTextSize((int) (SPECIALWIDTH / 1.5));
+        text.setTextSize((int) (SPECIAL_WIDTH / 1.5));
         text.setTextAlign(Align.CENTER);
         text.setAntiAlias(true);
         warning.set(text);
@@ -37,48 +37,48 @@ public class Buttons {
     }
 
     void draw(Canvas c) {
-        c.drawRect(0, (SCREENHEIGHT - NAVHEIGHT) + 2, SCREENWIDTH, SCREENHEIGHT, button);
-        c.drawRect(0, 0, SCREENWIDTH, NAVHEIGHT - 1, button);
+        c.drawRect(0, (SCREEN_HEIGHT - NAV_HEIGHT) + 2, SCREEN_WIDTH, SCREEN_HEIGHT, button);
+        c.drawRect(0, 0, SCREEN_WIDTH, NAV_HEIGHT - 1, button);
 
-        c.drawRect((SCREENWIDTH / 3) - 1,
-                (NAVHEIGHT / 7),
-                (SCREENWIDTH / 3) + 1,
-                NAVHEIGHT - (NAVHEIGHT / 7), text);
-        c.drawRect((SCREENWIDTH * 2 / 3) - 1,
-                (NAVHEIGHT / 7),
-                (SCREENWIDTH * 2 / 3) + 1,
-                NAVHEIGHT - (NAVHEIGHT / 7), text);
+        c.drawRect((SCREEN_WIDTH / 3) - 1,
+                (NAV_HEIGHT / 7),
+                (SCREEN_WIDTH / 3) + 1,
+                NAV_HEIGHT - (NAV_HEIGHT / 7), text);
+        c.drawRect((SCREEN_WIDTH * 2 / 3) - 1,
+                (NAV_HEIGHT / 7),
+                (SCREEN_WIDTH * 2 / 3) + 1,
+                NAV_HEIGHT - (NAV_HEIGHT / 7), text);
 
-        c.drawBitmap(settings, null, new Rect((SCREENWIDTH / 4) - NAVHEIGHT,
-                                            SCREENHEIGHT - 9 * NAVHEIGHT / 10,
-                                            (SCREENWIDTH / 4),
-                                            SCREENHEIGHT - NAVHEIGHT / 10), null);
-        c.drawBitmap(restart, null, new Rect((3 * SCREENWIDTH / 4),
-                                            SCREENHEIGHT - NAVHEIGHT,
-                                            (3 * SCREENWIDTH / 4) + NAVHEIGHT,
-                                            SCREENHEIGHT), null);
-        c.drawBitmap((MainActivity.level.score > MainActivity.level.skipCost? skip: noskip), null,
-                new Rect((SCREENWIDTH / 2) - NAVHEIGHT / 2,
-                        SCREENHEIGHT - NAVHEIGHT,
-                        (SCREENWIDTH / 2) + NAVHEIGHT / 2,
-                        SCREENHEIGHT), null);
+        c.drawBitmap(settings, null, new Rect((SCREEN_WIDTH / 4) - NAV_HEIGHT,
+                                            SCREEN_HEIGHT - 9 * NAV_HEIGHT / 10,
+                                            (SCREEN_WIDTH / 4),
+                                            SCREEN_HEIGHT - NAV_HEIGHT / 10), null);
+        c.drawBitmap(restart, null, new Rect((3 * SCREEN_WIDTH / 4),
+                                            SCREEN_HEIGHT - NAV_HEIGHT,
+                                            (3 * SCREEN_WIDTH / 4) + NAV_HEIGHT,
+                SCREEN_HEIGHT), null);
+        c.drawBitmap((MainActivity.g_level.score > MainActivity.g_level.skipCost? skip: noskip), null,
+                new Rect((SCREEN_WIDTH / 2) - NAV_HEIGHT / 2,
+                        SCREEN_HEIGHT - NAV_HEIGHT,
+                        (SCREEN_WIDTH / 2) + NAV_HEIGHT / 2,
+                        SCREEN_HEIGHT), null);
 
 
-        float height = (NAVHEIGHT / 2) - (text.ascent() / 4);
+        float height = (NAV_HEIGHT / 2) - (text.ascent() / 4);
 
-        if (MainActivity.powerup != Powerups.NONE) {
-            c.drawBitmap(powerup, null, new Rect((5 * SCREENWIDTH / 6) - NAVHEIGHT / 2,
+        if (MainActivity.g_powerup != Powerups.NONE) {
+            c.drawBitmap(powerup, null, new Rect((5 * SCREEN_WIDTH / 6) - NAV_HEIGHT / 2,
                                             1,
-                                            (5 * SCREENWIDTH / 6) + NAVHEIGHT / 2,
-                                            NAVHEIGHT - 1), null);
+                                            (5 * SCREEN_WIDTH / 6) + NAV_HEIGHT / 2,
+                                            NAV_HEIGHT - 1), null);
         }
-        c.drawText("level: "+ MainActivity.level.num, SCREENWIDTH / 2, height, text);
-        c.drawText("score: "+ MainActivity.level.score, SCREENWIDTH / 6, height, (MainActivity.level.score > 20?text: warning));
+        c.drawText("level: "+ MainActivity.g_level.num, SCREEN_WIDTH / 2, height, text);
+        c.drawText("score: "+ MainActivity.g_level.score, SCREEN_WIDTH / 6, height, (MainActivity.g_level.score > 20?text: warning));
     }
 
     void update() {
-        if (MainActivity.powerup != Powerups.NONE) {
-            powerup = BitmapFactory.decodeResource(resources, MainActivity.powerup.smallPic);
+        if (MainActivity.g_powerup != Powerups.NONE) {
+            powerup = BitmapFactory.decodeResource(resources, MainActivity.g_powerup.smallPic);
         }
     }
 }

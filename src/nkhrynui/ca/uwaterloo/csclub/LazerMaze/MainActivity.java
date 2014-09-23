@@ -18,32 +18,31 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.inBetween;
 public class MainActivity extends Activity {
 
     // GLOBAL VARIABLES, set in surfaceCreated
-    public static int SCREENWIDTH;
-    public static int SCREENHEIGHT;
-    public static int NAVHEIGHT;
-    public static int LINESPACING;
-    public static int SPECIALWIDTH; //special refers to target and launcher
+    public static int SCREEN_WIDTH;
+    public static int SCREEN_HEIGHT;
+    public static int NAV_HEIGHT;
+    public static int LINE_SPACING;
+    public static int SPECIAL_WIDTH; //special refers to target and launcher
     public static int SPEED;
 
-    public static SharedPreferences sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
-    public static Context context;
-    public static MainThread _thread;
-    public static Buttons buttons;
-    public static Special target;// = new Target();
-    public static Special launcher;
-    public static Special target2 = null;// = new Target();
-    public static Special launcher2 = null;
-    public static Grid grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
-    public static Level level;
-    Vibrator v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    public static Laser laser;// = new Laser();
+    public static SharedPreferences g_sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
+    public static Context g_context;
+    public static MainThread g_thread;
+    public static Buttons g_buttons;
+    public static Special g_target;// = new Target();
+    public static Special g_launcher;
+    public static Special g_target2 = null;// = new Target();
+    public static Special g_launcher2 = null;
+    public static Grid g_grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
+    public static Level g_level;
+    public static Vibrator g_v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    public static Laser g_laser;// = new Laser();
     public static boolean inAnimation = false;
-    boolean upOnButtons = false;
     public static boolean lockListenerOkay = true;
-    public static ColorHandler colorHandler = new ColorHandler();
-    public static Powerups powerup;
-    public static Resources resources;
-    public static Panel panel;
+    public static ColorHandler g_colorHandler = new ColorHandler();
+    public static Powerups g_powerup;
+    public static Resources g_resources;
+    public static Panel g_panel;
 
     /****** CONSTANTS END ************************************************************************/
 
@@ -51,158 +50,163 @@ public class MainActivity extends Activity {
 
     class Panel extends SurfaceView implements SurfaceHolder.Callback {
         public int graphicCount = 0;
+        boolean upOnButtons = false;
 
         public Panel(Context context1) {
             super(context1);
-            context = context1;
+            g_context = context1;
             getHolder().addCallback(this);
-            _thread = new MainThread(getHolder(), MainActivity.this);
+            g_thread = new MainThread(MainActivity.this, this);
             setFocusable(true);
-            _thread.start();
-            _thread.setRunning(false);
+            g_thread.start();
+            g_thread.setRunning(false);
+        }
+
+        public Canvas getCanvas() {
+            return getHolder().lockCanvas();
+        }
+
+        public void postCanvas(Canvas canvas) {
+            if (canvas != null) {
+                getHolder().unlockCanvasAndPost(canvas);
+            }
         }
 
         float startX, startY, endX, endY, changeX, changeY;
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            synchronized (_thread.getSurfaceHolder()) {
-                if (powerup.waitForChoice) { //selecting upgrade
+            synchronized (g_panel.getHolder()) {
+                if (g_powerup.waitForChoice) { //selecting upgrade
                     upOnButtons = false;
-                    if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREENWIDTH / 2) {
-                        powerup.selection = 1;
+                    if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREEN_WIDTH / 2) {
+                        g_powerup.selection = 1;
                     } else if (event.getAction() == MotionEvent.ACTION_DOWN
-                            && event.getX() > SCREENWIDTH / 2) {
-                        powerup.selection = 2;
+                            && event.getX() > SCREEN_WIDTH / 2) {
+                        g_powerup.selection = 2;
                     }
                     return true;
                 } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    _thread.setRunning(false);
-                    _thread.selection = "restart";
+                    g_thread.setRunning(false);
+                    g_thread.selection = "restart";
                 }
                 //buttons
                 if (event.getAction() == MotionEvent.ACTION_DOWN && event.getY() >=
-                        SCREENHEIGHT - NAVHEIGHT && graphicCount == 0 && !inAnimation) {
+                        SCREEN_HEIGHT - NAV_HEIGHT && graphicCount == 0 && !inAnimation) {
                     upOnButtons = true;
                     return true;
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP && event.getY() >=
-                        SCREENHEIGHT - NAVHEIGHT && graphicCount == 0 && !inAnimation && upOnButtons) {
+                        SCREEN_HEIGHT - NAV_HEIGHT && graphicCount == 0 && !inAnimation && upOnButtons) {
                     upOnButtons = false;
-                    if (event.getX() < SCREENWIDTH / 3) {
-                        level.exit = false;
+                    if (event.getX() < SCREEN_WIDTH / 3) {
+                        g_level.exit = false;
                         settings();
-                    } else if (event.getX() > SCREENWIDTH * 2 / 3) {
+                    } else if (event.getX() > SCREEN_WIDTH * 2 / 3) {
                         Dialogues.restartDialog();
 
-                    } else if (level.score > level.skipCost) {
+                    } else if (g_level.score > g_level.skipCost) {
                         Dialogues.skipLevelDialog();
                     }
                 }
                 //aiming launch
                 if (event.getAction() == MotionEvent.ACTION_DOWN && graphicCount == 0 && !inAnimation) {
                     upOnButtons = false;
-                    if (launcher.bigPointTest(event.getX(), event.getY())) {
-                        if (_thread.isAlive()) {
-                            _thread.setRunning(false);
-                            _thread.selection = "restart";
-                            level.restart = true;
+                    if (g_launcher.bigPointTest(event.getX(), event.getY())) {
+                        if (g_thread.isAlive()) {
+                            g_thread.setRunning(false);
+                            g_thread.selection = "restart";
+                            g_level.restart = true;
                         }
-                        startX = launcher.x;
-                        startY = launcher.y;
-                        launcher.active = true;
-                        if (launcher2 != null) launcher2.active = false;
+                        startX = g_launcher.x;
+                        startY = g_launcher.y;
+                        g_launcher.active = true;
+                        if (g_launcher2 != null) g_launcher2.active = false;
                         graphicCount = 1;
-                    } else if (launcher2 != null && launcher2.bigPointTest(event.getX(), event.getY())) {
-                        if (_thread.isAlive()) {
-                            _thread.setRunning(false);
-                            _thread.selection = "restart";
-                            level.restart = true;
+                    } else if (g_launcher2 != null && g_launcher2.bigPointTest(event.getX(), event.getY())) {
+                        if (g_thread.isAlive()) {
+                            g_thread.setRunning(false);
+                            g_thread.selection = "restart";
+                            g_level.restart = true;
                         }
-                        startX = launcher2.x;
-                        startY = launcher2.y;
-                        launcher2.active = true;
-                        launcher.active = false;
+                        startX = g_launcher2.x;
+                        startY = g_launcher2.y;
+                        g_launcher2.active = true;
+                        g_launcher.active = false;
                         graphicCount = 1;
-                    } else if ((powerup == Powerups.LAUNCH_FROM_EITHER
-                            && target.bigPointTest(event.getX(), event.getY()))) {
-                        if (_thread.isAlive()) {
-                            _thread.setRunning(false);
-                            _thread.selection = "restart";
-                            level.restart = true;
+                    } else if ((g_powerup == Powerups.LAUNCH_FROM_EITHER
+                            && g_target.bigPointTest(event.getX(), event.getY()))) {
+                        if (g_thread.isAlive()) {
+                            g_thread.setRunning(false);
+                            g_thread.selection = "restart";
+                            g_level.restart = true;
                         }
-                        startX = target.x;
-                        startY = target.y;
-                        target.x = launcher.x;
-                        target.y = launcher.y;
-                        launcher.x = (int) startX;
-                        launcher.y = (int) startY;
-                        Bitmap temp = launcher.bitmap;
-                        launcher.bitmap = target.bitmap;
-                        target.bitmap = temp;
+                        startX = g_target.x;
+                        startY = g_target.y;
+                        g_target.x = g_launcher.x;
+                        g_target.y = g_launcher.y;
+                        g_launcher.x = (int) startX;
+                        g_launcher.y = (int) startY;
+                        Bitmap temp = g_launcher.bitmap;
+                        g_launcher.bitmap = g_target.bitmap;
+                        g_target.bitmap = temp;
                         graphicCount = 1;
                     }
                 }
                 //aiming launch with aimer
-                if (powerup == Powerups.AIMING_LASER
+                if (g_powerup == Powerups.AIMING_LASER
                         && event.getAction() == MotionEvent.ACTION_MOVE
                         && graphicCount == 1
                         && !inAnimation)
                 {
-                    if (Math.hypot((launcher.x - event.getX()), (launcher.y - event.getY())) < SPECIALWIDTH) {
+                    if (Math.hypot((g_launcher.x - event.getX()), (g_launcher.y - event.getY())) < SPECIAL_WIDTH) {
                         return true;
                     }
-                    Canvas c = null;
-                    try {
-                        c = _thread.getSurfaceHolder().lockCanvas();
-                        level.draw(c);
-                        double distance;
-                        double min = 99999;
-                        Line l = null;
-                        float intersection = 0;
-                        float intersectionTemp;
-                        float pointx = launcher.x, pointy = launcher.y;
-                        pointx += (event.getX() - launcher.x) * 1000;
-                        pointy += (event.getY() - launcher.y) * 1000;
-                        for (Line line : grid.lines) {
-                            intersectionTemp = line.crossed(launcher.x, launcher.y, pointx, pointy);
-                            if (intersectionTemp > 0) {
-                                if (line.horizontal) {
-                                    distance = Math.hypot((launcher.x - intersectionTemp),
-                                            (launcher.y - line.starty));
-                                } else {
-                                    distance = Math.hypot((launcher.x - line.startx),
-                                            (launcher.y - intersectionTemp));
-                                }
-                                if (distance < min) {
-                                    min = distance;
-                                    intersection = intersectionTemp;
-                                    l = line;
-                                }
+                    Canvas c = g_panel.getCanvas();
+                    g_level.draw(c);
+                    double distance;
+                    double min = 99999;
+                    Line l = null;
+                    float intersection = 0;
+                    float intersectionTemp;
+                    float pointx = g_launcher.x, pointy = g_launcher.y;
+                    pointx += (event.getX() - g_launcher.x) * 1000;
+                    pointy += (event.getY() - g_launcher.y) * 1000;
+                    for (Line line : g_grid.lines) {
+                        intersectionTemp = line.crossed(g_launcher.x, g_launcher.y, pointx, pointy);
+                        if (intersectionTemp > 0) {
+                            if (line.horizontal) {
+                                distance = Math.hypot((g_launcher.x - intersectionTemp),
+                                        (g_launcher.y - line.starty));
+                            } else {
+                                distance = Math.hypot((g_launcher.x - line.startx),
+                                        (g_launcher.y - intersectionTemp));
+                            }
+                            if (distance < min) {
+                                min = distance;
+                                intersection = intersectionTemp;
+                                l = line;
                             }
                         }
-                        if (l != null && l.horizontal) {
-                            c.drawLine(launcher.x, launcher.y, intersection, l.starty, laser.paint);
-                        } else if (l != null) {
-                            c.drawLine(launcher.x, launcher.y, l.startx, intersection, laser.paint);
-                        }
-                        laser.draw(c);
-                        grid.draw(c);
-                        buttons.draw(c);
-                        launcher.draw(c);
-                        target.draw(c);
-                    } finally {
-                        if (c != null) {
-                            _thread.getSurfaceHolder().unlockCanvasAndPost(c); ///KEY!
-                        }
                     }
+                    if (l != null && l.horizontal) {
+                        c.drawLine(g_launcher.x, g_launcher.y, intersection, l.starty, g_laser.paint);
+                    } else if (l != null) {
+                        c.drawLine(g_launcher.x, g_launcher.y, l.startx, intersection, g_laser.paint);
+                    }
+                    g_laser.draw(c);
+                    g_grid.draw(c);
+                    g_buttons.draw(c);
+                    g_launcher.draw(c);
+                    g_target.draw(c);
+                    g_panel.postCanvas(c);
                 }
                 //launches laser
                 if (event.getAction() == MotionEvent.ACTION_UP && graphicCount == 1 && !inAnimation) {
                     upOnButtons = false;
                     Log.i("powerup", Float.toString(startX) + " on up");
-                    laser.GO.coordinates.setX((int) startX);
-                    laser.GO.coordinates.setY((int) startY);
+                    g_laser.GO.coordinates.setX((int) startX);
+                    g_laser.GO.coordinates.setY((int) startY);
                     endX = event.getX();
                     endY = event.getY();
                     changeX = endX - startX;
@@ -217,19 +221,19 @@ public class MainActivity extends Activity {
                         return true;
                     }
                     if (Math.abs(changeX) > (Math.abs(changeY))) {
-                        laser.GO.speed.x = (SPEED * Math.signum(changeX));
-                        laser.GO.speed.y = (Math.abs(changeY) / Math.abs(changeX) * SPEED * Math.signum(changeY));
+                        g_laser.GO.speed.x = (SPEED * Math.signum(changeX));
+                        g_laser.GO.speed.y = (Math.abs(changeY) / Math.abs(changeX) * SPEED * Math.signum(changeY));
                     } else {
-                        laser.GO.speed.y = (SPEED * Math.signum(changeY));
-                        laser.GO.speed.x = (Math.abs(changeX) / Math.abs(changeY) * SPEED * Math.signum(changeX));
+                        g_laser.GO.speed.y = (SPEED * Math.signum(changeY));
+                        g_laser.GO.speed.x = (Math.abs(changeX) / Math.abs(changeY) * SPEED * Math.signum(changeX));
                     }
                     graphicCount = 0;
-                    if (level.restart) {
-                        if (launcher2 == null || launcher.active) laser.reset(launcher);
-                        else laser.reset(launcher2);
-                        _thread.setRunning(true);
+                    if (g_level.restart) {
+                        if (g_launcher2 == null || g_launcher.active) g_laser.reset(g_launcher);
+                        else g_laser.reset(g_launcher2);
+                        g_thread.setRunning(true);
                     } else {
-                        _thread.setRunning(true);
+                        g_thread.setRunning(true);
                     }
                 }
                 return true;
@@ -242,29 +246,30 @@ public class MainActivity extends Activity {
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
-            if (sharedPrefs.getInt("highScore", 0) == 0) {
+            if (g_sharedPrefs.getInt("highScore", 0) == 0) {
                 Dialogues.newGameDialog();
-                SharedPreferences.Editor e = sharedPrefs.edit();
+                SharedPreferences.Editor e = g_sharedPrefs.edit();
                 e.putInt("highScore", 1);
                 e.commit();
             }
 
             //initializing global variables, declared at top
             Log.i("settings", "creating surface");
-            SCREENWIDTH = getWidth();
-            SCREENHEIGHT = getHeight();
-            LINESPACING = SCREENHEIGHT / 39;
-            NAVHEIGHT = LINESPACING * 3;
-            SPECIALWIDTH = SCREENHEIGHT / 20;
-            SPEED = SCREENWIDTH / 50;
-            if (!level.recover) {
-                laser = new Laser();
-                buttons = new Buttons(getResources());
-                grid = new Grid();
-                launcher = Special.LAUNCHER;
-                target = Special.TARGET;
+            SCREEN_WIDTH = getWidth();
+            SCREEN_HEIGHT = getHeight();
+            LINE_SPACING = SCREEN_HEIGHT / 39;
+            NAV_HEIGHT = LINE_SPACING * 3;
+            SPECIAL_WIDTH = SCREEN_HEIGHT / 20;
+            SPEED = SCREEN_WIDTH / 50;
+            if (!g_level.recover) {
+                g_powerup = Powerups.NONE;
+                g_laser = new Laser();
+                g_buttons = new Buttons(getResources());
+                g_grid = new Grid();
+                g_launcher = Special.LAUNCHER;
+                g_target = Special.TARGET;
             }
-            nextLevel(holder);
+            nextLevel();
         }
 
         @Override
@@ -280,17 +285,17 @@ public class MainActivity extends Activity {
     public void updatePhysics(Canvas c) {
         GraphicObject.Coordinates coord;
         GraphicObject.Speed speed;
-        coord = laser.GO.coordinates;
-        speed = laser.GO.speed;
-        if (target.smallPointTest(coord.x, coord.y)
-                || (target2 != null && target2.smallPointTest(coord.x, coord.y))) {
-            level.num++;
-            level.score+=100;
-            _thread.setRunning(false);
-            _thread.selection = "next";
-            level.restart = false;
-            if (level.num == 1) {
-                level.score = 100;
+        coord = g_laser.GO.coordinates;
+        speed = g_laser.GO.speed;
+        if (g_target.smallPointTest(coord.x, coord.y)
+                || (g_target2 != null && g_target2.smallPointTest(coord.x, coord.y))) {
+            g_level.num++;
+            g_level.score+=100;
+            g_thread.setRunning(false);
+            g_thread.selection = "next";
+            g_level.restart = false;
+            if (g_level.num == 1) {
+                g_level.score = 100;
             }
         }
 
@@ -299,91 +304,91 @@ public class MainActivity extends Activity {
         Line line;
         boolean ignoring = false;
         boolean doubleHit = true;
-        for (int i = 0; i < grid.getLines().size(); i++) {
-            line = grid.getLines().get(i);
+        for (int i = 0; i < g_grid.getLines().size(); i++) {
+            line = g_grid.getLines().get(i);
             if ((coord.lastx != -1  && coord.lasty != -1)
                     && line.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0)
             {
-                if (powerup == Powerups.THROUGH_FIRST_LINE && laser.pts.size() == 4) {
+                if (g_powerup == Powerups.THROUGH_FIRST_LINE && g_laser.pts.size() == 4) {
                     ignoring = true;
-                    laser.bounce();
+                    g_laser.bounce();
                     continue;
                 }
-                if (level.score < 1) {
+                if (g_level.score < 1) {
                     MainActivity.this.runOnUiThread(new Runnable() {
                         public void run() {
-                            Dialogues.endGameDialog(level.num);
+                            Dialogues.endGameDialog(g_level.num);
                         }
                     });
-                    level.reset();
-                    powerup = Powerups.NONE;
-                    _thread.setRunning(false);
-                    _thread.selection = "next";
+                    g_level.reset();
+                    g_powerup = Powerups.NONE;
+                    g_thread.setRunning(false);
+                    g_thread.selection = "next";
                     break;
                 }
-                if (powerup == Powerups.WRAP_AROUND_ENDS
-                        && grid.getLines().indexOf(line) <= 1) {
+                if (g_powerup == Powerups.WRAP_AROUND_ENDS
+                        && g_grid.getLines().indexOf(line) <= 1) {
                     coord.setX(coord.x + speed.x);
                     coord.setY(coord.y + speed.y);
-                    laser.bounce();
-                    if (line.starty < NAVHEIGHT + 2) {
-                        laser.starty = SCREENHEIGHT - NAVHEIGHT - 2;
-                        coord.setY(SCREENHEIGHT - NAVHEIGHT - 2);
-                        coord.lasty = (SCREENHEIGHT - NAVHEIGHT - 1);
-                    } else if (line.starty > SCREENHEIGHT - NAVHEIGHT - 2) {
-                        laser.starty = NAVHEIGHT + 2;
-                        coord.setY(NAVHEIGHT + 2);
-                        coord.lasty = NAVHEIGHT + 1;
+                    g_laser.bounce();
+                    if (line.starty < NAV_HEIGHT + 2) {
+                        g_laser.starty = SCREEN_HEIGHT - NAV_HEIGHT - 2;
+                        coord.setY(SCREEN_HEIGHT - NAV_HEIGHT - 2);
+                        coord.lasty = (SCREEN_HEIGHT - NAV_HEIGHT - 1);
+                    } else if (line.starty > SCREEN_HEIGHT - NAV_HEIGHT - 2) {
+                        g_laser.starty = NAV_HEIGHT + 2;
+                        coord.setY(NAV_HEIGHT + 2);
+                        coord.lasty = NAV_HEIGHT + 1;
                     }
                     if (coord.x <= speed.x) {
                         coord.x = 2;
                         speed.toggleXDirection();
                         doubleHit = false;
                         soundAndVib();
-                    } else if (coord.x >= SCREENWIDTH - speed.x) {
-                        coord.x = SCREENWIDTH - 2;
+                    } else if (coord.x >= SCREEN_WIDTH - speed.x) {
+                        coord.x = SCREEN_WIDTH - 2;
                         speed.toggleXDirection();
                         doubleHit = false;
                         soundAndVib();
                     }
-                    laser.startx = coord.x;
+                    g_laser.startx = coord.x;
                     coord.lastx = coord.x;
-                    laser.bounce();
+                    g_laser.bounce();
                     coord.setX(coord.x + speed.x);
                     coord.setY(coord.y + speed.y);
                     continue;
                 }
 
-                if (powerup == Powerups.WRAP_AROUND_SIDES
-                        && (grid.getLines().indexOf(line) == 2
-                                || grid.getLines().indexOf(line) == 3)) {
+                if (g_powerup == Powerups.WRAP_AROUND_SIDES
+                        && (g_grid.getLines().indexOf(line) == 2
+                                || g_grid.getLines().indexOf(line) == 3)) {
                     coord.setX(coord.x + speed.x);
                     coord.setY(coord.y + speed.y);
-                    laser.bounce();
+                    g_laser.bounce();
                     if (line.startx < 2) {
-                        laser.startx = SCREENWIDTH - 2;
-                        coord.setX(SCREENWIDTH - 1);
-                        coord.lastx = SCREENWIDTH - 2;
-                    } else if (line.startx > SCREENWIDTH - 2) {
-                        laser.startx = 2;
+                        g_laser.startx = SCREEN_WIDTH - 2;
+                        coord.setX(SCREEN_WIDTH - 1);
+                        coord.lastx = SCREEN_WIDTH - 2;
+                    } else if (line.startx > SCREEN_WIDTH - 2) {
+                        g_laser.startx = 2;
                         coord.setX(2);
                         coord.lastx = 1;
                     }
 
-                    if (coord.y <= NAVHEIGHT - speed.y) {
-                        coord.y = NAVHEIGHT + 2;
+                    if (coord.y <= NAV_HEIGHT - speed.y) {
+                        coord.y = NAV_HEIGHT + 2;
                         speed.toggleYDirection();
                         doubleHit = false;
                         soundAndVib();
-                    } else if ( coord.y >= SCREENHEIGHT - NAVHEIGHT - speed.y) {
-                        coord.y =  SCREENHEIGHT - NAVHEIGHT - 2;
+                    } else if ( coord.y >= SCREEN_HEIGHT - NAV_HEIGHT - speed.y) {
+                        coord.y =  SCREEN_HEIGHT - NAV_HEIGHT - 2;
                         speed.toggleYDirection();
                         doubleHit = false;
                         soundAndVib();
                     }
-                    laser.starty = coord.y;
+                    g_laser.starty = coord.y;
                     coord.lasty = coord.x;
-                    laser.bounce();
+                    g_laser.bounce();
                     coord.setX(coord.x + speed.x);
                     coord.setY(coord.y + speed.y);
                     continue;
@@ -399,7 +404,7 @@ public class MainActivity extends Activity {
                     change = Math.abs((coord.y - line.starty) / speed.y);
                     coord.y = (line.starty);
                     coord.setX(coord.x+ (change * speed.x));
-                    for (Line line2 : grid.getLines()) {
+                    for (Line line2 : g_grid.getLines()) {
                         if (!ignoring
                                 && line2 != line
                                 && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0
@@ -409,11 +414,11 @@ public class MainActivity extends Activity {
                             speed.toggleXDirection();
                             coord.x = (line2.endx);
                             coord.y =(line.endy);
-                            laser.draw(c);
-                            laser.bounce();
+                            g_laser.draw(c);
+                            g_laser.bounce();
                             coord.x =(coord.x + speed.x);
                             coord.y =(coord.y + speed.y);
-                            if (level.score >0) level.score--;
+                            if (g_level.score >0) g_level.score--;
                         }
                     }
                 } else {
@@ -421,7 +426,7 @@ public class MainActivity extends Activity {
                     change = Math.abs((coord.x - line.startx) / speed.x);
                     coord.x = (line.startx);
                     coord.y = (coord.y+ (change * speed.y));
-                    for (Line line2 : grid.getLines()) {
+                    for (Line line2 : g_grid.getLines()) {
                         if (!ignoring && line2 != line
                                 && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0
                                 && doubleHit)
@@ -430,17 +435,17 @@ public class MainActivity extends Activity {
                             speed.toggleYDirection();
                             coord.x = (line.endx);
                             coord.y = (line2.endy);
-                            laser.draw(c);
-                            laser.bounce();
+                            g_laser.draw(c);
+                            g_laser.bounce();
                             coord.x = (coord.x + speed.x);
                             coord.y = (coord.y + speed.y);
-                            if (level.score >0) level.score--;
+                            if (g_level.score >0) g_level.score--;
 
                         }
                     }
                 }
-                laser.draw(c);
-                laser.bounce();
+                g_laser.draw(c);
+                g_laser.bounce();
                 break;
             }
         }
@@ -450,114 +455,99 @@ public class MainActivity extends Activity {
 
      /****************************************** DRAWING - START***************************/
     public void draw(Canvas canvas) {
-        level.draw(canvas);
-        laser.draw(canvas);
-        if (level.num != 0) target.draw(canvas);
-        if (target2 != null) target2.draw(canvas);
-        launcher.draw(canvas);
-        if (launcher2 != null) launcher2.draw(_thread.c);
-        grid.draw(canvas);
-        buttons.draw(canvas);
+        g_level.draw(canvas);
+        g_laser.draw(canvas);
+        if (g_level.num != 0) g_target.draw(canvas);
+        if (g_target2 != null) g_target2.draw(canvas);
+        g_launcher.draw(canvas);
+        if (g_launcher2 != null) g_launcher2.draw(canvas);
+        g_grid.draw(canvas);
+        g_buttons.draw(canvas);
     }
 
     /****************************************** DRAWING - END**********************************/
 
-    public void nextLevel(SurfaceHolder holder) {
-        if (!level.recover) {
-            if (grid.lines.size() > 1) gridShrink(holder);
-            if (level.num % 3 == 0 && level.num != 0) powerup = powerup.pickPowerup(holder);
-            buttons.update();
-            colorHandler.update();
-            grid.makeGrid();
-            if (level.num > 0 && lockListenerOkay) gridExpand(holder);
-            target.update(false);
-            launcher.update(true);
-            if (powerup == Powerups.TWO_TARGETS) {
-                target2 = Special.TARGET2;
-                target2.update2(false);
-            } else target2 = null;
-            if (powerup == Powerups.TWO_LAUNCHERS) {
-                launcher2 = Special.LAUNCHER2;
-                launcher2.update2(true);
+    public void nextLevel() {
+        if (!g_level.recover) {
+            if (g_grid.lines.size() > 1) gridShrink();
+            if (g_level.num % 3 == 0 && g_level.num != 0) g_powerup = g_powerup.pickPowerup(g_panel);
+            g_buttons.update();
+            g_colorHandler.update();
+            g_grid.makeGrid();
+            if (g_level.num > 0 && lockListenerOkay) gridExpand();
+            g_target.update(false);
+            g_launcher.update(true);
+            if (g_powerup == Powerups.TWO_TARGETS) {
+                g_target2 = Special.TARGET2;
+                g_target2.update2(false);
+            } else g_target2 = null;
+            if (g_powerup == Powerups.TWO_LAUNCHERS) {
+                g_launcher2 = Special.LAUNCHER2;
+                g_launcher2.update2(true);
             }
-            else launcher2 = null;
+            else g_launcher2 = null;
         }
-        level.recover = false;
-        panel.graphicCount = 0;
-        if (lockListenerOkay) restartLevel(holder);
+        g_level.recover = false;
+        g_panel.graphicCount = 0;
+        if (lockListenerOkay) restartLevel();
     }
 
-    public void restartLevel(SurfaceHolder holder) {
-        laser.nextLevel();
+    public void restartLevel() {
+        g_laser.nextLevel();
         // VERY IMPORTANT: this is all the drawing that happens before the game
         // actually starts: ie maze and target
-        _thread.c = null;
-        try {
-            _thread.c = holder.lockCanvas();
-            draw(_thread.c);
-            level.restart = true;
-        }
-        finally {
-            if (_thread.c != null) {
-                holder.unlockCanvasAndPost(_thread.c); ///KEY!
-            }
-        }
+        Canvas c = g_panel.getCanvas();
+        draw(c);
+        g_level.restart = true;
+        g_panel.postCanvas(c);
     }
 
 
-    public static void gridShrink(SurfaceHolder holder) {
+    public static void gridShrink() {
         inAnimation = true;
-        for (int i = 0; i < SCREENHEIGHT / 30; i++) {
+        for (int i = 0; i < SCREEN_HEIGHT / 30; i++) {
+            Canvas c = g_panel.getCanvas();
             try {
                 Thread.sleep(10);
-                _thread.c = holder.lockCanvas();
-                level.draw(_thread.c);
-                for (Line line: grid.lines) {
-                    line.shrink(LINESPACING);
+                g_level.draw(c);
+                for (Line line: g_grid.lines) {
+                    line.shrink(LINE_SPACING);
                 }
-                grid.draw(_thread.c);
-                buttons.draw(_thread.c);
+                g_grid.draw(c);
+                g_buttons.draw(c);
             } catch (InterruptedException ignored) {}
-            finally {
-                if (_thread.c != null) {
-                    holder.unlockCanvasAndPost(_thread.c); ///KEY!
-                }
-            }
+            g_panel.postCanvas(c);
         }
         inAnimation = false;
     }
-    public static void gridExpand(SurfaceHolder holder) {
+    public static void gridExpand() {
         inAnimation = true;
-        for (int i = 0; i < SCREENHEIGHT / 30; i++) {
+        for (int i = 0; i < SCREEN_HEIGHT / 30; i++) {
+            Canvas c = g_panel.getCanvas();
             try {
                 Thread.sleep(10);
-                _thread.c = holder.lockCanvas();
-                level.draw(_thread.c);
-                for (Line line: grid.lines) {
-                    line.expand(LINESPACING);
+                g_level.draw(c);
+                for (Line line: g_grid.lines) {
+                    line.expand(LINE_SPACING);
                 }
-                grid.expandDraw(_thread.c);
-                buttons.draw(_thread.c);
-            } catch (InterruptedException e) {}
-            finally {
-                if (_thread.c != null) {
-                    holder.unlockCanvasAndPost(_thread.c); ///KEY!
-                }
-            }
+                g_grid.expandDraw(c);
+                g_buttons.draw(c);
+            } catch (InterruptedException ignored) {}
+            g_panel.postCanvas(c);
         }
         inAnimation = false;
     }
 
 
     public void settings() {
-        level.inPrefs = true;
+        g_level.inPrefs = true;
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
     }
 
     public void soundAndVib() {
-        if (v != null) v.vibrate(10);
-        if (level.score > 0) level.score--;
+        if (g_v != null) g_v.vibrate(10);
+        if (g_level.score > 0) g_level.score--;
     }
 
     /****************************************** ON* - START***************************************/
@@ -565,15 +555,14 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        resources = getResources();
-        level = new Level();
-        powerup = Powerups.TWO_TARGETS;
+        g_resources = getResources();
+        g_level = new Level();
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        panel = new Panel(this);
-        setContentView(panel);
-        if (sharedPrefs.getBoolean("screenOn", true)) {
+        g_sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        g_panel = new Panel(this);
+        setContentView(g_panel);
+        if (g_sharedPrefs.getBoolean("screenOn", true)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
@@ -582,33 +571,33 @@ public class MainActivity extends Activity {
         super.onResume();
         lockListenerOkay = true;
         Log.i("crashing", "resume");
-        if (level.inPrefs) {
-            colorHandler.update();
-            if (sharedPrefs.getBoolean("screenOn", true)) {
+        if (g_level.inPrefs) {
+            g_colorHandler.update();
+            if (g_sharedPrefs.getBoolean("screenOn", true)) {
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             } else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            level.inPrefs = false;
+            g_level.inPrefs = false;
         }
-        if (sharedPrefs.getBoolean("vibrate", true)) v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        else v = null;
-        panel = new Panel(MainActivity.this);
-        setContentView(panel);
+        if (g_sharedPrefs.getBoolean("vibrate", true)) g_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        else g_v = null;
+        g_panel = new Panel(MainActivity.this);
+        setContentView(g_panel);
     }
     
     public void onPause() {
         super.onPause();
         lockListenerOkay = false;
-        if (powerup.waitForChoice) powerup.selection = 4;
+        if (g_powerup.waitForChoice) g_powerup.selection = 4;
 
         Log.i("crashing", "pause");
-        if (v != null) v.cancel();
-        level.recover = true;
-        level.exit = false;
-        _thread.setRunning(false);
-        _thread.selection = "";
-        if (powerup.selection == 0) powerup.selection = 4;
+        if (g_v != null) g_v.cancel();
+        g_level.recover = true;
+        g_level.exit = false;
+        g_thread.setRunning(false);
+        g_thread.selection = "";
+        if (g_powerup.selection == 0) g_powerup.selection = 4;
         try {
-            _thread.join(100);
+            g_thread.join(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
             Log.i("crashing", "join failed");
@@ -617,8 +606,8 @@ public class MainActivity extends Activity {
     
     public void onRestart() {
         super.onRestart();
-        level.recover = true;
-        level.exit = true;
+        g_level.recover = true;
+        g_level.exit = true;
     }
     
     public void onStop() {
@@ -637,7 +626,7 @@ public class MainActivity extends Activity {
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
-        level.exit = false;
+        g_level.exit = false;
         settings();
         return super.onPrepareOptionsMenu(menu);
     }

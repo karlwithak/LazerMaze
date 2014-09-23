@@ -27,11 +27,14 @@ public enum Powerups {
 
     public int selection = 3;
     Canvas c ;
-    Resources resources = MainActivity.resources;
+    Resources resources = MainActivity.g_resources;
     public boolean waitForChoice = false;
     String explanation;
     int smallPic;
     int bigPic;
+    final static int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
+    final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
+    final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
     private static final List<Powerups> VALUES =
             Collections.unmodifiableList(Arrays.asList(values()));
 
@@ -41,53 +44,42 @@ public enum Powerups {
         bigPic = _bigPic;
     }
 
-    Powerups pickPowerup(SurfaceHolder holder) {
-        int SCREENWIDTH = MainActivity.SCREENWIDTH;
-        int SCREENHEIGHT = MainActivity.SCREENHEIGHT;
-        int NAVHEIGHT = MainActivity.NAVHEIGHT;
+    Powerups pickPowerup(MainActivity.Panel panel) {
         selection = 0;
         Paint text = new Paint();
-        text.setTextSize(NAVHEIGHT);
+        text.setTextSize(NAV_HEIGHT);
         text.setTextAlign(Paint.Align.CENTER);
         text.setColor(Color.WHITE);
         text.setAntiAlias(true);
         Paint smallText = new Paint();
         smallText.setTextAlign(Paint.Align.CENTER);
         smallText.setColor(Color.WHITE);
-        smallText.setTextSize(NAVHEIGHT / 2);
+        smallText.setTextSize(NAV_HEIGHT / 2);
         smallText.setAntiAlias(true);
-        c = MainActivity._thread.c;
+        c = panel.getCanvas();
         waitForChoice = true;
         int option1int = randomBetween(0, VALUES.size() - 1);
         int option2int = differentRandomBetween(0, VALUES.size() - 1, option1int);
         Powerups option1PowerUp = VALUES.get(option1int);
         Powerups option2PowerUp = VALUES.get(option2int);
-        c = null;
         Bitmap bitmap1, bitmap2;
-        try {
-            c = holder.lockCanvas();
-            c.drawColor(Color.rgb(16, 16, 16));
-            c.drawText("Choose powerup",  SCREENWIDTH / 2, NAVHEIGHT, text);
-            bitmap1 = BitmapFactory.decodeResource(resources, option1PowerUp.bigPic);
-            bitmap2 = BitmapFactory.decodeResource(resources, option2PowerUp.bigPic);
+        c.drawColor(Color.rgb(16, 16, 16));
+        c.drawText("Choose powerup",  SCREEN_WIDTH / 2, NAV_HEIGHT, text);
+        bitmap1 = BitmapFactory.decodeResource(resources, option1PowerUp.bigPic);
+        bitmap2 = BitmapFactory.decodeResource(resources, option2PowerUp.bigPic);
 
-            c.drawBitmap(bitmap1, null, new Rect(0,
-                    NAVHEIGHT * 4,
-                    (SCREENWIDTH / 2),
-                    (SCREENWIDTH / 2) + NAVHEIGHT * 4), null);
-            c.drawBitmap(bitmap2, null, new Rect((SCREENWIDTH / 2),
-                    NAVHEIGHT * 4,
-                    SCREENWIDTH,
-                    (SCREENWIDTH / 2) + NAVHEIGHT * 4), null);
-            c.drawText(option1PowerUp.explanation,  SCREENWIDTH / 4, NAVHEIGHT * 3, smallText);
-            c.drawText(option2PowerUp.explanation,  (3 * SCREENWIDTH / 4), NAVHEIGHT * 3, smallText);
-            c.drawLine(SCREENWIDTH / 2, NAVHEIGHT * 2, SCREENWIDTH / 2, SCREENHEIGHT, text);
-        }
-        finally {
-            if (c != null) {
-                holder.unlockCanvasAndPost(c); ///KEY!
-            }
-        }
+        c.drawBitmap(bitmap1, null, new Rect(0,
+                NAV_HEIGHT * 4,
+                (SCREEN_WIDTH / 2),
+                (SCREEN_WIDTH / 2) + NAV_HEIGHT * 4), null);
+        c.drawBitmap(bitmap2, null, new Rect((SCREEN_WIDTH / 2),
+                NAV_HEIGHT * 4,
+                SCREEN_WIDTH,
+                (SCREEN_WIDTH / 2) + NAV_HEIGHT * 4), null);
+        c.drawText(option1PowerUp.explanation,  SCREEN_WIDTH / 4, NAV_HEIGHT * 3, smallText);
+        c.drawText(option2PowerUp.explanation,  (3 * SCREEN_WIDTH / 4), NAV_HEIGHT * 3, smallText);
+        c.drawLine(SCREEN_WIDTH / 2, NAV_HEIGHT * 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT, text);
+        panel.postCanvas(c);
         while(selection == 0) {
             try {
                 Thread.sleep(100);

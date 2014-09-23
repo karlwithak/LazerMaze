@@ -44,7 +44,7 @@ public enum Powerups {
         bigPic = _bigPic;
     }
 
-    Powerups pickPowerup(MainActivity.Panel panel) {
+    Powerups pickPowerup() {
         selection = 0;
         Paint text = new Paint();
         text.setTextSize(NAV_HEIGHT);
@@ -56,7 +56,7 @@ public enum Powerups {
         smallText.setColor(Color.WHITE);
         smallText.setTextSize(NAV_HEIGHT / 2);
         smallText.setAntiAlias(true);
-        c = panel.getCanvas();
+        c = MainActivity.g_panel.getCanvas();
         waitForChoice = true;
         int option1int = randomBetween(0, VALUES.size() - 1);
         int option2int = differentRandomBetween(0, VALUES.size() - 1, option1int);
@@ -79,7 +79,7 @@ public enum Powerups {
         c.drawText(option1PowerUp.explanation,  SCREEN_WIDTH / 4, NAV_HEIGHT * 3, smallText);
         c.drawText(option2PowerUp.explanation,  (3 * SCREEN_WIDTH / 4), NAV_HEIGHT * 3, smallText);
         c.drawLine(SCREEN_WIDTH / 2, NAV_HEIGHT * 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT, text);
-        panel.postCanvas(c);
+        MainActivity.g_panel.postCanvas(c);
         while(selection == 0) {
             try {
                 Thread.sleep(100);

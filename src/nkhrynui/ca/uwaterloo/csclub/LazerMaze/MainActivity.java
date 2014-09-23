@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
     public static Powerups g_powerup;
     public static Resources g_resources;
     public static Panel g_panel;
+    public static MainActivity g_mainActivity;
 
     /****** CONSTANTS END ************************************************************************/
 
@@ -56,7 +57,7 @@ public class MainActivity extends Activity {
             super(context1);
             g_context = context1;
             getHolder().addCallback(this);
-            g_thread = new MainThread(MainActivity.this, this);
+            g_thread = new MainThread();
             setFocusable(true);
             g_thread.start();
             g_thread.setRunning(false);
@@ -282,7 +283,7 @@ public class MainActivity extends Activity {
 
     /***** PHYSICS - START**********************************************************/
 
-    public void updatePhysics(Canvas c) {
+    public static void updatePhysics() {
         GraphicObject.Coordinates coord;
         GraphicObject.Speed speed;
         coord = g_laser.GO.coordinates;
@@ -315,7 +316,7 @@ public class MainActivity extends Activity {
                     continue;
                 }
                 if (g_level.score < 1) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
+                    g_mainActivity.runOnUiThread(new Runnable() {
                         public void run() {
                             Dialogues.endGameDialog(g_level.num);
                         }
@@ -414,7 +415,6 @@ public class MainActivity extends Activity {
                             speed.toggleXDirection();
                             coord.x = (line2.endx);
                             coord.y =(line.endy);
-                            g_laser.draw(c);
                             g_laser.bounce();
                             coord.x =(coord.x + speed.x);
                             coord.y =(coord.y + speed.y);
@@ -435,7 +435,6 @@ public class MainActivity extends Activity {
                             speed.toggleYDirection();
                             coord.x = (line.endx);
                             coord.y = (line2.endy);
-                            g_laser.draw(c);
                             g_laser.bounce();
                             coord.x = (coord.x + speed.x);
                             coord.y = (coord.y + speed.y);
@@ -444,7 +443,6 @@ public class MainActivity extends Activity {
                         }
                     }
                 }
-                g_laser.draw(c);
                 g_laser.bounce();
                 break;
             }
@@ -454,7 +452,8 @@ public class MainActivity extends Activity {
      /****************************************** PHYSICS - END*****************************/
 
      /****************************************** DRAWING - START***************************/
-    public void draw(Canvas canvas) {
+    public static void draw() {
+        Canvas canvas = g_panel.getCanvas();
         g_level.draw(canvas);
         g_laser.draw(canvas);
         if (g_level.num != 0) g_target.draw(canvas);
@@ -463,14 +462,15 @@ public class MainActivity extends Activity {
         if (g_launcher2 != null) g_launcher2.draw(canvas);
         g_grid.draw(canvas);
         g_buttons.draw(canvas);
+        g_panel.postCanvas(canvas);
     }
 
     /****************************************** DRAWING - END**********************************/
 
-    public void nextLevel() {
+    public static void nextLevel() {
         if (!g_level.recover) {
             if (g_grid.lines.size() > 1) gridShrink();
-            if (g_level.num % 3 == 0 && g_level.num != 0) g_powerup = g_powerup.pickPowerup(g_panel);
+            if (g_level.num % 3 == 0 && g_level.num != 0) g_powerup = g_powerup.pickPowerup();
             g_buttons.update();
             g_colorHandler.update();
             g_grid.makeGrid();
@@ -492,14 +492,12 @@ public class MainActivity extends Activity {
         if (lockListenerOkay) restartLevel();
     }
 
-    public void restartLevel() {
+    public static void restartLevel() {
         g_laser.nextLevel();
         // VERY IMPORTANT: this is all the drawing that happens before the game
         // actually starts: ie maze and target
-        Canvas c = g_panel.getCanvas();
-        draw(c);
+        draw();
         g_level.restart = true;
-        g_panel.postCanvas(c);
     }
 
 
@@ -545,7 +543,7 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    public void soundAndVib() {
+    public static void soundAndVib() {
         if (g_v != null) g_v.vibrate(10);
         if (g_level.score > 0) g_level.score--;
     }
@@ -557,6 +555,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         g_resources = getResources();
         g_level = new Level();
+        g_mainActivity = this;
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         g_sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);

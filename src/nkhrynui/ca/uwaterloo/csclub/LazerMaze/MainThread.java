@@ -7,28 +7,29 @@ public class MainThread extends Thread {
     private boolean _run = false;
     public String selection = "";
     Level m_level;
+    MainActivity m_mainActivity;
 
-    public MainThread(Level level) {
+    public MainThread(Level level, MainActivity mainActivity) {
         m_level = level;
         m_level.exit = true;
+        m_mainActivity = mainActivity;
     }
 
     public void setRunning(boolean run) {
         _run = run;
     }
 
-    @SuppressLint("WrongCall") @Override
     public void run() {
         while(m_level.exit) {
             while (_run) {
-                MainActivity.updatePhysics();
-                MainActivity.draw();
+                m_mainActivity.updatePhysics();
+                m_mainActivity.draw();
             }
             if (selection.equals("restart")) {
-                MainActivity.restartLevel();
+                m_mainActivity.restartLevel();
                 selection = "none";
             } else if (selection.equals("next")) {
-                MainActivity.nextLevel();
+                m_mainActivity.nextLevel();
                 selection = "none";
             }
             try {

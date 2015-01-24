@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
+
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
 
@@ -11,16 +13,13 @@ public class Grid {
     ArrayList<Line> lines;
     Paint paint;
     int color = 0;
-    final static int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
-    final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
-    final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
-    final static int LINE_SPACING = MainActivity.LINE_SPACING;
+
     boolean recovery;
     Grid() {
         recovery = false;
         lines = new ArrayList<Line>();
         paint = new Paint();
-        paint.setStrokeWidth((float) Math.ceil(LINE_SPACING / 7) + 1);
+        paint.setStrokeWidth((float) Math.ceil(K.LINE_SPACING / 7) + 1);
     }
 
     boolean overlapping(ArrayList<Line> lines) {
@@ -72,10 +71,10 @@ public class Grid {
         double lengthAdjust = 1;
         if (powerup == Powerups.SHORT_LINES) lengthAdjust = 0.666;
         lines.clear();
-        lines.add(new Line(-1, NAV_HEIGHT, SCREEN_WIDTH, LINE_SPACING * 3)); //top
-        lines.add(new Line(-1, SCREEN_HEIGHT - NAV_HEIGHT, SCREEN_WIDTH + 1, SCREEN_HEIGHT - NAV_HEIGHT)); //bottom
-        lines.add(new Line(1, NAV_HEIGHT, 1, SCREEN_HEIGHT - NAV_HEIGHT));                        //left
-        lines.add(new Line(SCREEN_WIDTH - 1, NAV_HEIGHT, SCREEN_WIDTH - 1, SCREEN_HEIGHT - NAV_HEIGHT));    //right
+        lines.add(new Line(-1, K.NAV_HEIGHT, K.SCREEN_WIDTH, K.LINE_SPACING * 3)); //top
+        lines.add(new Line(-1, K.SCREEN_HEIGHT - K.NAV_HEIGHT, K.SCREEN_WIDTH + 1, K.SCREEN_HEIGHT - K.NAV_HEIGHT)); //bottom
+        lines.add(new Line(1, K.NAV_HEIGHT, 1, K.SCREEN_HEIGHT - K.NAV_HEIGHT));                        //left
+        lines.add(new Line(K.SCREEN_WIDTH - 1, K.NAV_HEIGHT, K.SCREEN_WIDTH - 1, K.SCREEN_HEIGHT - K.NAV_HEIGHT));    //right
         lines.get(0).addIntersections(lines.get(1));
         lines.get(0).addIntersections(lines.get(2));
         lines.get(1).addIntersections(lines.get(3));
@@ -83,15 +82,15 @@ public class Grid {
         int a, b, length;
         for (int i = 0; i < (5 + (2 * Math.sqrt(level.num))) * linesAdjust && level.num != 0; i++) {
             //creates a new line and makes sure that it does not create an enclosed space(conflict)
-            a = randomBetween(1, (SCREEN_WIDTH / LINE_SPACING) - 1) * LINE_SPACING;
-            b = randomBetween(3, ((SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING) - 1) * LINE_SPACING;
+            a = randomBetween(1, (K.SCREEN_WIDTH / K.LINE_SPACING) - 1) * K.LINE_SPACING;
+            b = randomBetween(3, ((K.SCREEN_HEIGHT - K.NAV_HEIGHT) / K.LINE_SPACING) - 1) * K.LINE_SPACING;
             if (a / 10 % 2 == 1) {
-                length = (int) (Math.ceil(randomBetween(-SCREEN_HEIGHT / LINE_SPACING / 2,
-                        SCREEN_HEIGHT / LINE_SPACING / 2) * lengthAdjust) * LINE_SPACING);
+                length = (int) (Math.ceil(randomBetween(-K.SCREEN_HEIGHT / K.LINE_SPACING / 2,
+                        K.SCREEN_HEIGHT / K.LINE_SPACING / 2) * lengthAdjust) * K.LINE_SPACING);
                 lines.add(new Line(a, b, a + length, b));
             } else {
-                length = (int) (Math.ceil(randomBetween(-(SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING / 2,
-                        (SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING / 2) * lengthAdjust) * LINE_SPACING);
+                length = (int) (Math.ceil(randomBetween(-(K.SCREEN_HEIGHT - K.NAV_HEIGHT) / K.LINE_SPACING / 2,
+                        (K.SCREEN_HEIGHT - K.NAV_HEIGHT) / K.LINE_SPACING / 2) * lengthAdjust) * K.LINE_SPACING);
                 lines.add(new Line(a, b, a, b + length));
             }
 

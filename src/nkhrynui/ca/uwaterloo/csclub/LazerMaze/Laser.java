@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
+import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
@@ -16,15 +17,14 @@ public class Laser {
     public int color = 0;
     float startx, starty;
     int oldSave = 0;
-    final static int LINE_SPACING = MainActivity.LINE_SPACING;
 
     ArrayList<Float> pts;// = new ArrayList<Line>();
-    Laser() {
+    Laser(Panel panel) {
         pts = new  ArrayList<Float>();
         startx = -10;
         starty = -10;
-        GO = new GraphicObject(MainActivity.SPEED);
-        paint.setStrokeWidth((float) Math.floor(LINE_SPACING / 7));
+        GO = new GraphicObject(K.SPEED);
+        paint.setStrokeWidth((float) Math.floor(K.LINE_SPACING / 7));
         paint.setAntiAlias(true);
         oldLasers = 0;
     }
@@ -58,7 +58,7 @@ public class Laser {
     }
 
     void nextLevel() {
-        GO = new GraphicObject(MainActivity.SPEED);
+        GO = new GraphicObject(K.SPEED);
         pts.clear();
     }
 

@@ -2,6 +2,7 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import android.content.res.Resources;
 import android.graphics.*;
+import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,14 +26,10 @@ public enum Powerups {
 
     public int selection = 3;
     Canvas c ;
-    Resources resources = MainActivity.g_resources;
     public boolean waitForChoice = false;
     String explanation;
     int smallPic;
     int bigPic;
-    final static int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
-    final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
-    final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
     private static final List<Powerups> VALUES =
             Collections.unmodifiableList(Arrays.asList(values()));
 
@@ -42,17 +39,17 @@ public enum Powerups {
         bigPic = _bigPic;
     }
 
-    Powerups pickPowerup(MainActivity.Panel panel) {
+    Powerups pickPowerup(Panel panel) {
         selection = 0;
         Paint text = new Paint();
-        text.setTextSize(NAV_HEIGHT);
+        text.setTextSize(K.NAV_HEIGHT);
         text.setTextAlign(Paint.Align.CENTER);
         text.setColor(Color.WHITE);
         text.setAntiAlias(true);
         Paint smallText = new Paint();
         smallText.setTextAlign(Paint.Align.CENTER);
         smallText.setColor(Color.WHITE);
-        smallText.setTextSize(NAV_HEIGHT / 2);
+        smallText.setTextSize(K.NAV_HEIGHT / 2);
         smallText.setAntiAlias(true);
         c = panel.getCanvas();
         waitForChoice = true;
@@ -62,21 +59,17 @@ public enum Powerups {
         Powerups option2PowerUp = VALUES.get(option2int);
         Bitmap bitmap1, bitmap2;
         c.drawColor(Color.rgb(16, 16, 16));
-        c.drawText("Choose powerup",  SCREEN_WIDTH / 2, NAV_HEIGHT, text);
-        bitmap1 = BitmapFactory.decodeResource(resources, option1PowerUp.bigPic);
-        bitmap2 = BitmapFactory.decodeResource(resources, option2PowerUp.bigPic);
+        c.drawText("Choose powerup",  K.SCREEN_WIDTH / 2, K.NAV_HEIGHT, text);
+        bitmap1 = BitmapFactory.decodeResource(panel.getResources(), option1PowerUp.bigPic);
+        bitmap2 = BitmapFactory.decodeResource(panel.getResources(), option2PowerUp.bigPic);
 
-        c.drawBitmap(bitmap1, null, new Rect(0,
-                NAV_HEIGHT * 4,
-                (SCREEN_WIDTH / 2),
-                (SCREEN_WIDTH / 2) + NAV_HEIGHT * 4), null);
-        c.drawBitmap(bitmap2, null, new Rect((SCREEN_WIDTH / 2),
-                NAV_HEIGHT * 4,
-                SCREEN_WIDTH,
-                (SCREEN_WIDTH / 2) + NAV_HEIGHT * 4), null);
-        c.drawText(option1PowerUp.explanation,  SCREEN_WIDTH / 4, NAV_HEIGHT * 3, smallText);
-        c.drawText(option2PowerUp.explanation,  (3 * SCREEN_WIDTH / 4), NAV_HEIGHT * 3, smallText);
-        c.drawLine(SCREEN_WIDTH / 2, NAV_HEIGHT * 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT, text);
+        c.drawBitmap(bitmap1, null, new Rect(0, K.NAV_HEIGHT * 4,
+                (K.SCREEN_WIDTH / 2), (K.SCREEN_WIDTH / 2) + K.NAV_HEIGHT * 4), null);
+        c.drawBitmap(bitmap2, null, new Rect((K.SCREEN_WIDTH / 2), K.NAV_HEIGHT * 4,
+                K.SCREEN_WIDTH, (K.SCREEN_WIDTH / 2) + K.NAV_HEIGHT * 4), null);
+        c.drawText(option1PowerUp.explanation,  K.SCREEN_WIDTH / 4, K.NAV_HEIGHT * 3, smallText);
+        c.drawText(option2PowerUp.explanation,  (3 * K.SCREEN_WIDTH / 4), K.NAV_HEIGHT * 3, smallText);
+        c.drawLine(K.SCREEN_WIDTH / 2, K.NAV_HEIGHT * 2, K.SCREEN_WIDTH / 2, K.SCREEN_HEIGHT, text);
         panel.postCanvas(c);
         while(selection == 0) {
             try {

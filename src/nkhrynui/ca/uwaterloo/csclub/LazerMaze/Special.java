@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
+import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
@@ -17,10 +17,6 @@ public enum Special{
     LAUNCHER2(R.drawable.shoot);
 
     Bitmap bitmap;
-    final int SPECIAL_WIDTH = MainActivity.SPECIAL_WIDTH;
-    final int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
-    final int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
-    final int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
     boolean active = false;
     int y;
     int x;
@@ -28,32 +24,31 @@ public enum Special{
     int largeSize;
     Rect normalRect, largeRect;
     Special(int b) {
-        if (MainActivity.g_resources == null) throw new NullPointerException("in special");
-        bitmap = BitmapFactory.decodeResource(MainActivity.g_resources, b);
+        bitmap = BitmapFactory.decodeResource(Panel.m_resources, b);
     }
 
     public void update(boolean isLauncher, Grid grid) {
-        y = randomBetween(NAV_HEIGHT + SPECIAL_WIDTH, SCREEN_HEIGHT - (NAV_HEIGHT + SPECIAL_WIDTH));
-        x = randomBetween(SPECIAL_WIDTH, SCREEN_WIDTH - (SPECIAL_WIDTH));
+        y = randomBetween(K.NAV_HEIGHT + K.SPECIAL_WIDTH, K.SCREEN_HEIGHT - (K.NAV_HEIGHT + K.SPECIAL_WIDTH));
+        x = randomBetween(K.SPECIAL_WIDTH, K.SCREEN_WIDTH - (K.SPECIAL_WIDTH));
         ArrayList<Line> lines = grid.getLines();
         for (int i = 0; i < lines.size(); i++) {
             if (lineTest(lines.get(i))
                     || (isLauncher && tooEasy(TARGET, lines))) {
-                y = randomBetween(NAV_HEIGHT + SPECIAL_WIDTH, SCREEN_HEIGHT - (NAV_HEIGHT + SPECIAL_WIDTH));
-                x = randomBetween(SPECIAL_WIDTH, SCREEN_WIDTH - (SPECIAL_WIDTH));
+                y = randomBetween(K.NAV_HEIGHT + K.SPECIAL_WIDTH, K.SCREEN_HEIGHT - (K.NAV_HEIGHT + K.SPECIAL_WIDTH));
+                x = randomBetween(K.SPECIAL_WIDTH, K.SCREEN_WIDTH - (K.SPECIAL_WIDTH));
                 i = -1;
             }
         }
-        stdSize = SPECIAL_WIDTH / 2;
-        largeSize = SPECIAL_WIDTH;
+        stdSize = K.SPECIAL_WIDTH / 2;
+        largeSize = K.SPECIAL_WIDTH;
         normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
         largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
 
     }
 
     public void update2(boolean isLauncher, Grid grid) {
-        y = randomBetween(NAV_HEIGHT + SPECIAL_WIDTH, SCREEN_HEIGHT - (NAV_HEIGHT + SPECIAL_WIDTH));
-        x = randomBetween(SPECIAL_WIDTH, SCREEN_WIDTH - (SPECIAL_WIDTH));
+        y = randomBetween(K.NAV_HEIGHT + K.SPECIAL_WIDTH, K.SCREEN_HEIGHT - (K.NAV_HEIGHT + K.SPECIAL_WIDTH));
+        x = randomBetween(K.SPECIAL_WIDTH, K.SCREEN_WIDTH - (K.SPECIAL_WIDTH));
         ArrayList<Line> lines = grid.getLines();
         for (int i = 0; i < lines.size(); i++) {
             if (lineTest(lines.get(i))
@@ -62,13 +57,13 @@ public enum Special{
                     || (!isLauncher && bigPointTest(TARGET.x, TARGET.y))
                     || (!isLauncher && LAUNCHER.tooEasy(this, lines)))
             {
-                y = randomBetween(NAV_HEIGHT + SPECIAL_WIDTH, SCREEN_HEIGHT - (NAV_HEIGHT + SPECIAL_WIDTH));
-                x = randomBetween(SPECIAL_WIDTH, SCREEN_WIDTH - (SPECIAL_WIDTH));
+                y = randomBetween(K.NAV_HEIGHT + K.SPECIAL_WIDTH, K.SCREEN_HEIGHT - (K.NAV_HEIGHT + K.SPECIAL_WIDTH));
+                x = randomBetween(K.SPECIAL_WIDTH, K.SCREEN_WIDTH - (K.SPECIAL_WIDTH));
                 i = -1;
             }
         }
-        stdSize = SPECIAL_WIDTH / 2;
-        largeSize = SPECIAL_WIDTH;
+        stdSize = K.SPECIAL_WIDTH / 2;
+        largeSize = K.SPECIAL_WIDTH;
         normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
         largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
     }
@@ -78,12 +73,12 @@ public enum Special{
             return Math.abs(line.starty - y) <= stdSize
                     && (inBetween(line.startx, x + stdSize, line.endx)
                     || inBetween(line.startx, x - stdSize, line.endx)
-                    || inBetween(x - stdSize, line.startx, x + (SPECIAL_WIDTH / 2)));
+                    || inBetween(x - stdSize, line.startx, x + (K.SPECIAL_WIDTH / 2)));
         } else {
             return Math.abs(line.startx - x) <= stdSize
                     && (inBetween(line.starty, y + stdSize, line.endy)
                     || inBetween(line.starty, y - stdSize, line.endy)
-                    || inBetween(y - stdSize, line.starty, y + (SPECIAL_WIDTH / 2)));
+                    || inBetween(y - stdSize, line.starty, y + (K.SPECIAL_WIDTH / 2)));
         }
     }
 
@@ -91,7 +86,7 @@ public enum Special{
         double x2 = Math.abs(x1 - x);
         double y2 = Math.abs(y1 - y);
         double distance = Math.sqrt((x2 * x2) + (y2 * y2));
-        return distance < SPECIAL_WIDTH * 2;
+        return distance < K.SPECIAL_WIDTH * 2;
     }
 
     boolean smallPointTest(double x1, double y1, Powerups g_powerup) {

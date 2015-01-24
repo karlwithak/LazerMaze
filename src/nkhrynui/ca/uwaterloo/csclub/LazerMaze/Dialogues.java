@@ -6,17 +6,16 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 
 public class Dialogues {
-    Context  m_context;
-    Level    m_level;
-    Thread   m_thread;
-    Powerups m_powerup;
+    Context    m_context;
+    Level      m_level;
+    MainThread m_thread;
+    Powerups   m_powerup;
     SharedPreferences m_sharedPrefs;
-    public Dialogues(Context context, Level level, Thread thread,
-                     Powerups powerup, SharedPreferences sharedPrefs) {
+    public Dialogues(Context context, Panel panel, SharedPreferences sharedPrefs) {
         m_context = context;
-        m_level = level;
-        m_thread = thread;
-        m_powerup = powerup;
+        m_level = panel.m_level;
+        m_thread = panel.m_mainThread;
+        m_powerup = panel.m_powerup;
         m_sharedPrefs= sharedPrefs;
     }
     public void skipLevelDialog() {
@@ -26,8 +25,8 @@ public class Dialogues {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         m_level.skip();
-                        MainActivity.g_thread.setRunning(false);
-                        MainActivity.g_thread.selection = "next";
+                        m_thread.setRunning(false);
+                        m_thread.selection = "next";
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -44,8 +43,8 @@ public class Dialogues {
                     public void onClick(DialogInterface dialog, int which) {
                         m_level.reset();
                         m_powerup = Powerups.NONE;
-                        MainActivity.g_thread.setRunning(false);
-                        MainActivity.g_thread.selection = "next";
+                        m_thread.setRunning(false);
+                        m_thread.selection = "next";
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {

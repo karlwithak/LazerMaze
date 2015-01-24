@@ -447,7 +447,6 @@ public class MainActivity extends Activity {
                 break;
             }
         }
-
     }
      /****************************************** PHYSICS - END*****************************/
 

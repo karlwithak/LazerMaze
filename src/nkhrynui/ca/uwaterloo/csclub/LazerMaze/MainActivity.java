@@ -14,12 +14,13 @@ import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
 public class MainActivity extends Activity {
     // GLOBAL VARIABLES, set in surfaceCreated
-
     private static SharedPreferences g_sharedPrefs;
     private static Level g_level;
     private static Vibrator g_v = null;
     private static boolean lockListenerOkay = true;
     private static ColorHandler g_colorHandler = new ColorHandler();
+    private static Grid g_grid;
+    private static Powerups g_powerup;
     private static Panel g_panel;
     private static Dialogues g_dialogues;
     private static MainActivity g_mainActivity;
@@ -31,9 +32,7 @@ public class MainActivity extends Activity {
     public void updatePhysics() {
         Special target = g_panel.m_target;
         Special target2 = g_panel.m_target2;
-        Powerups powerup = g_panel.m_powerup;
         Laser laser = g_panel.m_laser;
-        Grid grid = g_panel.m_grid;
         final int SCREEN_WIDTH = K.SCREEN_WIDTH;
         final int SCREEN_HEIGHT = K.SCREEN_HEIGHT;
         final int NAV_HEIGHT = K.NAV_HEIGHT;
@@ -41,8 +40,8 @@ public class MainActivity extends Activity {
         GraphicObject.Speed speed;
         coord = laser.GO.coordinates;
         speed = laser.GO.speed;
-        if (target.smallPointTest(coord.x, coord.y, powerup)
-                || (powerup == Powerups.TWO_TARGETS && target2.smallPointTest(coord.x, coord.y, powerup))) {
+        if (target.smallPointTest(coord.x, coord.y, g_powerup)
+                || (g_powerup == Powerups.TWO_TARGETS && target2.smallPointTest(coord.x, coord.y, g_powerup))) {
             g_level.num++;
             g_level.score+=100;
             g_panel.m_mainThread.setRunning(false);
@@ -58,12 +57,12 @@ public class MainActivity extends Activity {
         Line line;
         boolean ignoring = false;
         boolean doubleHit = true;
-        for (int i = 0; i < grid.getLines().size(); i++) {
-            line = grid.getLines().get(i);
+        for (int i = 0; i < g_grid.getLines().size(); i++) {
+            line = g_grid.getLines().get(i);
             if ((coord.lastx != -1  && coord.lasty != -1)
                     && line.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0)
             {
-                if (powerup == Powerups.THROUGH_FIRST_LINE && laser.pts.size() == 4) {
+                if (g_powerup == Powerups.THROUGH_FIRST_LINE && laser.pts.size() == 4) {
                     ignoring = true;
                     laser.bounce();
                     continue;
@@ -79,8 +78,8 @@ public class MainActivity extends Activity {
                     g_panel.m_mainThread.selection = "next";
                     break;
                 }
-                if (powerup == Powerups.WRAP_AROUND_ENDS
-                        && grid.getLines().indexOf(line) <= 1) {
+                if (g_powerup == Powerups.WRAP_AROUND_ENDS
+                        && g_grid.getLines().indexOf(line) <= 1) {
                     coord.setX(coord.x + speed.x);
                     coord.setY(coord.y + speed.y);
                     laser.bounce();
@@ -112,9 +111,9 @@ public class MainActivity extends Activity {
                     continue;
                 }
 
-                if (powerup == Powerups.WRAP_AROUND_SIDES
-                        && (grid.getLines().indexOf(line) == 2
-                                || grid.getLines().indexOf(line) == 3)) {
+                if (g_powerup == Powerups.WRAP_AROUND_SIDES
+                        && (g_grid.getLines().indexOf(line) == 2
+                                || g_grid.getLines().indexOf(line) == 3)) {
                     coord.setX(coord.x + speed.x);
                     coord.setY(coord.y + speed.y);
                     laser.bounce();
@@ -157,7 +156,7 @@ public class MainActivity extends Activity {
                     change = Math.abs((coord.y - line.starty) / speed.y);
                     coord.y = (line.starty);
                     coord.setX(coord.x+ (change * speed.x));
-                    for (Line line2 : grid.getLines()) {
+                    for (Line line2 : g_grid.getLines()) {
                         if (!ignoring
                                 && line2 != line
                                 && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0
@@ -178,7 +177,7 @@ public class MainActivity extends Activity {
                     change = Math.abs((coord.x - line.startx) / speed.x);
                     coord.x = (line.startx);
                     coord.y = (coord.y+ (change * speed.y));
-                    for (Line line2 : grid.getLines()) {
+                    for (Line line2 : g_grid.getLines()) {
                         if (!ignoring && line2 != line
                                 && line2.crossed(coord.x, coord.y, coord.lastx, coord.lasty) > 0
                                 && doubleHit)
@@ -202,26 +201,17 @@ public class MainActivity extends Activity {
     }
      /****************************************** PHYSICS - END*****************************/
 
-     /****************************************** DRAWING - START***************************/
-    public void draw() {
-        Canvas canvas = g_panel.getCanvas();
-        g_level.draw(canvas);
-        g_panel.draw(canvas);
-        g_panel.postCanvas(canvas);
-    }
-
-    /****************************************** DRAWING - END**********************************/
-
     public void nextLevel() {
-        Grid grid = g_panel.m_grid;
         if (!g_level.recover) {
-            if (grid.lines.size() > 1) gridShrink();
+            if (g_grid.lines.size() > 1) gridShrink();
             if (g_level.num % 3 == 0 && g_level.num != 0) {
-                g_panel.m_powerup = g_panel.m_powerup.pickPowerup(g_panel);
+                g_powerup = g_powerup.pickPowerup(g_panel);
+                Log.i("powerups", "done picking");
             }
-            g_panel.m_buttons.update(g_panel.m_powerup);
-            g_colorHandler.update(g_sharedPrefs, g_level, grid, g_panel.m_laser);
-            grid.makeGrid(g_panel.m_powerup, g_level);
+            g_panel.m_powerup = g_powerup;
+            g_panel.m_buttons.update(g_powerup);
+            g_colorHandler.update(g_sharedPrefs, g_level, g_grid, g_panel.m_laser);
+            g_grid.makeGrid(g_powerup, g_level);
             if (g_level.num > 0 && lockListenerOkay) gridExpand();
             g_panel.nextLevel();
         }
@@ -234,7 +224,7 @@ public class MainActivity extends Activity {
         g_panel.m_laser.nextLevel();
         // VERY IMPORTANT: this is all the drawing that happens before the game
         // actually starts: ie maze and target
-        draw();
+        g_panel.draw();
         g_level.restart = true;
     }
 
@@ -248,11 +238,11 @@ public class MainActivity extends Activity {
             try {
                 Thread.sleep(10);
                 g_level.draw(c);
-                for (Line line: g_panel.m_grid.lines) {
+                for (Line line: g_grid.lines) {
                     line.shrink(LINE_SPACING);
                 }
-                g_panel.m_grid.draw(c);
-                g_panel.m_buttons.draw(c, g_level, g_panel.m_powerup);
+                g_grid.draw(c);
+                g_panel.m_buttons.draw(c, g_level, g_powerup);
             } catch (InterruptedException ignored) {}
             g_panel.postCanvas(c);
         }
@@ -267,11 +257,11 @@ public class MainActivity extends Activity {
             try {
                 Thread.sleep(10);
                 g_level.draw(c);
-                for (Line line: g_panel.m_grid.lines) {
+                for (Line line: g_grid.lines) {
                     line.expand(LINE_SPACING);
                 }
-                g_panel.m_grid.expandDraw(c);
-                g_panel.m_buttons.draw(c, g_level, g_panel.m_powerup);
+                g_grid.expandDraw(c);
+                g_panel.m_buttons.draw(c, g_level, g_powerup);
             } catch (InterruptedException ignored) {}
             g_panel.postCanvas(c);
         }
@@ -300,8 +290,10 @@ public class MainActivity extends Activity {
         Log.i("crashing", "create");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         g_sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        g_grid = new Grid();
+        g_powerup = Powerups.NONE;
         g_panel = new Panel(MainActivity.this, g_level, g_dialogues,
-                            g_sharedPrefs, g_mainActivity);
+                            g_sharedPrefs, g_mainActivity, g_grid, g_powerup);
         setContentView(g_panel);
         if (g_sharedPrefs.getBoolean("screenOn", true)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -322,15 +314,15 @@ public class MainActivity extends Activity {
         }
         if (g_sharedPrefs.getBoolean("vibrate", true)) g_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         else g_v = null;
-        g_panel = new Panel(MainActivity.this, g_level, g_dialogues, g_sharedPrefs, g_mainActivity);
+        g_panel = new Panel(MainActivity.this, g_level, g_dialogues, g_sharedPrefs, g_mainActivity,
+                            g_grid, g_powerup);
         setContentView(g_panel);
     }
     
     public void onPause() {
         super.onPause();
-        Powerups powerup = g_panel.m_powerup;
         lockListenerOkay = false;
-        if (powerup.waitForChoice) powerup.selection = 4;
+        if (g_powerup.waitForChoice) g_powerup.selection = 4;
 
         Log.i("crashing", "pause");
         if (g_v != null) g_v.cancel();
@@ -338,7 +330,7 @@ public class MainActivity extends Activity {
         g_level.exit = false;
         g_panel.m_mainThread.setRunning(false);
         g_panel.m_mainThread.selection = "";
-        if (powerup.selection == 0) powerup.selection = 4;
+        if (g_powerup.selection == 0) g_powerup.selection = 4;
         try {
             g_panel.m_mainThread.join(100);
         } catch (InterruptedException e) {

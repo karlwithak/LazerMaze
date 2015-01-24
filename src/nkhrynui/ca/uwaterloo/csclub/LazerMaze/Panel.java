@@ -31,18 +31,19 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     static Resources m_resources;
 
     public Panel(Context context, Level level, Dialogues dialogues, SharedPreferences sharedPrefs,
-                 MainActivity mainActivity) {
+                 MainActivity mainActivity, Grid grid, Powerups powerup) {
         super(context);
         m_level = level;
-        m_powerup = Powerups.NONE;
         m_dialogues = dialogues;
         m_sharedPrefs = sharedPrefs;
         m_mainActivity = mainActivity;
         getHolder().addCallback(this);
-        m_mainThread = new MainThread(m_level, m_mainActivity);
+        m_mainThread = new MainThread(m_level, m_mainActivity, this);
         setFocusable(true);
         m_mainThread.start();
         m_mainThread.setRunning(false);
+        m_grid = grid;
+        m_powerup = powerup;
     }
 
     public Canvas getCanvas() {
@@ -227,6 +228,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.i("Surface", "Surface created");
         m_resources = getResources();
         if (m_sharedPrefs.getInt("highScore", 0) == 0) {
             m_dialogues.newGameDialog();
@@ -236,16 +238,13 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         K.init(this);
-        if (!m_level.recover) {
-            m_powerup = Powerups.NONE;
-            m_laser = new Laser(this);
-            m_buttons = new Buttons(getResources());
-            m_grid = new Grid();
-            m_launcher = Special.LAUNCHER;
-            m_target = Special.TARGET;
-            m_launcher2 = Special.LAUNCHER2;
-            m_target2 = Special.TARGET2;
-        }
+        m_laser = new Laser(this);
+        m_buttons = new Buttons(getResources());
+        m_launcher = Special.LAUNCHER;
+        m_target = Special.TARGET;
+        m_launcher2 = Special.LAUNCHER2;
+        m_target2 = Special.TARGET2;
+        m_grid.setup();
         m_mainActivity.nextLevel();
     }
 
@@ -265,7 +264,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
     
-    public void draw(Canvas canvas) {
+    public void draw() {
+        Canvas canvas = getCanvas();
+        m_level.draw(canvas);
         m_laser.draw(canvas);
         if (m_powerup == Powerups.BIG_TARGETS) {
             m_target.draw(canvas, true);
@@ -277,5 +278,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         if (m_powerup == Powerups.TWO_LAUNCHERS) m_launcher2.draw(canvas, false);
         m_grid.draw(canvas);
         m_buttons.draw(canvas, m_level, m_powerup);
+        postCanvas(canvas);
     }
 }

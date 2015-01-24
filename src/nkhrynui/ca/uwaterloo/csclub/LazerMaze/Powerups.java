@@ -1,6 +1,5 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
-import android.content.res.Resources;
 import android.graphics.*;
 import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
@@ -40,7 +39,7 @@ public enum Powerups {
     }
 
     Powerups pickPowerup(Panel panel) {
-        selection = 0;
+        panel.m_powerup.selection = 0;
         Paint text = new Paint();
         text.setTextSize(K.NAV_HEIGHT);
         text.setTextAlign(Paint.Align.CENTER);
@@ -71,7 +70,7 @@ public enum Powerups {
         c.drawText(option2PowerUp.explanation,  (3 * K.SCREEN_WIDTH / 4), K.NAV_HEIGHT * 3, smallText);
         c.drawLine(K.SCREEN_WIDTH / 2, K.NAV_HEIGHT * 2, K.SCREEN_WIDTH / 2, K.SCREEN_HEIGHT, text);
         panel.postCanvas(c);
-        while(selection == 0) {
+        while(panel.m_powerup.selection == 0) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -83,12 +82,12 @@ public enum Powerups {
         bitmap2.recycle();
         waitForChoice = false;
 
-        if (selection == 1) {
-            selection = 1;
+        if (panel.m_powerup.selection == 1) {
+            panel.m_powerup.selection = 1;
             return option1PowerUp;
         }
-        else if (selection == 2) {
-            selection = 1;
+        else if (panel.m_powerup.selection == 2) {
+            panel.m_powerup.selection = 1;
             return option2PowerUp;
         }
         else return  Powerups.NONE;

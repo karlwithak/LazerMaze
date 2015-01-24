@@ -19,6 +19,9 @@ public class Grid {
         recovery = false;
         lines = new ArrayList<Line>();
         paint = new Paint();
+    }
+
+    public void setup() {
         paint.setStrokeWidth((float) Math.ceil(K.LINE_SPACING / 7) + 1);
     }
 

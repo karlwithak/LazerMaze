@@ -66,11 +66,11 @@ public class Grid {
         return lines;
     }        
     
-    void makeGrid() {
+    void makeGrid(Powerups powerup, Level level) {
         double linesAdjust = 1;
-        if (MainActivity.g_powerup == Powerups.LESS_LINES) linesAdjust = 0.666;
+        if (powerup == Powerups.LESS_LINES) linesAdjust = 0.666;
         double lengthAdjust = 1;
-        if (MainActivity.g_powerup == Powerups.SHORT_LINES) lengthAdjust = 0.666;
+        if (powerup == Powerups.SHORT_LINES) lengthAdjust = 0.666;
         lines.clear();
         lines.add(new Line(-1, NAV_HEIGHT, SCREEN_WIDTH, LINE_SPACING * 3)); //top
         lines.add(new Line(-1, SCREEN_HEIGHT - NAV_HEIGHT, SCREEN_WIDTH + 1, SCREEN_HEIGHT - NAV_HEIGHT)); //bottom
@@ -81,7 +81,7 @@ public class Grid {
         lines.get(1).addIntersections(lines.get(3));
         lines.get(3).addIntersections(lines.get(2));
         int a, b, length;
-        for (int i = 0; i < (5 + (2 * Math.sqrt(MainActivity.g_level.num))) * linesAdjust && MainActivity.g_level.num != 0; i++) {
+        for (int i = 0; i < (5 + (2 * Math.sqrt(level.num))) * linesAdjust && level.num != 0; i++) {
             //creates a new line and makes sure that it does not create an enclosed space(conflict)
             a = randomBetween(1, (SCREEN_WIDTH / LINE_SPACING) - 1) * LINE_SPACING;
             b = randomBetween(3, ((SCREEN_HEIGHT - NAV_HEIGHT) / LINE_SPACING) - 1) * LINE_SPACING;

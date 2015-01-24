@@ -6,9 +6,11 @@ import android.graphics.Canvas;
 public class MainThread extends Thread {
     private boolean _run = false;
     public String selection = "";
+    Level m_level;
 
-    public MainThread() {
-        MainActivity.g_level.exit = true;
+    public MainThread(Level level) {
+        m_level = level;
+        m_level.exit = true;
     }
 
     public void setRunning(boolean run) {
@@ -17,7 +19,7 @@ public class MainThread extends Thread {
 
     @SuppressLint("WrongCall") @Override
     public void run() {
-        while(MainActivity.g_level.exit) {
+        while(m_level.exit) {
             while (_run) {
                 MainActivity.updatePhysics();
                 MainActivity.draw();

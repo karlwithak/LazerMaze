@@ -17,7 +17,7 @@ public class Buttons {
     final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
     final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
     final static int SPECIAL_WIDTH = MainActivity.SPECIAL_WIDTH;
-    Bitmap settings, restart, skip, noskip, powerup;
+    Bitmap settings, restart, skip, noskip, powerupPic;
     Resources resources;
 
     Buttons(Resources resourcesIn) {
@@ -36,7 +36,7 @@ public class Buttons {
         noskip = BitmapFactory.decodeResource(resources, R.drawable.ic_menu_forward2);
     }
 
-    void draw(Canvas c) {
+    void draw(Canvas c, Level level, Powerups powerup) {
         c.drawRect(0, (SCREEN_HEIGHT - NAV_HEIGHT) + 2, SCREEN_WIDTH, SCREEN_HEIGHT, button);
         c.drawRect(0, 0, SCREEN_WIDTH, NAV_HEIGHT - 1, button);
 
@@ -57,7 +57,7 @@ public class Buttons {
                                             SCREEN_HEIGHT - NAV_HEIGHT,
                                             (3 * SCREEN_WIDTH / 4) + NAV_HEIGHT,
                 SCREEN_HEIGHT), null);
-        c.drawBitmap((MainActivity.g_level.score > MainActivity.g_level.skipCost? skip: noskip), null,
+        c.drawBitmap((level.score > level.skipCost? skip: noskip), null,
                 new Rect((SCREEN_WIDTH / 2) - NAV_HEIGHT / 2,
                         SCREEN_HEIGHT - NAV_HEIGHT,
                         (SCREEN_WIDTH / 2) + NAV_HEIGHT / 2,
@@ -66,19 +66,19 @@ public class Buttons {
 
         float height = (NAV_HEIGHT / 2) - (text.ascent() / 4);
 
-        if (MainActivity.g_powerup != Powerups.NONE) {
-            c.drawBitmap(powerup, null, new Rect((5 * SCREEN_WIDTH / 6) - NAV_HEIGHT / 2,
+        if (powerup != Powerups.NONE) {
+            c.drawBitmap(powerupPic, null, new Rect((5 * SCREEN_WIDTH / 6) - NAV_HEIGHT / 2,
                                             1,
                                             (5 * SCREEN_WIDTH / 6) + NAV_HEIGHT / 2,
                                             NAV_HEIGHT - 1), null);
         }
-        c.drawText("level: "+ MainActivity.g_level.num, SCREEN_WIDTH / 2, height, text);
-        c.drawText("score: "+ MainActivity.g_level.score, SCREEN_WIDTH / 6, height, (MainActivity.g_level.score > 20?text: warning));
+        c.drawText("level: "+ level.num, SCREEN_WIDTH / 2, height, text);
+        c.drawText("score: "+ level.score, SCREEN_WIDTH / 6, height, (level.score > 20?text: warning));
     }
 
-    void update() {
-        if (MainActivity.g_powerup != Powerups.NONE) {
-            powerup = BitmapFactory.decodeResource(resources, MainActivity.g_powerup.smallPic);
+    void update(Powerups powerup) {
+        if (powerup != Powerups.NONE) {
+            powerupPic = BitmapFactory.decodeResource(resources, powerup.smallPic);
         }
     }
 }

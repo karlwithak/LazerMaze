@@ -3,22 +3,22 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 import java.util.ArrayList;
 
 public class Utils {
-    static boolean inBetween(double left, double center, double right) {
+    public static boolean inBetween(double left, double center, double right) {
         return (left <= center && center <= right)
                 || (left >= center && center >= right);
     }
 
-    static boolean inBetweenStrict(double left, double center, double right) {
+    public static boolean inBetweenStrict(double left, double center, double right) {
         return (left < center && center < right)
                 || (left > center && center > right);
     }
 
-    static int randomBetween(double low, double high) {
+    public static int randomBetween(double low, double high) {
         double ran = Math.random();
         return (int) (low + (ran * (high - low)));
     }
 
-    static float[] ALtoArray(ArrayList<Float> pts) {
+    public static float[] ALtoArray(ArrayList<Float> pts) {
         int i = 0;
         float[] f2 = new float[pts.size()];
         for (float f: pts) {
@@ -28,7 +28,7 @@ public class Utils {
         return f2;
     }
 
-    static int differentRandomBetween(double low, double high, int other) {
+    public static int differentRandomBetween(double low, double high, int other) {
         int x = randomBetween(low, high);
         while (x == other) x = randomBetween(low, high);
         return x;

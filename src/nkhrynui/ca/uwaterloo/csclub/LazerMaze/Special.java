@@ -6,14 +6,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
 
 public enum Special{
-    TARGET(BitmapFactory.decodeResource(MainActivity.g_resources, R.drawable.newtarget)),
-    TARGET2(BitmapFactory.decodeResource(MainActivity.g_resources, R.drawable.newtarget)),
-    LAUNCHER(BitmapFactory.decodeResource(MainActivity.g_resources, R.drawable.shoot)),
-    LAUNCHER2(BitmapFactory.decodeResource(MainActivity.g_resources, R.drawable.shoot));
+    TARGET(R.drawable.newtarget),
+    TARGET2(R.drawable.newtarget),
+    LAUNCHER(R.drawable.shoot),
+    LAUNCHER2(R.drawable.shoot);
 
     Bitmap bitmap;
     final int SPECIAL_WIDTH = MainActivity.SPECIAL_WIDTH;
@@ -26,14 +27,15 @@ public enum Special{
     int stdSize;
     int largeSize;
     Rect normalRect, largeRect;
-    Special(Bitmap b) {
-        bitmap = b;
+    Special(int b) {
+        if (MainActivity.g_resources == null) throw new NullPointerException("in special");
+        bitmap = BitmapFactory.decodeResource(MainActivity.g_resources, b);
     }
 
-    public void update(boolean isLauncher) {
+    public void update(boolean isLauncher, Grid grid) {
         y = randomBetween(NAV_HEIGHT + SPECIAL_WIDTH, SCREEN_HEIGHT - (NAV_HEIGHT + SPECIAL_WIDTH));
         x = randomBetween(SPECIAL_WIDTH, SCREEN_WIDTH - (SPECIAL_WIDTH));
-        ArrayList<Line> lines = MainActivity.g_grid.getLines();
+        ArrayList<Line> lines = grid.getLines();
         for (int i = 0; i < lines.size(); i++) {
             if (lineTest(lines.get(i))
                     || (isLauncher && tooEasy(TARGET, lines))) {
@@ -49,10 +51,10 @@ public enum Special{
 
     }
 
-    public void update2(boolean isLauncher) {
+    public void update2(boolean isLauncher, Grid grid) {
         y = randomBetween(NAV_HEIGHT + SPECIAL_WIDTH, SCREEN_HEIGHT - (NAV_HEIGHT + SPECIAL_WIDTH));
         x = randomBetween(SPECIAL_WIDTH, SCREEN_WIDTH - (SPECIAL_WIDTH));
-        ArrayList<Line> lines = MainActivity.g_grid.getLines();
+        ArrayList<Line> lines = grid.getLines();
         for (int i = 0; i < lines.size(); i++) {
             if (lineTest(lines.get(i))
                     || (isLauncher && tooEasy(TARGET, lines))
@@ -65,19 +67,23 @@ public enum Special{
                 i = -1;
             }
         }
+        stdSize = SPECIAL_WIDTH / 2;
+        largeSize = SPECIAL_WIDTH;
+        normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
+        largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
     }
 
     boolean lineTest(Line line) {
         if (line.horizontal) {
-            return Math.abs(line.starty - y) <= (SPECIAL_WIDTH / 2)
-                    && (inBetween(line.startx, x + (SPECIAL_WIDTH / 2), line.endx)
-                    || inBetween(line.startx, x - (SPECIAL_WIDTH / 2), line.endx)
-                    || inBetween(x - (SPECIAL_WIDTH / 2), line.startx, x + (SPECIAL_WIDTH / 2)));
+            return Math.abs(line.starty - y) <= stdSize
+                    && (inBetween(line.startx, x + stdSize, line.endx)
+                    || inBetween(line.startx, x - stdSize, line.endx)
+                    || inBetween(x - stdSize, line.startx, x + (SPECIAL_WIDTH / 2)));
         } else {
-            return Math.abs(line.startx - x) <= (SPECIAL_WIDTH / 2)
-                    && (inBetween(line.starty, y + (SPECIAL_WIDTH / 2), line.endy)
-                    || inBetween(line.starty, y - (SPECIAL_WIDTH / 2), line.endy)
-                    || inBetween(y - (SPECIAL_WIDTH / 2), line.starty, y + (SPECIAL_WIDTH / 2)));
+            return Math.abs(line.startx - x) <= stdSize
+                    && (inBetween(line.starty, y + stdSize, line.endy)
+                    || inBetween(line.starty, y - stdSize, line.endy)
+                    || inBetween(y - stdSize, line.starty, y + (SPECIAL_WIDTH / 2)));
         }
     }
 

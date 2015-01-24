@@ -25,31 +25,33 @@ public class MainActivity extends Activity {
     public static int SPECIAL_WIDTH; //special refers to target and launcher
     public static int SPEED;
 
-    public static SharedPreferences g_sharedPrefs;// = PreferenceManager.getDefaultSharedPreferences(this);
-    public static Context g_context;
-    public static MainThread g_thread;
-    public static Buttons g_buttons;
-    public static Special g_target;// = new Target();
-    public static Special g_launcher;
-    public static Special g_target2 = null;// = new Target();
-    public static Special g_launcher2 = null;
-    public static Grid g_grid;// = new ArrayList<Line>();  //contains all of the grid and border lines
-    public static Level g_level;
-    public static Vibrator g_v = null;// = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-    public static Laser g_laser;// = new Laser();
-    public static boolean inAnimation = false;
-    public static boolean lockListenerOkay = true;
-    public static ColorHandler g_colorHandler = new ColorHandler();
-    public static Powerups g_powerup;
     public static Resources g_resources;
-    public static Panel g_panel;
-    public static MainActivity g_mainActivity;
+
+    private static SharedPreferences g_sharedPrefs;
+    private static Context g_context;
+    public static MainThread g_thread;
+    private static Buttons g_buttons;
+    private static Special g_target;
+    private static Special g_launcher;
+    private static Special g_target2;
+    private static Special g_launcher2;
+    private static Grid g_grid;
+    private static Level g_level;
+    private static Vibrator g_v = null;
+    private static Laser g_laser;
+    private static boolean inAnimation = false;
+    private static boolean lockListenerOkay = true;
+    private static ColorHandler g_colorHandler = new ColorHandler();
+    private static Powerups g_powerup;
+    private static Panel g_panel;
+    private static Dialogues g_dialogues;
+    private static MainActivity g_mainActivity;
 
     /****** CONSTANTS END ************************************************************************/
 
     /****** PANEL STARTS *************************************************************************/
 
-    class Panel extends SurfaceView implements SurfaceHolder.Callback {
+    public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         public int graphicCount = 0;
         boolean upOnButtons = false;
 
@@ -57,7 +59,7 @@ public class MainActivity extends Activity {
             super(context1);
             g_context = context1;
             getHolder().addCallback(this);
-            g_thread = new MainThread();
+            g_thread = new MainThread(g_level);
             setFocusable(true);
             g_thread.start();
             g_thread.setRunning(false);
@@ -103,10 +105,10 @@ public class MainActivity extends Activity {
                     g_level.exit = false;
                     settings();
                 } else if (event.getX() > SCREEN_WIDTH * 2 / 3) {
-                    Dialogues.restartDialog();
+                    g_dialogues.restartDialog();
 
                 } else if (g_level.score > g_level.skipCost) {
-                    Dialogues.skipLevelDialog();
+                    g_dialogues.skipLevelDialog();
                 }
             }
             //aiming launch
@@ -196,7 +198,7 @@ public class MainActivity extends Activity {
                 }
                 g_laser.draw(c);
                 g_grid.draw(c);
-                g_buttons.draw(c);
+                g_buttons.draw(c, g_level, g_powerup);
                 g_launcher.draw(c, false);
                 g_target.draw(c, false);
                 g_panel.postCanvas(c);
@@ -245,8 +247,9 @@ public class MainActivity extends Activity {
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
+            g_resources = getResources();
             if (g_sharedPrefs.getInt("highScore", 0) == 0) {
-                Dialogues.newGameDialog();
+                g_dialogues.newGameDialog();
                 SharedPreferences.Editor e = g_sharedPrefs.edit();
                 e.putInt("highScore", 1);
                 e.commit();
@@ -260,6 +263,8 @@ public class MainActivity extends Activity {
                 g_grid = new Grid();
                 g_launcher = Special.LAUNCHER;
                 g_target = Special.TARGET;
+                g_launcher2 = Special.LAUNCHER2;
+                g_target2 = Special.TARGET2;
             }
             nextLevel();
         }
@@ -289,7 +294,7 @@ public class MainActivity extends Activity {
         coord = g_laser.GO.coordinates;
         speed = g_laser.GO.speed;
         if (g_target.smallPointTest(coord.x, coord.y, g_powerup)
-                || (g_target2 != null && g_target2.smallPointTest(coord.x, coord.y, g_powerup))) {
+                || (g_powerup == Powerups.TWO_TARGETS && g_target2.smallPointTest(coord.x, coord.y, g_powerup))) {
             g_level.num++;
             g_level.score+=100;
             g_thread.setRunning(false);
@@ -318,7 +323,7 @@ public class MainActivity extends Activity {
                 if (g_level.score < 1) {
                     g_mainActivity.runOnUiThread(new Runnable() {
                         public void run() {
-                            Dialogues.endGameDialog(g_level.num);
+                            g_dialogues.endGameDialog();
                         }
                     });
                     g_level.reset();
@@ -452,6 +457,7 @@ public class MainActivity extends Activity {
 
      /****************************************** DRAWING - START***************************/
     public static void draw() {
+        if (g_resources == null) g_resources = g_context.getResources();
         Canvas canvas = g_panel.getCanvas();
         g_level.draw(canvas);
         g_laser.draw(canvas);
@@ -460,11 +466,11 @@ public class MainActivity extends Activity {
         } else if (g_level.num != 0) {
             g_target.draw(canvas, false);
         }
-        if (g_target2 != null) g_target2.draw(canvas, false);
+        if (g_powerup == Powerups.TWO_TARGETS) g_target2.draw(canvas, false);
         g_launcher.draw(canvas, false);
-        if (g_launcher2 != null) g_launcher2.draw(canvas, false);
+        if (g_powerup == Powerups.TWO_LAUNCHERS) g_launcher2.draw(canvas, false);
         g_grid.draw(canvas);
-        g_buttons.draw(canvas);
+        g_buttons.draw(canvas, g_level, g_powerup);
         g_panel.postCanvas(canvas);
     }
 
@@ -473,22 +479,19 @@ public class MainActivity extends Activity {
     public static void nextLevel() {
         if (!g_level.recover) {
             if (g_grid.lines.size() > 1) gridShrink();
-            if (g_level.num % 3 == 0 && g_level.num != 0) g_powerup = g_powerup.pickPowerup();
-            g_buttons.update();
-            g_colorHandler.update();
-            g_grid.makeGrid();
+            if (g_level.num % 3 == 0 && g_level.num != 0) g_powerup = g_powerup.pickPowerup(g_panel);
+            g_buttons.update(g_powerup);
+            g_colorHandler.update(g_sharedPrefs, g_level, g_grid, g_laser);
+            g_grid.makeGrid(g_powerup, g_level);
             if (g_level.num > 0 && lockListenerOkay) gridExpand();
-            g_target.update(false);
-            g_launcher.update(true);
+            g_target.update(false, g_grid);
+            g_launcher.update(true, g_grid);
             if (g_powerup == Powerups.TWO_TARGETS) {
-                g_target2 = Special.TARGET2;
-                g_target2.update2(false);
-            } else g_target2 = null;
-            if (g_powerup == Powerups.TWO_LAUNCHERS) {
-                g_launcher2 = Special.LAUNCHER2;
-                g_launcher2.update2(true);
+                g_target2.update2(false, g_grid);
             }
-            else g_launcher2 = null;
+            if (g_powerup == Powerups.TWO_LAUNCHERS) {
+                g_launcher2.update2(true, g_grid);
+            }
         }
         g_level.recover = false;
         g_panel.graphicCount = 0;
@@ -515,7 +518,7 @@ public class MainActivity extends Activity {
                     line.shrink(LINE_SPACING);
                 }
                 g_grid.draw(c);
-                g_buttons.draw(c);
+                g_buttons.draw(c, g_level, g_powerup);
             } catch (InterruptedException ignored) {}
             g_panel.postCanvas(c);
         }
@@ -532,7 +535,7 @@ public class MainActivity extends Activity {
                     line.expand(LINE_SPACING);
                 }
                 g_grid.expandDraw(c);
-                g_buttons.draw(c);
+                g_buttons.draw(c, g_level, g_powerup);
             } catch (InterruptedException ignored) {}
             g_panel.postCanvas(c);
         }
@@ -556,7 +559,6 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        g_resources = getResources();
         g_level = new Level();
         g_mainActivity = this;
         Log.i("crashing", "create");
@@ -567,6 +569,7 @@ public class MainActivity extends Activity {
         if (g_sharedPrefs.getBoolean("screenOn", true)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+        g_dialogues = new Dialogues(g_context, g_level, g_thread, g_powerup, g_sharedPrefs);
     }
     
     public void onResume() {
@@ -574,7 +577,7 @@ public class MainActivity extends Activity {
         lockListenerOkay = true;
         Log.i("crashing", "resume");
         if (g_level.inPrefs) {
-            g_colorHandler.update();
+            g_colorHandler.update(g_sharedPrefs, g_level, g_grid, g_laser);
             if (g_sharedPrefs.getBoolean("screenOn", true)) {
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             } else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

@@ -197,8 +197,8 @@ public class MainActivity extends Activity {
                 g_laser.draw(c);
                 g_grid.draw(c);
                 g_buttons.draw(c);
-                g_launcher.draw(c);
-                g_target.draw(c);
+                g_launcher.draw(c, false);
+                g_target.draw(c, false);
                 g_panel.postCanvas(c);
             }
             //launches laser
@@ -252,14 +252,7 @@ public class MainActivity extends Activity {
                 e.commit();
             }
 
-            //initializing global variables, declared at top
-            Log.i("settings", "creating surface");
-            SCREEN_WIDTH = getWidth();
-            SCREEN_HEIGHT = getHeight();
-            LINE_SPACING = SCREEN_HEIGHT / 39;
-            NAV_HEIGHT = LINE_SPACING * 3;
-            SPECIAL_WIDTH = SCREEN_HEIGHT / 20;
-            SPEED = SCREEN_WIDTH / 50;
+            setUpDimensions();
             if (!g_level.recover) {
                 g_powerup = Powerups.NONE;
                 g_laser = new Laser();
@@ -269,6 +262,15 @@ public class MainActivity extends Activity {
                 g_target = Special.TARGET;
             }
             nextLevel();
+        }
+
+        public void setUpDimensions() {
+            SCREEN_WIDTH = getWidth();
+            SCREEN_HEIGHT = getHeight();
+            LINE_SPACING = SCREEN_HEIGHT / 39;
+            NAV_HEIGHT = LINE_SPACING * 3;
+            SPECIAL_WIDTH = SCREEN_HEIGHT / 20;
+            SPEED = SCREEN_WIDTH / 50;
         }
 
         @Override
@@ -286,8 +288,8 @@ public class MainActivity extends Activity {
         GraphicObject.Speed speed;
         coord = g_laser.GO.coordinates;
         speed = g_laser.GO.speed;
-        if (g_target.smallPointTest(coord.x, coord.y)
-                || (g_target2 != null && g_target2.smallPointTest(coord.x, coord.y))) {
+        if (g_target.smallPointTest(coord.x, coord.y, g_powerup)
+                || (g_target2 != null && g_target2.smallPointTest(coord.x, coord.y, g_powerup))) {
             g_level.num++;
             g_level.score+=100;
             g_thread.setRunning(false);
@@ -453,10 +455,14 @@ public class MainActivity extends Activity {
         Canvas canvas = g_panel.getCanvas();
         g_level.draw(canvas);
         g_laser.draw(canvas);
-        if (g_level.num != 0) g_target.draw(canvas);
-        if (g_target2 != null) g_target2.draw(canvas);
-        g_launcher.draw(canvas);
-        if (g_launcher2 != null) g_launcher2.draw(canvas);
+        if (g_powerup == Powerups.BIG_TARGETS) {
+            g_target.draw(canvas, true);
+        } else if (g_level.num != 0) {
+            g_target.draw(canvas, false);
+        }
+        if (g_target2 != null) g_target2.draw(canvas, false);
+        g_launcher.draw(canvas, false);
+        if (g_launcher2 != null) g_launcher2.draw(canvas, false);
         g_grid.draw(canvas);
         g_buttons.draw(canvas);
         g_panel.postCanvas(canvas);

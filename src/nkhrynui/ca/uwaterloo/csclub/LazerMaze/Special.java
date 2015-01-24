@@ -16,15 +16,16 @@ public enum Special{
     LAUNCHER2(BitmapFactory.decodeResource(MainActivity.g_resources, R.drawable.shoot));
 
     Bitmap bitmap;
-    final static int SPECIAL_WIDTH = MainActivity.SPECIAL_WIDTH;
-    final static int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
-    final static int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
-    final static int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
+    final int SPECIAL_WIDTH = MainActivity.SPECIAL_WIDTH;
+    final int SCREEN_WIDTH = MainActivity.SCREEN_WIDTH;
+    final int SCREEN_HEIGHT = MainActivity.SCREEN_HEIGHT;
+    final int NAV_HEIGHT = MainActivity.NAV_HEIGHT;
     boolean active = false;
     int y;
     int x;
-    Rect r;
-
+    int stdSize;
+    int largeSize;
+    Rect normalRect, largeRect;
     Special(Bitmap b) {
         bitmap = b;
     }
@@ -41,10 +42,11 @@ public enum Special{
                 i = -1;
             }
         }
-        r = new Rect(x - (SPECIAL_WIDTH / 2),
-                    y - (SPECIAL_WIDTH / 2),
-                    x + (SPECIAL_WIDTH / 2),
-                    y + (SPECIAL_WIDTH / 2));
+        stdSize = SPECIAL_WIDTH / 2;
+        largeSize = SPECIAL_WIDTH;
+        normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
+        largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
+
     }
 
     public void update2(boolean isLauncher) {
@@ -63,10 +65,6 @@ public enum Special{
                 i = -1;
             }
         }
-        r = new Rect(x - (SPECIAL_WIDTH / 2),
-                y - (SPECIAL_WIDTH / 2),
-                x + (SPECIAL_WIDTH / 2),
-                y + (SPECIAL_WIDTH / 2));
     }
 
     boolean lineTest(Line line) {
@@ -90,15 +88,23 @@ public enum Special{
         return distance < SPECIAL_WIDTH * 2;
     }
 
-    boolean smallPointTest(double x1, double y1) {
+    boolean smallPointTest(double x1, double y1, Powerups g_powerup) {
         double x2 = Math.abs(x1 - x);
         double y2 = Math.abs(y1 - y);
         double distance = Math.sqrt((x2 * x2) + (y2 * y2));
-        return distance < (SPECIAL_WIDTH / 2);
+        if (g_powerup == Powerups.BIG_TARGETS) {
+            return distance < largeSize;
+        } else {
+            return distance < stdSize;
+        }
     }
 
-    void draw(Canvas canvas) {
-        canvas.drawBitmap(bitmap, null, r, null);
+    void draw(Canvas canvas, boolean large) {
+        if (large) {
+            canvas.drawBitmap(bitmap, null, largeRect, null);
+        } else {
+            canvas.drawBitmap(bitmap, null, normalRect, null);
+        }
     }
 
 

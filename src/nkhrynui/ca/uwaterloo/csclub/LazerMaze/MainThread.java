@@ -19,10 +19,8 @@ public class MainThread extends Thread {
     public void run() {
         while(MainActivity.g_level.exit) {
             while (_run) {
-                synchronized (MainActivity.g_panel.getHolder()) {
-                    MainActivity.updatePhysics();
-                    MainActivity.draw();
-                }
+                MainActivity.updatePhysics();
+                MainActivity.draw();
             }
             if (selection.equals("restart")) {
                 MainActivity.restartLevel();

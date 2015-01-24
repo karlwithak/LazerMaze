@@ -77,168 +77,166 @@ public class MainActivity extends Activity {
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            synchronized (g_panel.getHolder()) {
-                if (g_powerup.waitForChoice) { //selecting upgrade
-                    upOnButtons = false;
-                    if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREEN_WIDTH / 2) {
-                        g_powerup.selection = 1;
-                    } else if (event.getAction() == MotionEvent.ACTION_DOWN
-                            && event.getX() > SCREEN_WIDTH / 2) {
-                        g_powerup.selection = 2;
-                    }
-                    return true;
-                } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    g_thread.setRunning(false);
-                    g_thread.selection = "restart";
-                }
-                //buttons
-                if (event.getAction() == MotionEvent.ACTION_DOWN && event.getY() >=
-                        SCREEN_HEIGHT - NAV_HEIGHT && graphicCount == 0 && !inAnimation) {
-                    upOnButtons = true;
-                    return true;
-                }
-                if (event.getAction() == MotionEvent.ACTION_UP && event.getY() >=
-                        SCREEN_HEIGHT - NAV_HEIGHT && graphicCount == 0 && !inAnimation && upOnButtons) {
-                    upOnButtons = false;
-                    if (event.getX() < SCREEN_WIDTH / 3) {
-                        g_level.exit = false;
-                        settings();
-                    } else if (event.getX() > SCREEN_WIDTH * 2 / 3) {
-                        Dialogues.restartDialog();
-
-                    } else if (g_level.score > g_level.skipCost) {
-                        Dialogues.skipLevelDialog();
-                    }
-                }
-                //aiming launch
-                if (event.getAction() == MotionEvent.ACTION_DOWN && graphicCount == 0 && !inAnimation) {
-                    upOnButtons = false;
-                    if (g_launcher.bigPointTest(event.getX(), event.getY())) {
-                        if (g_thread.isAlive()) {
-                            g_thread.setRunning(false);
-                            g_thread.selection = "restart";
-                            g_level.restart = true;
-                        }
-                        startX = g_launcher.x;
-                        startY = g_launcher.y;
-                        g_launcher.active = true;
-                        if (g_launcher2 != null) g_launcher2.active = false;
-                        graphicCount = 1;
-                    } else if (g_launcher2 != null && g_launcher2.bigPointTest(event.getX(), event.getY())) {
-                        if (g_thread.isAlive()) {
-                            g_thread.setRunning(false);
-                            g_thread.selection = "restart";
-                            g_level.restart = true;
-                        }
-                        startX = g_launcher2.x;
-                        startY = g_launcher2.y;
-                        g_launcher2.active = true;
-                        g_launcher.active = false;
-                        graphicCount = 1;
-                    } else if ((g_powerup == Powerups.LAUNCH_FROM_EITHER
-                            && g_target.bigPointTest(event.getX(), event.getY()))) {
-                        if (g_thread.isAlive()) {
-                            g_thread.setRunning(false);
-                            g_thread.selection = "restart";
-                            g_level.restart = true;
-                        }
-                        startX = g_target.x;
-                        startY = g_target.y;
-                        g_target.x = g_launcher.x;
-                        g_target.y = g_launcher.y;
-                        g_launcher.x = (int) startX;
-                        g_launcher.y = (int) startY;
-                        Bitmap temp = g_launcher.bitmap;
-                        g_launcher.bitmap = g_target.bitmap;
-                        g_target.bitmap = temp;
-                        graphicCount = 1;
-                    }
-                }
-                //aiming launch with aimer
-                if (g_powerup == Powerups.AIMING_LASER
-                        && event.getAction() == MotionEvent.ACTION_MOVE
-                        && graphicCount == 1
-                        && !inAnimation)
-                {
-                    if (Math.hypot((g_launcher.x - event.getX()), (g_launcher.y - event.getY())) < SPECIAL_WIDTH) {
-                        return true;
-                    }
-                    Canvas c = g_panel.getCanvas();
-                    g_level.draw(c);
-                    double distance;
-                    double min = 99999;
-                    Line l = null;
-                    float intersection = 0;
-                    float intersectionTemp;
-                    float pointx = g_launcher.x, pointy = g_launcher.y;
-                    pointx += (event.getX() - g_launcher.x) * 1000;
-                    pointy += (event.getY() - g_launcher.y) * 1000;
-                    for (Line line : g_grid.lines) {
-                        intersectionTemp = line.crossed(g_launcher.x, g_launcher.y, pointx, pointy);
-                        if (intersectionTemp > 0) {
-                            if (line.horizontal) {
-                                distance = Math.hypot((g_launcher.x - intersectionTemp),
-                                        (g_launcher.y - line.starty));
-                            } else {
-                                distance = Math.hypot((g_launcher.x - line.startx),
-                                        (g_launcher.y - intersectionTemp));
-                            }
-                            if (distance < min) {
-                                min = distance;
-                                intersection = intersectionTemp;
-                                l = line;
-                            }
-                        }
-                    }
-                    if (l != null && l.horizontal) {
-                        c.drawLine(g_launcher.x, g_launcher.y, intersection, l.starty, g_laser.paint);
-                    } else if (l != null) {
-                        c.drawLine(g_launcher.x, g_launcher.y, l.startx, intersection, g_laser.paint);
-                    }
-                    g_laser.draw(c);
-                    g_grid.draw(c);
-                    g_buttons.draw(c);
-                    g_launcher.draw(c);
-                    g_target.draw(c);
-                    g_panel.postCanvas(c);
-                }
-                //launches laser
-                if (event.getAction() == MotionEvent.ACTION_UP && graphicCount == 1 && !inAnimation) {
-                    upOnButtons = false;
-                    Log.i("powerup", Float.toString(startX) + " on up");
-                    g_laser.GO.coordinates.setX((int) startX);
-                    g_laser.GO.coordinates.setY((int) startY);
-                    endX = event.getX();
-                    endY = event.getY();
-                    changeX = endX - startX;
-                    changeY = endY - startY;
-                    if (inBetween(-0.01, changeX, 0.01))
-                        changeX = (float) (Math.signum(changeX) + 0.01);
-                    if (inBetween(-0.01, changeY, 0.01))
-                        changeY = (float) (Math.signum(changeY) + 0.01);
-                    //sets up the line speed and direction according to starting swipe
-                    if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
-                        graphicCount = 0;
-                        return true;
-                    }
-                    if (Math.abs(changeX) > (Math.abs(changeY))) {
-                        g_laser.GO.speed.x = (SPEED * Math.signum(changeX));
-                        g_laser.GO.speed.y = (Math.abs(changeY) / Math.abs(changeX) * SPEED * Math.signum(changeY));
-                    } else {
-                        g_laser.GO.speed.y = (SPEED * Math.signum(changeY));
-                        g_laser.GO.speed.x = (Math.abs(changeX) / Math.abs(changeY) * SPEED * Math.signum(changeX));
-                    }
-                    graphicCount = 0;
-                    if (g_level.restart) {
-                        if (g_launcher2 == null || g_launcher.active) g_laser.reset(g_launcher);
-                        else g_laser.reset(g_launcher2);
-                        g_thread.setRunning(true);
-                    } else {
-                        g_thread.setRunning(true);
-                    }
+            if (g_powerup.waitForChoice) { //selecting upgrade
+                upOnButtons = false;
+                if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= SCREEN_WIDTH / 2) {
+                    g_powerup.selection = 1;
+                } else if (event.getAction() == MotionEvent.ACTION_DOWN
+                        && event.getX() > SCREEN_WIDTH / 2) {
+                    g_powerup.selection = 2;
                 }
                 return true;
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                g_thread.setRunning(false);
+                g_thread.selection = "restart";
             }
+            //buttons
+            if (event.getAction() == MotionEvent.ACTION_DOWN && event.getY() >=
+                    SCREEN_HEIGHT - NAV_HEIGHT && graphicCount == 0 && !inAnimation) {
+                upOnButtons = true;
+                return true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP && event.getY() >=
+                    SCREEN_HEIGHT - NAV_HEIGHT && graphicCount == 0 && !inAnimation && upOnButtons) {
+                upOnButtons = false;
+                if (event.getX() < SCREEN_WIDTH / 3) {
+                    g_level.exit = false;
+                    settings();
+                } else if (event.getX() > SCREEN_WIDTH * 2 / 3) {
+                    Dialogues.restartDialog();
+
+                } else if (g_level.score > g_level.skipCost) {
+                    Dialogues.skipLevelDialog();
+                }
+            }
+            //aiming launch
+            if (event.getAction() == MotionEvent.ACTION_DOWN && graphicCount == 0 && !inAnimation) {
+                upOnButtons = false;
+                if (g_launcher.bigPointTest(event.getX(), event.getY())) {
+                    if (g_thread.isAlive()) {
+                        g_thread.setRunning(false);
+                        g_thread.selection = "restart";
+                        g_level.restart = true;
+                    }
+                    startX = g_launcher.x;
+                    startY = g_launcher.y;
+                    g_launcher.active = true;
+                    if (g_launcher2 != null) g_launcher2.active = false;
+                    graphicCount = 1;
+                } else if (g_launcher2 != null && g_launcher2.bigPointTest(event.getX(), event.getY())) {
+                    if (g_thread.isAlive()) {
+                        g_thread.setRunning(false);
+                        g_thread.selection = "restart";
+                        g_level.restart = true;
+                    }
+                    startX = g_launcher2.x;
+                    startY = g_launcher2.y;
+                    g_launcher2.active = true;
+                    g_launcher.active = false;
+                    graphicCount = 1;
+                } else if ((g_powerup == Powerups.LAUNCH_FROM_EITHER
+                        && g_target.bigPointTest(event.getX(), event.getY()))) {
+                    if (g_thread.isAlive()) {
+                        g_thread.setRunning(false);
+                        g_thread.selection = "restart";
+                        g_level.restart = true;
+                    }
+                    startX = g_target.x;
+                    startY = g_target.y;
+                    g_target.x = g_launcher.x;
+                    g_target.y = g_launcher.y;
+                    g_launcher.x = (int) startX;
+                    g_launcher.y = (int) startY;
+                    Bitmap temp = g_launcher.bitmap;
+                    g_launcher.bitmap = g_target.bitmap;
+                    g_target.bitmap = temp;
+                    graphicCount = 1;
+                }
+            }
+            //aiming launch with aimer
+            if (g_powerup == Powerups.AIMING_LASER
+                    && event.getAction() == MotionEvent.ACTION_MOVE
+                    && graphicCount == 1
+                    && !inAnimation)
+            {
+                if (Math.hypot((g_launcher.x - event.getX()), (g_launcher.y - event.getY())) < SPECIAL_WIDTH) {
+                    return true;
+                }
+                Canvas c = g_panel.getCanvas();
+                g_level.draw(c);
+                double distance;
+                double min = 99999;
+                Line l = null;
+                float intersection = 0;
+                float intersectionTemp;
+                float pointx = g_launcher.x, pointy = g_launcher.y;
+                pointx += (event.getX() - g_launcher.x) * 1000;
+                pointy += (event.getY() - g_launcher.y) * 1000;
+                for (Line line : g_grid.lines) {
+                    intersectionTemp = line.crossed(g_launcher.x, g_launcher.y, pointx, pointy);
+                    if (intersectionTemp > 0) {
+                        if (line.horizontal) {
+                            distance = Math.hypot((g_launcher.x - intersectionTemp),
+                                    (g_launcher.y - line.starty));
+                        } else {
+                            distance = Math.hypot((g_launcher.x - line.startx),
+                                    (g_launcher.y - intersectionTemp));
+                        }
+                        if (distance < min) {
+                            min = distance;
+                            intersection = intersectionTemp;
+                            l = line;
+                        }
+                    }
+                }
+                if (l != null && l.horizontal) {
+                    c.drawLine(g_launcher.x, g_launcher.y, intersection, l.starty, g_laser.paint);
+                } else if (l != null) {
+                    c.drawLine(g_launcher.x, g_launcher.y, l.startx, intersection, g_laser.paint);
+                }
+                g_laser.draw(c);
+                g_grid.draw(c);
+                g_buttons.draw(c);
+                g_launcher.draw(c);
+                g_target.draw(c);
+                g_panel.postCanvas(c);
+            }
+            //launches laser
+            if (event.getAction() == MotionEvent.ACTION_UP && graphicCount == 1 && !inAnimation) {
+                upOnButtons = false;
+                Log.i("powerup", Float.toString(startX) + " on up");
+                g_laser.GO.coordinates.setX((int) startX);
+                g_laser.GO.coordinates.setY((int) startY);
+                endX = event.getX();
+                endY = event.getY();
+                changeX = endX - startX;
+                changeY = endY - startY;
+                if (inBetween(-0.01, changeX, 0.01))
+                    changeX = (float) (Math.signum(changeX) + 0.01);
+                if (inBetween(-0.01, changeY, 0.01))
+                    changeY = (float) (Math.signum(changeY) + 0.01);
+                //sets up the line speed and direction according to starting swipe
+                if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
+                    graphicCount = 0;
+                    return true;
+                }
+                if (Math.abs(changeX) > (Math.abs(changeY))) {
+                    g_laser.GO.speed.x = (SPEED * Math.signum(changeX));
+                    g_laser.GO.speed.y = (Math.abs(changeY) / Math.abs(changeX) * SPEED * Math.signum(changeY));
+                } else {
+                    g_laser.GO.speed.y = (SPEED * Math.signum(changeY));
+                    g_laser.GO.speed.x = (Math.abs(changeX) / Math.abs(changeY) * SPEED * Math.signum(changeX));
+                }
+                graphicCount = 0;
+                if (g_level.restart) {
+                    if (g_launcher2 == null || g_launcher.active) g_laser.reset(g_launcher);
+                    else g_laser.reset(g_launcher2);
+                    g_thread.setRunning(true);
+                } else {
+                    g_thread.setRunning(true);
+                }
+            }
+            return true;
         }
 
         @Override

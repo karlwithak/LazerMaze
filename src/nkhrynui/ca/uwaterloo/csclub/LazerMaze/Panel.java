@@ -240,6 +240,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         K.init(this);
         m_laser = new Laser(this);
         m_buttons = new Buttons(getResources());
+        m_buttons.update(m_powerup);
         m_launcher = Special.LAUNCHER;
         m_target = Special.TARGET;
         m_launcher2 = Special.LAUNCHER2;

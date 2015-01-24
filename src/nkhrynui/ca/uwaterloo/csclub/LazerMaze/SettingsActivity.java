@@ -1,7 +1,5 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
-import nkhrynui.ca.uwaterloo.csclub.LazerMaze.R;
-
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 

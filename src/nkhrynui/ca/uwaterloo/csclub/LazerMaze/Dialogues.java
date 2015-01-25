@@ -5,17 +5,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 
+import nkhrynui.ca.uwaterloo.csclub.LazerMaze.PowerupManager.Powerup;
+
 public class Dialogues {
     Context    m_context;
     Level      m_level;
     MainThread m_thread;
-    Powerups   m_powerup;
+    PowerupManager m_powerupMan;
     SharedPreferences m_sharedPrefs;
-    public Dialogues(Context context, Panel panel, SharedPreferences sharedPrefs) {
+    public Dialogues(Context context, Level level, MainThread mainThread, PowerupManager powerupMan,
+                     SharedPreferences sharedPrefs) {
         m_context = context;
-        m_level = panel.m_level;
-        m_thread = panel.m_mainThread;
-        m_powerup = panel.m_powerup;
+        m_level = level;
+        m_thread = mainThread;
+        m_powerupMan = powerupMan;
         m_sharedPrefs= sharedPrefs;
     }
     public void skipLevelDialog() {
@@ -42,7 +45,7 @@ public class Dialogues {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         m_level.reset();
-                        m_powerup = Powerups.NONE;
+                        m_powerupMan.set(Powerup.NONE);
                         m_thread.setRunning(false);
                         m_thread.selection = "next";
                     }

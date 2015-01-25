@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.*;
 
 public class Line {
     public float startx;

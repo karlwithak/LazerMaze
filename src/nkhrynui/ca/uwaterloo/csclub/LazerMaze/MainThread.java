@@ -1,17 +1,19 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
+import android.util.Log;
+
 public class MainThread extends Thread {
     private boolean _run = false;
     public String selection = "";
     Level m_level;
     MainActivity m_mainActivity;
-    Panel m_panel;
+    Physics m_physics;
 
-    public MainThread(Level level, MainActivity mainActivity, Panel panel) {
+    public MainThread(Level level, MainActivity mainActivity, Physics physics) {
         m_level = level;
         m_level.exit = true;
         m_mainActivity = mainActivity;
-        m_panel = panel;
+        m_physics = physics;
     }
 
     public void setRunning(boolean run) {
@@ -21,8 +23,8 @@ public class MainThread extends Thread {
     public void run() {
         while(m_level.exit) {
             while (_run) {
-                m_mainActivity.updatePhysics();
-                m_panel.draw();
+                m_physics.update();
+                m_mainActivity.draw();
             }
             if (selection.equals("restart")) {
                 m_mainActivity.restartLevel();
@@ -31,11 +33,7 @@ public class MainThread extends Thread {
                 m_mainActivity.nextLevel();
                 selection = "none";
             }
-            try {
-                Thread.sleep(50);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+            Thread.yield();
         }
     }
 }

@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
-import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
-import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.*;
 
 public class Laser {
     GraphicObject GO;

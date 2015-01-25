@@ -4,10 +4,9 @@ import java.util.ArrayList;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
-import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
-
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.*;
+import nkhrynui.ca.uwaterloo.csclub.LazerMaze.PowerupManager.Powerup;
 
 public class Grid {
     ArrayList<Line> lines;
@@ -68,11 +67,11 @@ public class Grid {
         return lines;
     }        
     
-    void makeGrid(Powerups powerup, Level level) {
+    void makeGrid(PowerupManager powerupMan, Level level) {
         double linesAdjust = 1;
-        if (powerup == Powerups.LESS_LINES) linesAdjust = 0.666;
+        if (powerupMan.get() == Powerup.LESS_LINES) linesAdjust = 0.666;
         double lengthAdjust = 1;
-        if (powerup == Powerups.SHORT_LINES) lengthAdjust = 0.666;
+        if (powerupMan.get() == Powerup.SHORT_LINES) lengthAdjust = 0.666;
         lines.clear();
         lines.add(new Line(-1, K.NAV_HEIGHT, K.SCREEN_WIDTH, K.LINE_SPACING * 3)); //top
         lines.add(new Line(-1, K.SCREEN_HEIGHT - K.NAV_HEIGHT, K.SCREEN_WIDTH + 1, K.SCREEN_HEIGHT - K.NAV_HEIGHT)); //bottom

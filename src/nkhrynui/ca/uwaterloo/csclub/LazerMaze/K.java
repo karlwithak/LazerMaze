@@ -1,6 +1,4 @@
-package nkhrynui.ca.uwaterloo.csclub.LazerMaze.util;
-
-import nkhrynui.ca.uwaterloo.csclub.LazerMaze.Panel;
+package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 public class K {
     public static int SCREEN_WIDTH;

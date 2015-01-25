@@ -6,9 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.K;
 
-import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.*;
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.PowerupManager.Powerup;
 
 public enum Special{
     TARGET(R.drawable.newtarget),
@@ -89,11 +89,11 @@ public enum Special{
         return distance < K.SPECIAL_WIDTH * 2;
     }
 
-    boolean smallPointTest(double x1, double y1, Powerups g_powerup) {
+    boolean smallPointTest(double x1, double y1, PowerupManager powerupMan) {
         double x2 = Math.abs(x1 - x);
         double y2 = Math.abs(y1 - y);
         double distance = Math.sqrt((x2 * x2) + (y2 * y2));
-        if (g_powerup == Powerups.BIG_TARGETS) {
+        if (powerupMan.get() == Powerup.BIG_TARGETS) {
             return distance < largeSize;
         } else {
             return distance < stdSize;

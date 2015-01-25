@@ -3,7 +3,7 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 
-import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.Utils.*;
+import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.*;
 
 public class ColorHandler {
     SharedPreferences m_sharedPrefs;

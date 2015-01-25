@@ -1,4 +1,4 @@
-package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
+package nkhrynui.ca.uwaterloo.csclub.LazerMaze.util;
 
 import java.util.ArrayList;
 

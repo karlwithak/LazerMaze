@@ -18,7 +18,7 @@ public class Laser {
     int oldSave = 0;
 
     ArrayList<Float> pts;// = new ArrayList<Line>();
-    Laser(Panel panel) {
+    Laser() {
         pts = new  ArrayList<Float>();
         startx = -10;
         starty = -10;

@@ -12,12 +12,12 @@ import android.graphics.Rect;
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.PowerupManager.Powerup;
 
 public class Buttons {
-    Paint m_text = new Paint();
-    Paint m_button = new Paint();
-    Paint m_warning = new Paint();
-    Bitmap settings, restart, skip, noskip, powerupPic;
-    Resources m_resources;
-    PowerupManager m_powerupMan;
+    private Paint m_text = new Paint();
+    private Paint m_button = new Paint();
+    private Paint m_warning = new Paint();
+    private Bitmap settings, restart, skip, noskip, powerupPic;
+    private Resources m_resources;
+    private PowerupManager m_powerupMan;
 
     Buttons(Resources resourcesIn, PowerupManager powerupMan) {
         m_button.setColor(Color.rgb(16, 16, 16));

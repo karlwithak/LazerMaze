@@ -31,7 +31,6 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     private static Physics m_physics;
     static Resources m_resources;
     private static ColorHandler m_colorHandler;
-
     public Panel(Context context) {
         super(context);
     }
@@ -109,9 +108,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 startX = m_launcher.x;
                 startY = m_launcher.y;
                 m_launcher.active = true;
-                if (m_launcher2 != null) m_launcher2.active = false;
+                if (m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.active = false;
                 graphicCount = 1;
-            } else if (m_launcher2 != null && m_launcher2.bigPointTest(event.getX(), event.getY())) {
+            } else if (m_powerupMan.get() == Powerup.TWO_LAUNCHERS
+                        && m_launcher2.bigPointTest(event.getX(), event.getY())) {
                 if (m_mainThread.isAlive()) {
                     m_mainThread.setRunning(false);
                     m_mainThread.selection = "restart";
@@ -217,7 +217,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             }
             graphicCount = 0;
             if (m_level.restart) {
-                if (m_launcher2 == null || m_launcher.active) m_laser.reset(m_launcher);
+                if (m_powerupMan.get() != Powerup.TWO_LAUNCHERS || m_launcher.active) m_laser.reset(m_launcher);
                 else m_laser.reset(m_launcher2);
                 m_mainThread.setRunning(true);
             } else {
@@ -243,7 +243,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         K.init(this);
-        m_laser = new Laser(this);
+        m_laser = new Laser();
         m_buttons = new Buttons(getResources(), m_powerupMan);
         m_buttons.updatePowerup();
         m_launcher = Special.LAUNCHER;

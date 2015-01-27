@@ -5,9 +5,9 @@ import android.util.Log;
 public class MainThread extends Thread {
     private boolean _run = false;
     public String selection = "";
-    Level m_level;
-    MainActivity m_mainActivity;
-    Physics m_physics;
+    private Level m_level;
+    private MainActivity m_mainActivity;
+    private Physics m_physics;
 
     public MainThread(Level level, MainActivity mainActivity, Physics physics) {
         m_level = level;

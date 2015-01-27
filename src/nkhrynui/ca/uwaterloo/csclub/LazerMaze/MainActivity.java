@@ -23,9 +23,7 @@ public class MainActivity extends Activity {
     private static PowerupManager g_powerupMan;
     private static Panel g_panel;
     private static Dialogues g_dialogues;
-    private static MainActivity g_mainActivity;
     private static MainThread g_mainThread;
-    private static Physics g_physics;
 
     /****** CONSTANTS END ************************************************************************/
 
@@ -47,8 +45,6 @@ public class MainActivity extends Activity {
 
     public void restartLevel() {
         g_panel.restartLevel();
-        // VERY IMPORTANT: this is all the drawing that happens before the game
-        // actually starts: ie maze and target
         g_level.restart = true;
     }
 
@@ -74,19 +70,17 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("crashing", "create");
-
         g_level = new Level();
-        g_mainActivity = this;
         g_sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (g_sharedPrefs.getBoolean("vibrate", true)) g_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         g_grid = new Grid();
-        g_panel = new Panel(g_mainActivity);
+        g_panel = new Panel(this);
         g_powerupMan = new PowerupManager(g_panel);
-        g_physics = new Physics(g_powerupMan, g_grid, g_level, g_v, this);
-        g_mainThread = new MainThread(g_level, this, g_physics);
+        Physics physics = new Physics(g_powerupMan, g_grid, g_level, g_v, this);
+        g_mainThread = new MainThread(g_level, this, physics);
         g_dialogues = new Dialogues(this, g_level, g_mainThread, g_powerupMan, g_sharedPrefs);
-        g_panel.setup(g_level, g_dialogues, g_sharedPrefs, g_mainActivity, g_grid, g_powerupMan,
-                    g_mainThread, g_physics);
+        g_panel.setup(g_level, g_dialogues, g_sharedPrefs, this, g_grid, g_powerupMan,
+                    g_mainThread, physics);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (g_sharedPrefs.getBoolean("screenOn", true)) {

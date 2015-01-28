@@ -13,13 +13,16 @@ public class Dialogues {
     MainThread m_thread;
     PowerupManager m_powerupMan;
     SharedPreferences m_sharedPrefs;
-    public Dialogues(Context context, Level level, MainThread mainThread, PowerupManager powerupMan,
+    public Dialogues(Context context, Level level, PowerupManager powerupMan,
                      SharedPreferences sharedPrefs) {
         m_context = context;
         m_level = level;
-        m_thread = mainThread;
         m_powerupMan = powerupMan;
         m_sharedPrefs= sharedPrefs;
+    }
+
+    public void setup(MainThread mainThread) {
+        m_thread = mainThread;
     }
     public void skipLevelDialog() {
         new AlertDialog.Builder(m_context)

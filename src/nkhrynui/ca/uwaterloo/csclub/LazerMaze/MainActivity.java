@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     private static Panel g_panel;
     private static Dialogues g_dialogues;
     private static MainThread g_mainThread;
+    private static Physics g_physics;
 
     /****** CONSTANTS END ************************************************************************/
 
@@ -76,17 +77,13 @@ public class MainActivity extends Activity {
         g_grid = new Grid();
         g_panel = new Panel(this);
         g_powerupMan = new PowerupManager(g_panel);
-        Physics physics = new Physics(g_powerupMan, g_grid, g_level, g_v, this);
-        g_mainThread = new MainThread(g_level, this, physics);
-        g_dialogues = new Dialogues(this, g_level, g_mainThread, g_powerupMan, g_sharedPrefs);
-        g_panel.setup(g_level, g_dialogues, g_sharedPrefs, this, g_grid, g_powerupMan,
-                    g_mainThread, physics);
+        g_physics = new Physics(g_powerupMan, g_grid, g_level, g_v, this);
+        g_dialogues = new Dialogues(this, g_level, g_powerupMan, g_sharedPrefs);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (g_sharedPrefs.getBoolean("screenOn", true)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-        g_mainThread.start();
     }
     
     public void onResume() {
@@ -103,8 +100,13 @@ public class MainActivity extends Activity {
         if (g_sharedPrefs.getBoolean("vibrate", true) && g_v == null) {
             g_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         } else g_v = null;
+
+        g_mainThread = new MainThread(g_level, this, g_physics);
+        g_panel.setup(g_level, g_dialogues, g_sharedPrefs, this, g_grid, g_powerupMan,
+                            g_mainThread, g_physics);
+        g_dialogues.setup(g_mainThread);
+        g_mainThread.start();
         setContentView(g_panel);
-//        g_mainThread.start();
     }
     
     public void onPause() {

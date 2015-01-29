@@ -90,7 +90,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 m_level.exit = false;
                 m_mainActivity.settings();
             } else if (event.getX() > K.SCREEN_WIDTH * 2 / 3) {
-                m_dialogues.restartDialog();
+                m_dialogues.restartDialog(m_level.num);
 
             } else if (m_level.score > m_level.skipCost) {
                 m_dialogues.skipLevelDialog();

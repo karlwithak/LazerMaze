@@ -41,12 +41,13 @@ public class Dialogues {
                 }).show();
     }
 
-    public void restartDialog() {
+    public void restartDialog(final int level) {
         new AlertDialog.Builder(m_context)
                 .setMessage("Are you sure you want to restart at level 1?")
                 .setTitle("New Game")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        updateHighscore(level);
                         m_level.reset();
                         m_powerupMan.set(Powerup.NONE);
                         m_thread.setRunning(false);
@@ -68,20 +69,25 @@ public class Dialogues {
                 }).show();
     }
 
-    public void endGameDialog() {
-        int score = m_level.score;
-        int oldScore = m_sharedPrefs.getInt("highScore", 0);
-        if (oldScore < score) {
-            oldScore = score;
-            SharedPreferences.Editor e = m_sharedPrefs.edit();
-            e.putInt("highScore", score);
-            e.commit();
-        }
+    public void endGameDialog(int level) {
+        int best = updateHighscore(level);
         new AlertDialog.Builder(m_context)
-                .setMessage("The score reached 0\nYou made it to level: " + score + "\nYour highscore is: " + oldScore)
+                .setMessage("The score reached 0\nYou made it to level: " + level + "\nYour highscore is: " + best)
                 .setTitle("Game Over")
                 .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {}
                 }).show();
+        m_powerupMan.set(Powerup.NONE);
+    }
+
+    private int updateHighscore(int level) {
+        int oldScore = m_sharedPrefs.getInt("highScore", 0);
+            if (oldScore < level) {
+                oldScore = level;
+                SharedPreferences.Editor e = m_sharedPrefs.edit();
+                e.putInt("highScore", level);
+                e.commit();
+        }
+        return oldScore;
     }
 }

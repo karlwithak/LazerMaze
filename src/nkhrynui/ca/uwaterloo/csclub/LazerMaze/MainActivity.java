@@ -57,10 +57,10 @@ public class MainActivity extends Activity {
 
     public void draw() { g_panel.draw(); }
 
-    public void endGameDialog() {
+    public void endGameDialog(final int level) {
         this.runOnUiThread(new Runnable() {
             public void run() {
-                g_dialogues.endGameDialog();
+                g_dialogues.endGameDialog(level);
             }
         });
     }

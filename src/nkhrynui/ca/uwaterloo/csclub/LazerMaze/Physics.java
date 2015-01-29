@@ -66,7 +66,7 @@ public class Physics {
                     continue;
                 }
                 if (m_level.score < 1) {
-                    m_mainActivity.endGameDialog();
+                    m_mainActivity.endGameDialog(m_level.num);
                     m_level.reset();
                     m_thread.setRunning(false);
                     m_thread.selection = "next";

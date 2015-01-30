@@ -18,12 +18,11 @@ public enum Special{
 
     Bitmap bitmap;
     boolean active = false;
-    int y;
-    int x;
-    int stdSize;
-    int largeSize;
-    Rect normalRect, largeRect;
+    int y, x, stdSize, largeSize;
+
     Special(int b) {
+        stdSize = K.SPECIAL_WIDTH / 2;
+        largeSize = K.SPECIAL_WIDTH;
         bitmap = BitmapFactory.decodeResource(Panel.m_resources, b);
     }
 
@@ -39,11 +38,6 @@ public enum Special{
                 i = -1;
             }
         }
-        stdSize = K.SPECIAL_WIDTH / 2;
-        largeSize = K.SPECIAL_WIDTH;
-        normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
-        largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
-
     }
 
     public void update2(boolean isLauncher, Grid grid) {
@@ -62,10 +56,6 @@ public enum Special{
                 i = -1;
             }
         }
-        stdSize = K.SPECIAL_WIDTH / 2;
-        largeSize = K.SPECIAL_WIDTH;
-        normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
-        largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
     }
 
     boolean lineTest(Line line) {
@@ -101,6 +91,8 @@ public enum Special{
     }
 
     void draw(Canvas canvas, boolean large) {
+        Rect normalRect = new Rect(x - stdSize, y - stdSize, x + stdSize, y + stdSize);
+        Rect largeRect = new Rect(x - largeSize, y - largeSize, x + largeSize, y + largeSize);
         if (large) {
             canvas.drawBitmap(bitmap, null, largeRect, null);
         } else {
@@ -108,11 +100,10 @@ public enum Special{
         }
     }
 
-
     public boolean tooEasy(Special target, ArrayList<Line> lines) {
         for (Line line : lines) {
             if (line.crossed(this.x, this.y, target.x, target.y) > 0) {
-            return false;
+                return false;
             }
         }
         return true;

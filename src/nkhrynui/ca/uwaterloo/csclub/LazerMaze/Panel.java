@@ -31,6 +31,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     private static Physics m_physics;
     static Resources m_resources;
     private static ColorHandler m_colorHandler;
+
     public Panel(Context context) {
         super(context);
     }
@@ -317,6 +318,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         }
         inAnimation = false;
     }
+
     public void gridExpand() {
         final int SCREEN_HEIGHT = K.SCREEN_HEIGHT;
         final int LINE_SPACING = K.LINE_SPACING;

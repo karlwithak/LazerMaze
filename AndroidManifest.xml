@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nkhrynui.ca.uwaterloo.csclub.LazerMaze"
-    android:versionCode="3"
-    android:versionName="1.2" >
+    android:versionCode="4"
+    android:versionName="1.3" >
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="19" />
+        android:minSdkVersion="9"
+        android:targetSdkVersion="21" />
 
     <application
         android:allowBackup="true"
@@ -26,10 +26,6 @@
             android:name="nkhrynui.ca.uwaterloo.csclub.LazerMaze.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@android:style/Theme.Black.NoTitleBar" >
-        </activity>
-        <activity
-            android:name="nkhrynui.ca.uwaterloo.csclub.LazerMaze.Menu"
-            android:label="@string/title_activity_menu" >
         </activity>
         <activity
             android:name="nkhrynui.ca.uwaterloo.csclub.LazerMaze.Loading"

@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
     public boolean           lockListenerOkay = true;
     public Grid              m_grid;
     public PowerupManager    m_powerupMan;
-    public MainPanel         m_panel;
+    public MainPanel m_mp;
     public Dialogues         m_dialogues;
     public MainThread        m_mt;
     public Physics           m_physics;
@@ -27,22 +27,22 @@ public class MainActivity extends Activity {
 
     public void nextLevel() {
         if (!m_level.recover) {
-            if (m_grid.lines.size() > 1) m_panel.gridShrink();
+            if (m_grid.lines.size() > 1) m_mp.gridShrink();
             if (m_level.num % 3 == 0 && m_level.num != 0) {
                 m_powerupMan.setPowerup();
             }
-            m_panel.updateColors();
+            m_mp.updateColors();
             m_grid.makeGrid(m_powerupMan, m_level);
-            if (m_level.num > 0 && lockListenerOkay) m_panel.gridExpand();
-            m_panel.nextLevel();
+            if (m_level.num > 0 && lockListenerOkay) m_mp.gridExpand();
+            m_mp.nextLevel();
         }
         m_level.recover = false;
-        MainPanel.graphicCount = 0;
+        m_mp.m_touchHandler.graphicCount = 0;
         if (lockListenerOkay) restartLevel();
     }
 
     public void restartLevel() {
-        m_panel.restartLevel();
+        m_mp.restartLevel();
         m_level.restart = true;
     }
 
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    public void draw() { m_panel.draw(); }
+    public void draw() { m_mp.draw(); }
 
     public void endGameDialog(final int level) {
         this.runOnUiThread(new Runnable() {
@@ -72,9 +72,9 @@ public class MainActivity extends Activity {
         m_sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (m_sharedPrefs.getBoolean("vibrate", true)) m_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         m_grid = new Grid();
-        m_panel = new MainPanel(this);
-        m_powerupMan = new PowerupManager(m_panel);
-        m_physics = new Physics(m_powerupMan, m_grid, m_level, m_v, this);
+        m_mp = new MainPanel(this);
+        m_powerupMan = new PowerupManager(m_mp);
+        m_physics = new Physics(this);
         m_dialogues = new Dialogues(this, m_level, m_powerupMan, m_sharedPrefs);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
         lockListenerOkay = true;
         Log.i("crashing", "resume");
         if (m_level.inPrefs) {
-            m_panel.updateColors();
+            m_mp.updateColors();
             if (m_sharedPrefs.getBoolean("screenOn", true)) {
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             } else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -99,10 +99,10 @@ public class MainActivity extends Activity {
         } else m_v = null;
 
         m_mt = new MainThread(this);
-        m_panel.setup(m_mt, this);
+        m_mp.setup(m_mt, this);
         m_dialogues.setup(m_mt);
         m_mt.start();
-        setContentView(m_panel);
+        setContentView(m_mp);
     }
     
     public void onPause() {

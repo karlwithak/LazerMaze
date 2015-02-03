@@ -86,7 +86,7 @@ public class Dialogues {
                 oldScore = level;
                 SharedPreferences.Editor e = m_sharedPrefs.edit();
                 e.putInt("highScore", level);
-                e.commit();
+                e.apply();
         }
         return oldScore;
     }

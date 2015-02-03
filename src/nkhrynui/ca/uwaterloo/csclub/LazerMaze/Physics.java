@@ -1,6 +1,5 @@
 package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
-import android.os.Vibrator;
 import android.util.Log;
 
 import nkhrynui.ca.uwaterloo.csclub.LazerMaze.PowerupManager.Powerup;
@@ -10,7 +9,7 @@ public class Physics {
     private MainPanel m_mp;
     private MainActivity m_ma;
 
-    Physics(PowerupManager powerupMan, Grid grid, Level level, Vibrator vib, MainActivity mainActivity) {
+    Physics(MainActivity mainActivity) {
         m_ma = mainActivity;
     }
 

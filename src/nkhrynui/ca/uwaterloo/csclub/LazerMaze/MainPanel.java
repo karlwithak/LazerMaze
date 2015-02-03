@@ -14,41 +14,30 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.inBetween;
 import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.PowerupManager.Powerup;
 
 
-public class Panel extends SurfaceView implements SurfaceHolder.Callback {
-    static int graphicCount = 0;
-    static boolean upOnButtons = false;
-    static boolean inAnimation;
-    private static Level m_level;
-    private static PowerupManager m_powerupMan;
-    private static Dialogues m_dialogues;
-    private static MainThread m_mainThread;
-    private static Laser m_laser;
-    private static Special m_launcher, m_launcher2, m_target, m_target2;
-    private static Grid m_grid;
-    private static Buttons m_buttons;
-    private static SharedPreferences m_sharedPrefs;
-    private static MainActivity m_mainActivity;
-    private static Physics m_physics;
-    static Resources m_resources;
-    private static ColorHandler m_colorHandler;
+public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
+    static int              graphicCount = 0;
+    static boolean          upOnButtons = false;
+    static boolean          inAnimation;
+    public Laser            m_laser;
+    public Special          m_launcher, m_launcher2, m_target, m_target2;
+    public Buttons          m_buttons;
+    public Resources        m_resources;
+    public ColorHandler     m_colorHandler;
+    public MainThread       m_mt;
+    public MainActivity     m_ma;
+    public static MainPanel m_mp;
 
-    public Panel(Context context) {
+    public MainPanel(Context context) {
         super(context);
     }
 
-    public void setup(Level level, Dialogues dialogues, SharedPreferences sharedPrefs,
-                 MainActivity mainActivity, Grid grid, PowerupManager powerupMan, MainThread mainThread, Physics physics) {
-        m_level = level;
-        m_dialogues = dialogues;
-        m_sharedPrefs = sharedPrefs;
-        m_mainActivity = mainActivity;
+    public void setup(MainThread mainThread, MainActivity mainActivity) {
         getHolder().addCallback(this);
         setFocusable(true);
-        m_grid = grid;
-        m_powerupMan = powerupMan;
-        m_mainThread = mainThread;
-        m_physics = physics;
+        m_mt = mainThread;
         m_colorHandler = new ColorHandler();
+        m_ma = mainActivity;
+        m_mp = this;
     }
 
     public Canvas getCanvas() {
@@ -65,18 +54,18 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (m_powerupMan.m_waitForChoice) { //selecting upgrade
+        if (m_ma.m_powerupMan.m_waitForChoice) { //selecting upgrade
             upOnButtons = false;
             if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= K.SCREEN_WIDTH / 2) {
-                m_powerupMan.m_selection = 1;
+                m_ma.m_powerupMan.m_selection = 1;
             } else if (event.getAction() == MotionEvent.ACTION_DOWN
                     && event.getX() > K.SCREEN_WIDTH / 2) {
-                m_powerupMan.m_selection = 2;
+                m_ma.m_powerupMan.m_selection = 2;
             }
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            m_mainThread.setRunning(false);
-            m_mainThread.selection = "restart";
+            m_mt.setRunning(false);
+            m_mt.selection = "restart";
         }
         //buttons
         if (event.getAction() == MotionEvent.ACTION_DOWN && event.getY() >=
@@ -88,47 +77,47 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 K.SCREEN_HEIGHT - K.NAV_HEIGHT && graphicCount == 0 && !inAnimation && upOnButtons) {
             upOnButtons = false;
             if (event.getX() < K.SCREEN_WIDTH / 3) {
-                m_level.exit = false;
-                m_mainActivity.settings();
+                m_ma.m_level.exit = false;
+                m_ma.settings();
             } else if (event.getX() > K.SCREEN_WIDTH * 2 / 3) {
-                m_dialogues.restartDialog(m_level.num);
+                m_ma.m_dialogues.restartDialog(m_ma.m_level.num);
 
-            } else if (m_level.score > m_level.skipCost) {
-                m_dialogues.skipLevelDialog();
+            } else if (m_ma.m_level.score > m_ma.m_level.skipCost) {
+                m_ma.m_dialogues.skipLevelDialog();
             }
         }
         //aiming launch
         if (event.getAction() == MotionEvent.ACTION_DOWN && graphicCount == 0 && !inAnimation) {
             upOnButtons = false;
             if (m_launcher.bigPointTest(event.getX(), event.getY())) {
-                if (m_mainThread.isAlive()) {
-                    m_mainThread.setRunning(false);
-                    m_mainThread.selection = "restart";
-                    m_level.restart = true;
+                if (m_mt.isAlive()) {
+                    m_mt.setRunning(false);
+                    m_mt.selection = "restart";
+                    m_ma.m_level.restart = true;
                 }
                 startX = m_launcher.x;
                 startY = m_launcher.y;
                 m_launcher.active = true;
-                if (m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.active = false;
+                if (m_ma.m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.active = false;
                 graphicCount = 1;
-            } else if (m_powerupMan.get() == Powerup.TWO_LAUNCHERS
+            } else if (m_ma.m_powerupMan.get() == Powerup.TWO_LAUNCHERS
                         && m_launcher2.bigPointTest(event.getX(), event.getY())) {
-                if (m_mainThread.isAlive()) {
-                    m_mainThread.setRunning(false);
-                    m_mainThread.selection = "restart";
-                    m_level.restart = true;
+                if (m_mt.isAlive()) {
+                    m_mt.setRunning(false);
+                    m_mt.selection = "restart";
+                    m_ma.m_level.restart = true;
                 }
                 startX = m_launcher2.x;
                 startY = m_launcher2.y;
                 m_launcher2.active = true;
                 m_launcher.active = false;
                 graphicCount = 1;
-            } else if ((m_powerupMan.get() == Powerup.LAUNCH_FROM_EITHER
+            } else if ((m_ma.m_powerupMan.get() == Powerup.LAUNCH_FROM_EITHER
                     && m_target.bigPointTest(event.getX(), event.getY()))) {
-                if (m_mainThread.isAlive()) {
-                    m_mainThread.setRunning(false);
-                    m_mainThread.selection = "restart";
-                    m_level.restart = true;
+                if (m_mt.isAlive()) {
+                    m_mt.setRunning(false);
+                    m_mt.selection = "restart";
+                    m_ma.m_level.restart = true;
                 }
                 startX = m_target.x;
                 startY = m_target.y;
@@ -143,7 +132,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
         //aiming launch with aimer
-        if (m_powerupMan.get() == Powerup.AIMING_LASER
+        if (m_ma.m_powerupMan.get() == Powerup.AIMING_LASER
                 && event.getAction() == MotionEvent.ACTION_MOVE
                 && graphicCount == 1
                 && !inAnimation)
@@ -152,7 +141,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 return true;
             }
             Canvas c = getCanvas();
-            m_level.draw(c);
+            m_ma.m_level.draw(c);
             double distance;
             double min = 99999;
             Line l = null;
@@ -161,7 +150,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             float pointx = m_launcher.x, pointy = m_launcher.y;
             pointx += (event.getX() - m_launcher.x) * 1000;
             pointy += (event.getY() - m_launcher.y) * 1000;
-            for (Line line : m_grid.lines) {
+            for (Line line : m_ma.m_grid.lines) {
                 intersectionTemp = line.crossed(m_launcher.x, m_launcher.y, pointx, pointy);
                 if (intersectionTemp > 0) {
                     if (line.horizontal) {
@@ -184,8 +173,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 c.drawLine(m_launcher.x, m_launcher.y, l.startx, intersection, m_laser.paint);
             }
             m_laser.draw(c);
-            m_grid.draw(c);
-            m_buttons.draw(c, m_level);
+            m_ma.m_grid.draw(c);
+            m_buttons.draw(c, m_ma.m_level);
             m_launcher.draw(c, false);
             m_target.draw(c, false);
             postCanvas(c);
@@ -217,12 +206,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 m_laser.GO.speed.x = (Math.abs(changeX) / Math.abs(changeY) * K.SPEED * Math.signum(changeX));
             }
             graphicCount = 0;
-            if (m_level.restart) {
-                if (m_powerupMan.get() != Powerup.TWO_LAUNCHERS || m_launcher.active) m_laser.reset(m_launcher);
+            if (m_ma.m_level.restart) {
+                if (m_ma.m_powerupMan.get() != Powerup.TWO_LAUNCHERS || m_launcher.active) m_laser.reset(m_launcher);
                 else m_laser.reset(m_launcher2);
-                m_mainThread.setRunning(true);
+                m_mt.setRunning(true);
             } else {
-                m_mainThread.setRunning(true);
+                m_mt.setRunning(true);
             }
         }
         return true;
@@ -236,24 +225,24 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
         Log.i("Surface", "Surface created");
         m_resources = getResources();
-        if (m_sharedPrefs.getInt("highScore", 0) == 0) {
-            m_dialogues.newGameDialog();
-            SharedPreferences.Editor e = m_sharedPrefs.edit();
+        if (m_ma.m_sharedPrefs.getInt("highScore", 0) == 0) {
+            m_ma.m_dialogues.newGameDialog();
+            SharedPreferences.Editor e = m_ma.m_sharedPrefs.edit();
             e.putInt("highScore", 1);
             e.commit();
         }
 
         K.init(this);
         m_laser = new Laser();
-        m_buttons = new Buttons(getResources(), m_powerupMan);
+        m_buttons = new Buttons(getResources(), m_ma.m_powerupMan);
         m_buttons.updatePowerup();
         m_launcher = Special.LAUNCHER;
         m_target = Special.TARGET;
         m_launcher2 = Special.LAUNCHER2;
         m_target2 = Special.TARGET2;
-        m_grid.setup();
-        m_physics.setup(m_laser, m_target, m_target2, m_mainThread);
-        m_mainActivity.nextLevel();
+        m_ma.m_grid.setup();
+        m_ma.m_physics.setup(this, m_mt);
+        m_ma.nextLevel();
     }
 
     @Override
@@ -263,35 +252,35 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     
     public void nextLevel() {
         m_buttons.updatePowerup();
-        m_target.update(false, m_grid);
-        m_launcher.update(true, m_grid);
-        if (m_powerupMan.get() == Powerup.TWO_TARGETS) {
-            m_target2.update2(false, m_grid);
+        m_target.update(false, m_ma.m_grid);
+        m_launcher.update(true, m_ma.m_grid);
+        if (m_ma.m_powerupMan.get() == Powerup.TWO_TARGETS) {
+            m_target2.update2(false, m_ma.m_grid);
         }
-        if (m_powerupMan.get() == Powerup.TWO_LAUNCHERS) {
-            m_launcher2.update2(true, m_grid);
+        if (m_ma.m_powerupMan.get() == Powerup.TWO_LAUNCHERS) {
+            m_launcher2.update2(true, m_ma.m_grid);
         }
     }
     
     public void draw() {
         Canvas canvas = getCanvas();
-        m_level.draw(canvas);
+        m_ma.m_level.draw(canvas);
         m_laser.draw(canvas);
-        if (m_powerupMan.get() == Powerup.BIG_TARGETS) {
+        if (m_ma.m_powerupMan.get() == Powerup.BIG_TARGETS) {
             m_target.draw(canvas, true);
-        } else if (m_level.num != 0) {
+        } else if (m_ma.m_level.num != 0) {
             m_target.draw(canvas, false);
         }
-        if (m_powerupMan.get() == Powerup.TWO_TARGETS) m_target2.draw(canvas, false);
+        if (m_ma.m_powerupMan.get() == Powerup.TWO_TARGETS) m_target2.draw(canvas, false);
         m_launcher.draw(canvas, false);
-        if (m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.draw(canvas, false);
-        m_grid.draw(canvas);
-        m_buttons.draw(canvas, m_level);
+        if (m_ma.m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.draw(canvas, false);
+        m_ma.m_grid.draw(canvas);
+        m_buttons.draw(canvas, m_ma.m_level);
         postCanvas(canvas);
     }
 
     public void updateColors() {
-        m_colorHandler.update(m_sharedPrefs, m_level, m_grid, m_laser);
+        m_colorHandler.update(m_ma.m_sharedPrefs, m_ma.m_level, m_ma.m_grid, m_laser);
     }
 
     public void restartLevel() {
@@ -307,12 +296,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             Canvas c = getCanvas();
             try {
                 Thread.sleep(10);
-                m_level.draw(c);
-                for (Line line: m_grid.lines) {
+                m_ma.m_level.draw(c);
+                for (Line line: m_ma.m_grid.lines) {
                     line.shrink(LINE_SPACING);
                 }
-                m_grid.draw(c);
-                m_buttons.draw(c, m_level);
+                m_ma.m_grid.draw(c);
+                m_buttons.draw(c, m_ma.m_level);
             } catch (InterruptedException ignored) {}
             postCanvas(c);
         }
@@ -327,12 +316,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             Canvas c = getCanvas();
             try {
                 Thread.sleep(10);
-                m_level.draw(c);
-                for (Line line: m_grid.lines) {
+                m_ma.m_level.draw(c);
+                for (Line line: m_ma.m_grid.lines) {
                     line.expand(LINE_SPACING);
                 }
-                m_grid.expandDraw(c);
-                m_buttons.draw(c, m_level);
+                m_ma.m_grid.expandDraw(c);
+                m_buttons.draw(c, m_ma.m_level);
             } catch (InterruptedException ignored) {}
             postCanvas(c);
         }

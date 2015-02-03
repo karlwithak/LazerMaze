@@ -10,14 +10,14 @@ import static nkhrynui.ca.uwaterloo.csclub.LazerMaze.util.Utils.*;
 
 public class PowerupManager {
     public int m_selection = 3;
-    private Panel m_panel;
+    private MainPanel m_mp;
     public boolean m_waitForChoice = false;
     private Powerup m_active;
     private static final List<Powerup> VALUES = Collections.unmodifiableList(Arrays.asList(Powerup.values()));
 
-    PowerupManager(Panel panel) {
+    PowerupManager(MainPanel panel) {
         m_active = Powerup.NONE;
-        m_panel = panel;
+        m_mp = panel;
     }
 
     public Powerup get() {
@@ -40,7 +40,7 @@ public class PowerupManager {
         smallText.setColor(Color.WHITE);
         smallText.setTextSize(K.NAV_HEIGHT / 2);
         smallText.setAntiAlias(true);
-        Canvas c = m_panel.getCanvas();
+        Canvas c = m_mp.getCanvas();
         m_waitForChoice = true;
         int option1int = randomBetween(0, VALUES.size() - 1);
         int option2int = differentRandomBetween(0, VALUES.size() - 1, option1int);
@@ -49,8 +49,8 @@ public class PowerupManager {
         Bitmap bitmap1, bitmap2;
         c.drawColor(Color.rgb(16, 16, 16));
         c.drawText("Choose powerup", K.SCREEN_WIDTH / 2, K.NAV_HEIGHT, text);
-        bitmap1 = BitmapFactory.decodeResource(m_panel.getResources(), option1PowerUp.m_bigPic);
-        bitmap2 = BitmapFactory.decodeResource(m_panel.getResources(), option2PowerUp.m_bigPic);
+        bitmap1 = BitmapFactory.decodeResource(m_mp.getResources(), option1PowerUp.m_bigPic);
+        bitmap2 = BitmapFactory.decodeResource(m_mp.getResources(), option2PowerUp.m_bigPic);
 
         c.drawBitmap(bitmap1, null, new Rect(0, K.NAV_HEIGHT * 4,
                     (K.SCREEN_WIDTH / 2), (K.SCREEN_WIDTH / 2) + K.NAV_HEIGHT * 4), null);
@@ -59,7 +59,7 @@ public class PowerupManager {
         c.drawText(option1PowerUp.m_explanation, K.SCREEN_WIDTH / 4, K.NAV_HEIGHT * 3, smallText);
         c.drawText(option2PowerUp.m_explanation, (3 * K.SCREEN_WIDTH / 4), K.NAV_HEIGHT * 3, smallText);
         c.drawLine(K.SCREEN_WIDTH / 2, K.NAV_HEIGHT * 2, K.SCREEN_WIDTH / 2, K.SCREEN_HEIGHT, text);
-        m_panel.postCanvas(c);
+        m_mp.postCanvas(c);
         while (m_selection == 0) {
             try {
                 Thread.sleep(100);

@@ -23,7 +23,7 @@ public enum Special{
     Special(int b) {
         stdSize = K.SPECIAL_WIDTH / 2;
         largeSize = K.SPECIAL_WIDTH;
-        bitmap = BitmapFactory.decodeResource(Panel.m_resources, b);
+        bitmap = BitmapFactory.decodeResource(MainPanel.m_mp.m_resources, b);
     }
 
     public void update(boolean isLauncher, Grid grid) {

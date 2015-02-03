@@ -146,7 +146,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class style {
         /** 
-        Base application theme, dependent on API g_level. This theme is replaced
+        Base application theme, dependent on API m_level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     
 
@@ -168,7 +168,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          */
         public static final int AppBaseTheme=0x7f0a0000;
         /**  Application theme. 
- All customizations that are NOT specific to a particular API-g_level can go here.
+ All customizations that are NOT specific to a particular API-m_level can go here.
          */
         public static final int AppTheme=0x7f0a0001;
         public static final int ButtonBar=0x7f0a0003;
@@ -186,7 +186,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class styleable {
         /** 
          Declare custom theme attributes that allow changing which styles are
-         used for button bars depending on the API g_level.
+         used for button bars depending on the API m_level.
          ?android:attr/buttonBarStyle is new as of API 11 so this is
          necessary to support previous API levels.
     

@@ -8,7 +8,7 @@ public class K {
     public static int SPECIAL_WIDTH;
     public static int SPEED;
 
-    public static void init(Panel panel) {
+    public static void init(MainPanel panel) {
         SCREEN_WIDTH = panel.getWidth();
         SCREEN_HEIGHT = panel.getHeight();
         LINE_SPACING = SCREEN_HEIGHT / 39;

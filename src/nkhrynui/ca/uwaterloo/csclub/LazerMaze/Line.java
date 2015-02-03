@@ -63,7 +63,7 @@ public class Line {
         if (lastLaserx - firstLaserx == 0 || lastLasery - firstLasery == 0 ) {
              return -1;
         }
-        float intersection = findIntersection(this,  firstLaserx,  firstLasery,  lastLaserx,  lastLasery);
+        float intersection = findIntersection(firstLaserx,  firstLasery,  lastLaserx,  lastLasery);
         //basically finds the equation for the laser line, then checks to see if that laser line
         // intersects this line between the start and end points of both lines
         if (horizontal) {
@@ -145,7 +145,7 @@ public class Line {
         else canvas.drawLine(startx, temp1, endx, temp2, paint);
     }
     
-    float findIntersection(Line l1, float firstLaserx, float firstLasery, float lastLaserx, float lastLasery) {
+    float findIntersection(float firstLaserx, float firstLasery, float lastLaserx, float lastLasery) {
         float m = (lastLasery - firstLasery) / (lastLaserx - firstLaserx);
         float b = firstLasery - (m * firstLaserx);
         if (horizontal) {

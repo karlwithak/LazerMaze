@@ -62,6 +62,11 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void soundAndVib() {
+        if (m_v != null) m_v.vibrate(10);
+        if (m_level.score > 0) m_level.score--;
+    }
+
     /****************************************** ON* - START***************************************/
 
     @Override
@@ -70,7 +75,6 @@ public class MainActivity extends Activity {
         Log.i("crashing", "create");
         m_level = new Level();
         m_sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (m_sharedPrefs.getBoolean("vibrate", true)) m_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         m_grid = new Grid();
         m_mp = new MainPanel(this);
         m_powerupMan = new PowerupManager(m_mp);
@@ -94,7 +98,7 @@ public class MainActivity extends Activity {
             } else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             m_level.inPrefs = false;
         }
-        if (m_sharedPrefs.getBoolean("vibrate", true) && m_v == null) {
+        if (m_sharedPrefs.getBoolean("vibrate", true)) {
             m_v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         } else m_v = null;
 

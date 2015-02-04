@@ -79,12 +79,12 @@ public class Physics {
                         coord.x = 2;
                         speed.toggleXDirection();
                         doubleHit = false;
-                        soundAndVib();
+                        m_ma.soundAndVib();
                     } else if (coord.x >= SCREEN_WIDTH - speed.x) {
                         coord.x = SCREEN_WIDTH - 2;
                         speed.toggleXDirection();
                         doubleHit = false;
-                        soundAndVib();
+                        m_ma.soundAndVib();
                     }
                     m_mp.m_laser.startx = coord.x;
                     coord.lastx = coord.x;
@@ -114,12 +114,12 @@ public class Physics {
                         coord.y = NAV_HEIGHT + 2;
                         speed.toggleYDirection();
                         doubleHit = false;
-                        soundAndVib();
+                        m_ma.soundAndVib();
                     } else if ( coord.y >= SCREEN_HEIGHT - NAV_HEIGHT - speed.y) {
                         coord.y =  SCREEN_HEIGHT - NAV_HEIGHT - 2;
                         speed.toggleYDirection();
                         doubleHit = false;
-                        soundAndVib();
+                        m_ma.soundAndVib();
                     }
                     m_mp.m_laser.starty = coord.y;
                     coord.lasty = coord.x;
@@ -129,7 +129,7 @@ public class Physics {
                     continue;
                 }
 
-                soundAndVib();
+                m_ma.soundAndVib();
                 coord.x =(coord.x - speed.x);
                 coord.y =(coord.y - speed.y);
                 float change;
@@ -180,10 +180,5 @@ public class Physics {
                 break;
             }
         }
-    }
-
-    private void soundAndVib() {
-        if (m_ma.m_v != null) m_ma.m_v.vibrate(10);
-        if (m_ma.m_level.score > 0) m_ma.m_level.score--;
     }
 }

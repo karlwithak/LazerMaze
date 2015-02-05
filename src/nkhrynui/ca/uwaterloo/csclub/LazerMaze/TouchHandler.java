@@ -64,10 +64,10 @@ public class TouchHandler {
                     m_mt.selection = "restart";
                     m_ma.m_level.restart = true;
                 }
-                startX = m_mp.m_launcher.x;
-                startY = m_mp.m_launcher.y;
-                m_mp.m_launcher.active = true;
-                if (m_ma.m_powerupMan.get() == PowerupManager.Powerup.TWO_LAUNCHERS) m_mp.m_launcher2.active = false;
+                startX = m_mp.m_launcher.m_x;
+                startY = m_mp.m_launcher.m_y;
+                m_mp.m_launcher.m_active = true;
+                if (m_ma.m_powerupMan.get() == PowerupManager.Powerup.TWO_LAUNCHERS) m_mp.m_launcher2.m_active = false;
                 graphicCount = 1;
             } else if (m_ma.m_powerupMan.get() == PowerupManager.Powerup.TWO_LAUNCHERS
             && m_mp.m_launcher2.bigPointTest(event.getX(), event.getY())) {
@@ -76,10 +76,10 @@ public class TouchHandler {
                     m_mt.selection = "restart";
                     m_ma.m_level.restart = true;
                 }
-                startX = m_mp.m_launcher2.x;
-                startY = m_mp.m_launcher2.y;
-                m_mp.m_launcher2.active = true;
-                m_mp.m_launcher.active = false;
+                startX = m_mp.m_launcher2.m_x;
+                startY = m_mp.m_launcher2.m_y;
+                m_mp.m_launcher2.m_active = true;
+                m_mp.m_launcher.m_active = false;
                 graphicCount = 1;
             } else if ((m_ma.m_powerupMan.get() == PowerupManager.Powerup.LAUNCH_FROM_EITHER
             && m_mp.m_target.bigPointTest(event.getX(), event.getY()))) {
@@ -88,15 +88,15 @@ public class TouchHandler {
                     m_mt.selection = "restart";
                     m_ma.m_level.restart = true;
                 }
-                startX = m_mp.m_target.x;
-                startY = m_mp.m_target.y;
-                m_mp.m_target.x = m_mp.m_launcher.x;
-                m_mp.m_target.y = m_mp.m_launcher.y;
-                m_mp.m_launcher.x = (int) startX;
-                m_mp.m_launcher.y = (int) startY;
-                Bitmap temp = m_mp.m_launcher.bitmap;
-                m_mp.m_launcher.bitmap = m_mp.m_target.bitmap;
-                m_mp.m_target.bitmap = temp;
+                startX = m_mp.m_target.m_x;
+                startY = m_mp.m_target.m_y;
+                m_mp.m_target.m_x = m_mp.m_launcher.m_x;
+                m_mp.m_target.m_y = m_mp.m_launcher.m_y;
+                m_mp.m_launcher.m_x = (int) startX;
+                m_mp.m_launcher.m_y = (int) startY;
+                Bitmap temp = m_mp.m_launcher.m_bitmap;
+                m_mp.m_launcher.m_bitmap = m_mp.m_target.m_bitmap;
+                m_mp.m_target.m_bitmap = temp;
                 graphicCount = 1;
             }
         }
@@ -106,7 +106,7 @@ public class TouchHandler {
         && graphicCount == 1
         && !inAnimation)
         {
-            if (Math.hypot((m_mp.m_launcher.x - event.getX()), (m_mp.m_launcher.y - event.getY())) < K.SPECIAL_WIDTH) {
+            if (Math.hypot((m_mp.m_launcher.m_x - event.getX()), (m_mp.m_launcher.m_y - event.getY())) < K.SPECIAL_WIDTH) {
                 return true;
             }
             Canvas c = m_mp.getCanvas();
@@ -116,18 +116,18 @@ public class TouchHandler {
             Line l = null;
             float intersection = 0;
             float intersectionTemp;
-            float pointx = m_mp.m_launcher.x, pointy = m_mp.m_launcher.y;
-            pointx += (event.getX() - m_mp.m_launcher.x) * 1000;
-            pointy += (event.getY() - m_mp.m_launcher.y) * 1000;
+            float pointx = m_mp.m_launcher.m_x, pointy = m_mp.m_launcher.m_y;
+            pointx += (event.getX() - m_mp.m_launcher.m_x) * 1000;
+            pointy += (event.getY() - m_mp.m_launcher.m_y) * 1000;
             for (Line line : m_ma.m_grid.lines) {
-                intersectionTemp = line.crossed(m_mp.m_launcher.x, m_mp.m_launcher.y, pointx, pointy);
+                intersectionTemp = line.crossed(m_mp.m_launcher.m_x, m_mp.m_launcher.m_y, pointx, pointy);
                 if (intersectionTemp > 0) {
                     if (line.horizontal) {
-                        distance = Math.hypot((m_mp.m_launcher.x - intersectionTemp),
-                        (m_mp.m_launcher.y - line.starty));
+                        distance = Math.hypot((m_mp.m_launcher.m_x - intersectionTemp),
+                        (m_mp.m_launcher.m_y - line.starty));
                     } else {
-                        distance = Math.hypot((m_mp.m_launcher.x - line.startx),
-                        (m_mp.m_launcher.y - intersectionTemp));
+                        distance = Math.hypot((m_mp.m_launcher.m_x - line.startx),
+                        (m_mp.m_launcher.m_y - intersectionTemp));
                     }
                     if (distance < min) {
                         min = distance;
@@ -137,15 +137,15 @@ public class TouchHandler {
                 }
             }
             if (l != null && l.horizontal) {
-                c.drawLine(m_mp.m_launcher.x, m_mp.m_launcher.y, intersection, l.starty, m_mp.m_laser.paint);
+                c.drawLine(m_mp.m_launcher.m_x, m_mp.m_launcher.m_y, intersection, l.starty, m_mp.m_laser.paint);
             } else if (l != null) {
-                c.drawLine(m_mp.m_launcher.x, m_mp.m_launcher.y, l.startx, intersection, m_mp.m_laser.paint);
+                c.drawLine(m_mp.m_launcher.m_x, m_mp.m_launcher.m_y, l.startx, intersection, m_mp.m_laser.paint);
             }
             m_mp.m_laser.draw(c);
             m_ma.m_grid.draw(c);
             m_mp.m_buttons.draw(c, m_ma.m_level);
-            m_mp.m_launcher.draw(c, false);
-            m_mp.m_target.draw(c, false);
+            m_mp.m_launcher.draw(c);
+            m_mp.m_target.draw(c);
             m_mp.postCanvas(c);
         }
         //launches laser
@@ -176,7 +176,7 @@ public class TouchHandler {
             }
             graphicCount = 0;
             if (m_ma.m_level.restart) {
-                if (m_ma.m_powerupMan.get() != PowerupManager.Powerup.TWO_LAUNCHERS || m_mp.m_launcher.active) m_mp.m_laser.reset(m_mp.m_launcher);
+                if (m_ma.m_powerupMan.get() != PowerupManager.Powerup.TWO_LAUNCHERS || m_mp.m_launcher.m_active) m_mp.m_laser.reset(m_mp.m_launcher);
                 else m_mp.m_laser.reset(m_mp.m_launcher2);
                 m_mt.setRunning(true);
             } else {

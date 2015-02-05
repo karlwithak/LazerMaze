@@ -91,7 +91,7 @@ public class PowerupManager {
         AIMING_LASER("Aiming Lazer", R.drawable.aiminglasersmall, R.drawable.aiminglaser),
         WRAP_AROUND_SIDES("No Sides", R.drawable.wraparoundsidessmall, R.drawable.wraparoundsides),
         WRAP_AROUND_ENDS("No Ends", R.drawable.wraparoundendssmall, R.drawable.wraparoundends),
-        BIG_TARGETS("Big Target", R.drawable.largetargetsmall, R.drawable.largetarget),
+        BIG_TARGET("Big Target", R.drawable.largetargetsmall, R.drawable.largetarget),
         NONE("", 0, 0);
 
         String m_explanation;

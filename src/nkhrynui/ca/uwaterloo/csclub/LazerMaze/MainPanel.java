@@ -89,8 +89,8 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
     
     public void nextLevel() {
         m_buttons.updatePowerup();
-        m_target.update(false, m_ma.m_grid);
-        m_launcher.update(true, m_ma.m_grid);
+        m_target.update(false, m_ma.m_grid, m_ma.m_powerupMan.get() == Powerup.BIG_TARGET);
+        m_launcher.update(true, m_ma.m_grid, false);
         if (m_ma.m_powerupMan.get() == Powerup.TWO_TARGETS) {
             m_target2.update2(false, m_ma.m_grid);
         }
@@ -103,14 +103,12 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
         Canvas canvas = getCanvas();
         m_ma.m_level.draw(canvas);
         m_laser.draw(canvas);
-        if (m_ma.m_powerupMan.get() == Powerup.BIG_TARGETS) {
-            m_target.draw(canvas, true);
-        } else if (m_ma.m_level.num != 0) {
-            m_target.draw(canvas, false);
+        if (m_ma.m_level.num != 0) {
+            m_target.draw(canvas);
+            m_launcher.draw(canvas);
         }
-        if (m_ma.m_powerupMan.get() == Powerup.TWO_TARGETS) m_target2.draw(canvas, false);
-        m_launcher.draw(canvas, false);
-        if (m_ma.m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.draw(canvas, false);
+        if (m_ma.m_powerupMan.get() == Powerup.TWO_TARGETS) m_target2.draw(canvas);
+        if (m_ma.m_powerupMan.get() == Powerup.TWO_LAUNCHERS) m_launcher2.draw(canvas);
         m_ma.m_grid.draw(canvas);
         m_buttons.draw(canvas, m_ma.m_level);
         postCanvas(canvas);

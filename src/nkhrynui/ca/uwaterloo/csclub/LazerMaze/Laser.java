@@ -37,14 +37,14 @@ public class Laser {
 
     void reset(Special launcher) {
         pts.clear();
-        Log.i("powerup", Integer.toString(launcher.x));
-        pts.add((float) launcher.x);
-        pts.add((float) launcher.y);
-        pts.add((float) launcher.x);
-        pts.add((float) launcher.y);
+        Log.i("powerup", Integer.toString(launcher.m_x));
+        pts.add((float) launcher.m_x);
+        pts.add((float) launcher.m_y);
+        pts.add((float) launcher.m_x);
+        pts.add((float) launcher.m_y);
         oldSave = 0;
-        startx = launcher.x;
-        starty = launcher.y;
+        startx = launcher.m_x;
+        starty = launcher.m_y;
     }
 
     void bounce() {

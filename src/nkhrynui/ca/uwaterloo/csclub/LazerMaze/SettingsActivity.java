@@ -2,6 +2,7 @@ package nkhrynui.ca.uwaterloo.csclub.LazerMaze;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -18,6 +19,16 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
     }
+
+    public static class MyPreferenceFragment extends PreferenceFragment
+        {
+            @Override
+            public void onCreate(final Bundle savedInstanceState)
+            {
+                super.onCreate(savedInstanceState);
+                addPreferencesFromResource(R.xml.preferences);
+            }
+        }
 }

@@ -10,7 +10,7 @@
         android:title="@string/pref_vibrate_title"
         android:summary="@string/pref_vibrate_summary"
         android:defaultValue="true" /> 
-        <CheckBoxPreference
+    <CheckBoxPreference
         android:key="screenOn"
         android:title="@string/pref_screenOn_title"
         android:summary="@string/pref_screenOn_summary"

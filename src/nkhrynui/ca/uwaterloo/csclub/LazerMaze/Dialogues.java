@@ -42,8 +42,11 @@ public class Dialogues {
     }
 
     public void restartDialog(final int level) {
+        int score = m_sharedPrefs.getInt("highScore", 0);
+        score = (score > level ? score : level);
         new AlertDialog.Builder(m_context)
-                .setMessage("Are you sure you want to restart at level 1?")
+                .setMessage("You are currently at level: " + level + "\nYour highscore is: " + score +
+                            "\nAre you sure you want to restart at level 1?")
                 .setTitle("New Game")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

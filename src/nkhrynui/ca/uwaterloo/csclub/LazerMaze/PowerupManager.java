@@ -103,7 +103,5 @@ public class PowerupManager {
             m_smallPic = smallPic;
             m_bigPic = bigPic;
         }
-
-
     }
 }

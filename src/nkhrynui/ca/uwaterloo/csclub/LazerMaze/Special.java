@@ -17,7 +17,8 @@ public enum Special{
 
     Bitmap m_bitmap;
     boolean m_active = false;
-    int m_y, m_x, m_size;
+    int m_y, m_x;
+    int m_size = K.SPECIAL_WIDTH / 2;
 
     Special(int b) {
         m_bitmap = BitmapFactory.decodeResource(MainPanel.m_mp.m_resources, b);
@@ -77,13 +78,11 @@ public enum Special{
         double y2 = Math.abs(y1 - m_y);
         double distance = Math.sqrt((x2 * x2) + (y2 * y2));
         return distance < m_size;
-
     }
 
     void draw(Canvas canvas) {
         Rect rect = new Rect(m_x - m_size, m_y - m_size, m_x + m_size, m_y + m_size);
         canvas.drawBitmap(m_bitmap, null, rect, null);
-
     }
 
     private boolean tooEasy(Special target, ArrayList<Line> lines) {
